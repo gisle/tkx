@@ -1,7 +1,11 @@
 package yTk::LabEntry;
 
-use base 'yTk::widget';
+use base qw(yTk::widget yTk::MegaConfig);
+
 __PACKAGE__->_Mega("ytk_LabEntry");
+__PACKAGE__->_Config(
+    -label  => [[".lab" => "-text"]],
+);
 
 sub _Populate {
     my($class, $widget, $path, %opt) = @_;
@@ -18,22 +22,6 @@ sub _Populate {
 sub _ipath {
     my $self = shift;
     "$self.e";
-}
-
-sub i_configure {
-    my($self, %opt) = @_;
-    if (exists $opt{-label}) {
-	$self->_kid("lab")->i_configure(-text => delete $opt{-label});
-    }
-    return $self->SUPER::i_configure(%opt) if %opt;
-}
-
-sub i_cget {
-    my($self, $opt) = @_;
-    if ($opt eq "-label") {
-	return $self->_kid("lab")->i_cget("-text");
-    }
-    return $self->SUPER::i_cget($opt);
 }
 
 1;
