@@ -21,7 +21,7 @@ sub AUTOLOAD {
 }
 
 sub MainLoop {
-    while (yTk::i::call("winfo", "exists", ".")) {
+    while (eval { yTk::i::call("winfo", "exists", ".") }) {
 	yTk::i::DoOneEvent(0);
     }
 }
