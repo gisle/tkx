@@ -181,7 +181,17 @@ sub call {
 	else {
 	    $ts = time - $trace_start_time;
 	}
-	print STDERR join(" ", "yTk-$trace_count-$ts:", @_) . "\n";
+	my($cmd, @args) = @_;
+	for (@args) {
+	    next unless ref;
+	    if (ref eq "CODE" || ref eq "ARRAY" && ref($_->[0]) eq "CODE") {
+		$_ = "perl::callback";
+	    }
+	    else {
+		$_ = $interp->call("format", "{%s}", $_);
+	    }
+	}
+	print STDERR join(" ", "yTk-$trace_count-$ts:", $cmd, @args) . "\n";
     }
     my @cleanup;
     if ($_[0] eq "destroy") {
