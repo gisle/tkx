@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 11;
+plan tests => 13;
 
 use yTk qw(expr list lindex error);
 
