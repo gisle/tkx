@@ -10,7 +10,7 @@ our $VERSION = '0.01';
 }
 
 package_require("Tk");
-our $MW = yTk::widget::->_new(".");
+our $MW = yTk::widget::->new(".");
 our $TRACE;
 $TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
 
@@ -37,7 +37,7 @@ my %count;
 my %data;
 my %class;
 
-sub _new {
+sub new {
     my $class = shift;
     my $name = shift;
     return bless \$name, $class{$name} ||
@@ -45,37 +45,9 @@ sub _new {
                                                   ($class{$name} = $class));
 }
 
-sub _data {
+sub data {
     my $self = shift;
     return $data{$$self} ||= {};
-}
-
-my @method_re_map;
-my %method_map;
-
-sub _MapMethod {
-    my($from, $to) = @_;
-    if (ref($from) eq "Regexp") {
-	push(@method_re_map, [$from, $to]);
-    }
-    else {
-	$method_map{$from} = $to;
-    }
-}
-
-sub _method {
-    my(undef, $method) = @_;  # ignore self
-    return $method_map{$method} if exists $method_map{$method};
-    for (@method_re_map) {
-	my($re, $replacement) = @$_;
-	if ($method =~ $re) {
-	    my $orig_method = $method;
-	    substr($method, $-[0], $+[0] - $-[0]) = $replacement;
-	    $method_map{$orig_method} = $method;  # faster lookup next time
-	    last;
-	}
-    }
-    return $method;
 }
 
 sub AUTOLOAD {
@@ -83,41 +55,33 @@ sub AUTOLOAD {
 
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    my $orig = $method;
+    my $prefix = substr($method, 0, 2);
 
-    $method = $self->_method($method) unless substr($method, 0, 1) eq "_";
-
-    if (substr($method, 0, 1) eq "_") {
-	my $kind = substr($method, 0, 3, "");
-	my @m_args;
-	($method, @m_args) = yTk::i::expand_name($method);
-	if ($kind eq "_n_") {
-	    my $n = lc($method) . ++$count{lc($method)};
-	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
-	    return ref($self)->_new(yTk::i::call($method, $n, @m_args, @_));
+    if ($prefix eq "n_") {
+	my $widget = yTk::i::expand_name(substr($method, 2));
+	my $name = lc($widget) . ++$count{lc($widget)};
+	while ((my $i = index($name, "::")) >= 0) {
+	    substr($name, $i, 2) = "_";
 	}
-	elsif ($kind eq "_i_") {
-	    return yTk::i::call($$self, $method, @m_args, @_);
-	}
-	elsif ($kind eq "_e_") {
-	    return yTk::i::call($method, @m_args, $$self, @_);
-	}
-	elsif ($kind eq "_d_" || $kind eq "_p_") {
-	    return yTk::i::call($method, @m_args,
-				($kind eq "_d_" ? "-displayof" : "-parent"), $$self,
-				@_);
-	}
-	elsif ($kind eq "_t_") {
-	    return yTk::i::call($method, @m_args, @_);
-	}
+	substr($name, 0, 0) = ($$self eq "." ? "." : "$$self.");
+	return ref($self)->new(yTk::i::call($widget, $name, @_));
     }
-    die "Can't locate method '$orig' for " . ref($self);
+
+    if ($prefix eq "e_") {
+        return yTk::i::call(yTk::i::expand_name(substr($method, 2)), $$self, @_);
+    }
+
+    if (substr($prefix, 1, 1) eq "_") {
+	require Carp;
+	Carp::croak("method '$method' reserved by yTk");
+    }
+
+    $method = substr($method, 2) if $prefix eq "i_";
+    return yTk::i::call($$self, yTk::i::expand_name($method), @_);
 }
 
-sub DESTROY {
-    my $self = shift;
-    print "DESTROY widget handle for $$self\n";
-}
+sub DESTROY {}  # avoid AUTOLOADing it
+
 
 package yTk::widget::_destroy;
 
@@ -161,12 +125,13 @@ BEGIN {
 
 sub expand_name {
     my(@f) = (shift);
-    @f = split(/(?<!_)_(?!_)/, $f[0]);
+    @f = split(/(?<!_)_(?!_)/, $f[0]) if wantarray;
     for (@f) {
 	s/(?<!_)__(?!_)/::/g;
 	s/(?<!_)___(?!_)/_/g;
     }
-    @f;
+    splice(@f, 0, 2, "$f[0]_$f[1]") if @f >= 2 && $f[0] eq "tk";  # tk_foo kept as is
+    wantarray ? @f : $f[0];
 }
 
 sub call {
@@ -213,10 +178,10 @@ yTk - Yet another Tk interface
 =head1 SYNOPSIS
 
   use yTk;
-  $yTk::MW->_n_button(
+  $yTk::MW->n_button(
        -text => "Hello, world",
        -command => sub { $yTk::MW->_e_destroy; },
-  )->_e_pack;
+  )->e_pack;
   yTk::MainLoop();
 
 =head1 DESCRIPTION
@@ -248,6 +213,7 @@ The name I<foo> is first undergo the following substitutions of
 embedded underlines:
 
     foo_bar  -->  "foo", "bar"
+    tk_bar   -->  "tk_bar"       # don't expand a "tk_" prefix
     foo__bar -->  "foo::bar"
     foo___bar --> "foo_bar"
 
@@ -257,13 +223,6 @@ Examples:
     yTk::expr("3 + 3");
     yTk::package_require("BWidget");
     yTk::DynamicHelp__add(".", -text => "Hi there");
-
-The tripple underscore makes it it a bit hard to invoke the Tcl
-commands prefixed with "tk_", but since there is also a "tk"
-subcommand it is probably not worth it to make a special rule for
-them.  For many of them widget handle method mapping can be used to
-avoid the inconvenience.  Alternativly you might use the yTk::i::call
-API to invoke these.
 
 The arguments passed can be plain scalars or array references which
 are converted to Tcl lists.  The arrays can contain other array
@@ -282,7 +241,7 @@ fill in Tcl provided info as arguments.  Eg:
 
 This will invoke the $foo function without doing any magic
 substitutions on its name.
-   
+
 =back
 
 The following variables are provided by the yTk namespace:
@@ -316,41 +275,45 @@ The following methods are provided:
 
 =over
 
-=item $w = yTk::widget->_new( $path )
+=item $w = yTk::widget->new( $path )
 
 This constructs a new widget handle for a given path.  It is not a
 problem to have multiple handle objects to the same path.
 
-=item $w->_data
+=item $w->data
 
 Returns a hash that can be used to keep instance specific data.
 Hopefully useful for implementing mega-widgets.  The data is
 automatically destroyed when the corresponding widget is destroyed.
 
-=item $w2 = $w->_n_I<foo>( @args )
+=item $new_w = $w->n_I<foo>( @args )
 
 This creates a new I<foo> widget as a child of the current widget.  It
 will call the I<foo> Tcl command and pass it a new unique subpath of
 the current path.  The handle to the new widget is returned.
-
 Any underscores in the name I<foo> is expanded as described for
-yTk::foo() above.  Example:
+yTk::foo() above.
 
-    $w->_n_label(-text => "Hello", -relief => "sunken");
+Example:
 
-=item $w->_i_I<foo>( @args )
+    $w->n_label(-text => "Hello", -relief => "sunken");
+
+=item $w->i_I<foo>( @args )
 
 This will invoke the I<foo> subcommand for the current widget.  This
 is the same as:
 
     $func = "yTk::$w";
-    &$func("foo", @args);
+    &$func(expand("foo"), @args);
+
+where the expand() function expands underscores as described for
+yTk::foo() above.
 
 Example:
 
-    $w->_i_configure(-background => "red");
+    $w->i_configure(-background => "red");
 
-=item $w->_e_I<foo>( @args )
+=item $w->e_I<foo>( @args )
 
 This will invoke the I<foo> command with the current widget as first
 argument.  This is the same as:
@@ -360,74 +323,16 @@ argument.  This is the same as:
 
 Example:
 
-    $w->_e_pack_forget;
+    $w->e_pack_forget;
 
-=item $w->_d_I<foo>( @args )
+=item $w->I<foo>( @args )
 
-This will invoke the I<foo> subcommand with C<<-displayof => $w>> as
-argument.  This is the same as:
+If there is no prefix of the form /^[a-zA-Z]_/, then it is treated as
+if it had the "i_" prefix, i.e. the I<foo> subcommand for the current
+widget is invoked.
 
-    $func = "yTk::foo";
-    &$func(-displayof => $w, @args);
-
-Example:
-
-    $w->_d_bell;
-
-=item $w->_p_I<foo>( @args )
-
-This will invoke the I<foo> subcommand with C<<-parent => $w>> as
-argument.  This is the same as:
-
-    $func = "yTk::foo";
-    &$func(-parent => $w, @args);
-
-Example:
-
-    $w->_p_tk___getOpenFile;
-
-=item $w->_t_I<foo>( @args )
-
-This will invoke the I<foo> subcommand with the given arguments.  The
-current widget is not passed as argument.  This is the same as:
-
-    $func = "yTk::foo";
-    &$func(@args);
-
-Example:
-
-    $w->_t_image_create_photo(-file => "donkey.png");
-
-Usually it would be better to just do:
-
-    yTk::image_create_photo(-file => "donkey.png");
-
-directly, but the _t_ form can be useful to emulate some of the Tk
-APIs by mapping certain method names to the C<_t_> form.
-
-=back
-
-The following functions are provided by the yTk::widget namespace:
-
-=over
-
-=item yTk::widget::_MapMethod( $from, $to )
-
-This allow the application to set up shotcuts for widget handle
-methods that don't start with underscore.  The $from argumement might
-be a plain string or a Regexp object.  If this method is called then
-it is resolved as if the method $to was called instead.  If from is a
-Regexp object only the part of the method name that mached $from is
-replaced with $to.
-
-Examples:
-
-    yTk::widget::_MapMethod("new_button", "_n_button");
-    yTk::widget::_MapMethod("pack", "_e_pack");
-    yTk::widget::_MapMethod(qr/^winfo_/, "_e_winfo_");
-    yTk::widget::_MapMethod("cset", "_i_configure");
-    yTk::widget::_MapMethod("cget", "_i_cget");
-    yTk::widget::_MapMethod("get_open_file", "_p_tk___getOpenFile");
+The method names with prefix /^[a-zA-Z]_/ are reserved for future
+extensions to this API.
 
 =back
 
