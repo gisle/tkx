@@ -445,25 +445,32 @@ L</Meta widgets>.
 
 Returns a hash that can be used to keep instance specific data.  This
 is useful for holding instance data for mega widgets.  The data is
-automatically destroyed when the corresponding widget is destroyed.
+attached to the underlying widget, so if you create another handle to
+the same widget it will return the same hash via its _data() method.
+
+The data hash is automatically destroyed when the corresponding widget
+is destroyed.
 
 =item $w->_parent
 
 Returns a handle for the parent widget.  Returns C<undef> if there is
-no parent, i.e. $w is the root.
+no parent, i.e. $w is the main window (root).
 
 =item $w->_kid( $name )
 
-Returns a handle for a kid widget with the given name.  The $name
-should not contain any dots.
+Returns a handle for a kid widget with the given name.  The $name can
+contain dots to access grandkids.  There is no check that a kid with
+the given name actually exists, so this method can't fail.  This is a
+feature.
 
 =item $w->_class( $class )
 
-Set widget handle class for the current path.  This will both change
-the class of the current handle and make sure later handles created
-for the path have belong to the given class.  The class should
+Sets the widget handle class for the current path.  This will both
+change the class of the current handle and make sure later handles
+created for the path belong to the given class.  The class should
 normally be a subclass of C<yTk::widget>.  Overriding the class for a
-path is useful for implementing mega widgets.
+path is useful for implementing mega widgets.  Kids of $w are not
+affected by this.
 
 =item $w->_nclass
 
@@ -474,8 +481,8 @@ The default implementation always returns C<yTk::widget>.
 =item $w->_ipath( $method )
 
 This returns a Tcl widget path that will be used to forward any
-i_I<foo> method calls.  Mega widgets might want to override this
-method.  The default implementation returns C<$w>.
+i_I<foo> method calls.  Mega widget classes might want to override
+this method.  The default implementation returns C<$w>.
 
 =item $new_w = $w->n_I<foo>( @args )
 
