@@ -7,6 +7,8 @@ plan tests => 10;
 
 use yTk;
 
+my $delay = shift || 1;
+
 my $mw = yTk::widget->new(".");
 $mw->configure(-border => 10);
 
@@ -43,7 +45,7 @@ ok(ref($b->_data), "HASH");
 $b->_data->{foo} = "bar";
 ok($b->_data->{foo}, "bar");
 
-yTk::after(3000, sub {
+yTk::after($delay * 1000, sub {
     ok($b->e_winfo_ismapped);
     $mw->e_destroy;
 });
