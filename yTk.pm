@@ -9,11 +9,11 @@ our $MW = yTk::widget::->_new(".");
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    return yTk::i::call($method, @_);
+    return yTk::i::call(yTk::i::expand_name($method), @_);
 }
 
 sub MainLoop {
-    while (winfo_exists(".")) {
+    while (yTk::i::call("winfo", "exists", ".")) {
 	yTk::i::DoOneEvent(0);
     }
 }
@@ -44,10 +44,23 @@ sub AUTOLOAD {
 	    my $m = "yTk::$method";
 	    return ref($self)->_new(&$m($n, @_));
 	}
+	elsif ($kind eq "_i_") {
+	    return yTk::i::call($$self, yTk::i::expand_name($method), @_);
+	}
 	elsif ($kind eq "_e_") {
 	    no strict 'refs';
 	    my $m = "yTk::$method";
 	    return &$m($$self, @_);
+	}
+	elsif ($kind eq "_d_" || $kind eq "_p_") {
+	    no strict 'refs';
+	    my $m = "yTk::$method";
+	    return &$m(($kind eq "_d_" ? "-displayof" : "-parent"), $$self, @_);
+	}
+	elsif ($kind eq "_t_") {
+	    no strict 'refs';
+	    my $m = "yTk::$method";
+	    return &$m(@_);
 	}
 	$method = "$kind$method";
     }
@@ -72,18 +85,22 @@ BEGIN {
     $interp->Init;
 }
 
-sub call {
+sub expand_name {
     my(@f) = (shift);
     @f = split(/(?<!_)_(?!_)/, $f[0]);
     for (@f) {
 	s/(?<!_)__(?!_)/::/g;
 	s/(?<!_)___(?!_)/_/g;
     }
+    @f;
+}
+
+sub call {
     if ($TRACE) {
 	$trace_count++;
-	print STDERR join(" ", "yTk-$trace_count:", @f, @_) . "\n";
+	print STDERR join(" ", "yTk-$trace_count:", @_) . "\n";
     }
-    return $interp->call(@f, @_);
+    return $interp->call(@_);
 }
 
 sub DoOneEvent {
