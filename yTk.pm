@@ -53,7 +53,10 @@ sub MainLoop () {
 
 sub SplitList ($) {
     my $list = shift;
-    return $list unless wantarray;
+    unless (wantarray) {
+	require Carp;
+	Carp::croak("yTk::SplitList needs list context");
+    }
     return @$list if ref($list) eq "ARRAY" || ref($list) eq "Tcl::List";
     return yTk::i::call("concat", $list);
 }
@@ -357,8 +360,8 @@ of the list are returned as separate elements:
 
     @a = yTk::SplitList(yTk::set("a"));
 
-This function might croak if the argument is not a well formed list.
-In scalar context this function is a no-op and it returns $list unchanged.
+This function might croak if the argument is not a well formed list or if
+it is called in scalar context.
 
 =item yTk::I<foo>( @args )
 

@@ -27,7 +27,9 @@ my @list = yTk::SplitList("a b");
 ok(@list, 2);
 ok($list[0], "a");
 ok($list[1], "b");
-ok(yTk::SplitList("a b"), "a b");
+
+eval { $list = yTk::SplitList("a b") };
+ok($@ && $@ =~ /^yTk::SplitList needs list context/);
 
 eval { @list = yTk::SplitList("a {") };
 #print "# '$@'\n";
