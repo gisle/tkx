@@ -57,7 +57,7 @@ BEGIN {
 	$self;
     }
 
-    sub _i {
+    sub _ipath {
 	my $self = shift;
 	"$self.lab";  # delegate
     }

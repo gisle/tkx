@@ -110,7 +110,7 @@ sub _nclass {
     __PACKAGE__;
 }
 
-sub _i {
+sub _ipath {
     my $self = shift;
     $$self;
 }
@@ -145,7 +145,8 @@ sub AUTOLOAD {
     }
 
     if ($prefix eq "i_") {
-	return yTk::i::call($self->_i, yTk::i::expand_name(substr($method, 2)), @_);
+	my @i = yTk::i::expand_name(substr($method, 2));
+	return yTk::i::call($self->_ipath($i[0]), @i, @_);
     }
     elsif (index($prefix, "_") != -1) {
 	require Carp;
