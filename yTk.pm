@@ -11,6 +11,8 @@ our $VERSION = '0.01';
 
 package_require("Tk");
 our $MW = yTk::widget::->_new(".");
+our $TRACE;
+$TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
 
 sub AUTOLOAD {
     our $AUTOLOAD;
@@ -145,7 +147,6 @@ package yTk::i;
 use Tcl;
 
 my $interp;
-my $TRACE = 0;
 my $trace_count = 0;
 
 BEGIN {
@@ -164,7 +165,7 @@ sub expand_name {
 }
 
 sub call {
-    if ($TRACE) {
+    if ($yTk::TRACE) {
 	$trace_count++;
 	print STDERR join(" ", "yTk-$trace_count:", @_) . "\n";
     }
