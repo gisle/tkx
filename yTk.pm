@@ -65,9 +65,7 @@ sub _method {
     for (@method_re_map) {
 	my($re, $replacement) = @$_;
 	if ($method =~ $re) {
-	    print "MATCH [$method] [@-] [@+]\n";
 	    substr($method, $-[0], $+[0] - $-[0]) = $replacement;
-	    print "   --- $method\n";
 	    last;
 	}
     }
