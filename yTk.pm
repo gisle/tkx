@@ -148,6 +148,7 @@ use Tcl;
 
 my $interp;
 my $trace_count = 0;
+my $trace_start_time = 0;
 
 BEGIN {
     $interp = Tcl->new;
@@ -167,7 +168,22 @@ sub expand_name {
 sub call {
     if ($yTk::TRACE) {
 	$trace_count++;
-	print STDERR join(" ", "yTk-$trace_count:", @_) . "\n";
+	unless ($trace_start_time) {
+	    if (eval { require Time::HiRes }) {
+		$trace_start_time = Time::HiRes::time();
+	    }
+	    else {
+		$trace_start_time = time;
+	    }
+	}
+	my $ts;
+	if (defined &Time::HiRes::time) {
+	    $ts = sprintf "%.1f", Time::HiRes::time() - $trace_start_time;
+	}
+	else {
+	    $ts = time - $trace_start_time;
+	}
+	print STDERR join(" ", "yTk-$trace_count-$ts:", @_) . "\n";
     }
     my @cleanup;
     if ($_[0] eq "destroy") {
