@@ -337,10 +337,11 @@ variable is initialized from the C<PERL_YTK_TRACE> environment
 variable.  The trace is useful for debugging and if you need to report
 errors to the Tcl maintainers.  The trace lines are prefixed with:
 
-    yTk-$seq-$ts:
+    yTk-$seq-$ts-$file-$line:
 
-where $seq is a sequence number and $ts is a timestamp in seconds
-since the first command was issued.
+where $seq is a sequence number, $ts is a timestamp in seconds since
+the first command was issued, and $file and $line indicate on which
+source line this call was triggered.
 
 =back
 
