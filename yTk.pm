@@ -34,14 +34,11 @@ use overload '""' => sub { ${$_[0]} },
              fallback => 1;
 
 my %data;
-my %class;
 
 sub new {
     my $class = shift;
     my $name = shift;
-    return bless \$name, $class{$name} ||
-	                 ($class eq __PACKAGE__ ? $class :
-                                                  ($class{$name} = $class));
+    return bless \$name, $class;
 }
 
 sub _data {
@@ -99,16 +96,13 @@ sub DESTROY {
     for my $path (@$self) {
 	if ($path eq ".") {
 	    %data = ();
-	    %class = ();
 	    return;
 	}
 
 	my $path_re = qr/^\Q$path\E(?:\.|\z)/;
-	for my $hash (\%data, \%class) {
-	    for my $key (keys %$hash) {
-		next unless $key =~ $path_re;
-		delete $hash->{$key};
-	    }
+	for my $key (keys %data) {
+	    next unless $key =~ $path_re;
+	    delete $data{$key};
 	}
     }
 }
