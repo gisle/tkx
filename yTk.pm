@@ -14,6 +14,21 @@ package_require("Tk");
 our $TRACE;
 $TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
 
+sub import {
+    my($class, @subs) = @_;
+    my $pkg = caller;
+    for (@subs) {
+	s/^&//;
+	if (/^[a-zA-Z]\w*/ && $_ ne "import") {
+	    no strict 'refs';
+	    *{"$pkg\::$_"} = \&$_;
+	}
+	else {
+	    die qq("$_" is not exported by the $class module);
+	}
+    }
+}
+
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
@@ -270,6 +285,15 @@ variable is initialized from the C<PERL_YTK_TRACE> environment
 variable.
 
 =back
+
+All these functions can be exported by yTk if you grow tired of typing
+the C<yTk::> prefix.  Example:
+
+    use strict;
+    use yTk qw(MainLoop button pack destroy);
+
+    pack(button(".b", -text => "Press me!", -command => [\&destroy, "."]));
+    MainLoop;
 
 =head2 Widget handles
 
