@@ -3,6 +3,12 @@ package yTk;
 use strict;
 our $VERSION = '0.01';
 
+{
+    # predeclare
+    package yTk::widget;
+    package yTk::i;
+}
+
 package_require("Tk");
 our $MW = yTk::widget::->_new(".");
 
@@ -23,12 +29,19 @@ package yTk::widget;
 use overload '""' => sub { ${$_[0]} },
              fallback => 1;
 
-my %c;
+my %count;
+my %data;
+my %class;
 
 sub _new {
     my $class = shift;
     my $name = shift;
-    bless \$name, $class;
+    return bless \$name, $class{$name} || ($class eq __PACKAGE__ ? $class : ($class{$name} = $class));
+}
+
+sub _data {
+    my $self = shift;
+    return $data{$$self} ||= {};
 }
 
 sub AUTOLOAD {
@@ -38,7 +51,7 @@ sub AUTOLOAD {
     if (substr($method, 0, 1) eq "_") {
 	my $kind = substr($method, 0, 3, "");
 	if ($kind eq "_n_") {
-	    my $n = $method . ++$c{$method};
+	    my $n = $method . ++$count{$method};
 	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
 	    no strict 'refs';
 	    my $m = "yTk::$method";
@@ -77,7 +90,7 @@ package yTk::i;
 use Tcl;
 
 my $interp;
-my $TRACE = 1;
+my $TRACE = 0;
 my $trace_count = 0;
 
 BEGIN {
