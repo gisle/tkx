@@ -469,6 +469,11 @@ sub Ev {
 }
 
 
+package Tcl::List;
+
+use overload '""' => \&as_string,
+             fallback => 1;
+
 package Tcl::Var;
 
 sub TIESCALAR {
