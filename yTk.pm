@@ -200,16 +200,22 @@ yTk - Yet another Tk interface
 
 =head1 DESCRIPTION
 
-The yTk module provide yet another Tk interface.  The main idea behind
-yTk is that it should only be a thin wrapper on top of Tcl.  The
-following functions are provided by the yTk namespace:
+The C<yTk> module provide yet another Tk interface for Perl.  Tk is a
+GUI toolkit tied to the Tcl language, and C<yTk> provide a bridge to
+Tcl that allows Tk based applications to be written in Perl.
+
+The main idea behind yTk is that it should only be a thin wrapper on
+top of Tcl, i.e. that what you get is exactly what you read in the
+Tcl/Tk docs.
+
+The following functions are provided:
 
 =over
 
 =item yTk::MainLoop( )
 
 This will enter the Tk mainloop and start processing events.  The
-function returns when the main window has been destoryed.  There is no
+function returns when the main window has been destroyed.  There is no
 return value.
 
 =item yTk::Ev( $field )
@@ -227,13 +233,13 @@ The name I<foo> first undergo the following substitutions of
 embedded underlines:
 
     foo_bar  -->  "foo", "bar"   # break into words
-    tk_bar   -->  "tk_bar"       # don't expand a "tk_" prefix
+    tk_bar   -->  "tk_bar"       # but don't expand a "tk_" prefix
     foo__bar -->  "foo::bar"
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
 This allow us conveniently to map most of the Tcl namespace to perl.
-For the rest call yTk::i::call($foo, @args).  This will invoke the
-given function with no substitutions.
+If this mapping does not suit you use yTk::i::call($foo, @args); this
+will invoke the given function with no substitutions.
 
 Examples:
 
@@ -241,9 +247,9 @@ Examples:
     yTk::package_require("BWidget");
     yTk::DynamicHelp__add(".", -text => "Hi there");
 
-The arguments passed can be plain scalars or array references which
-are converted to Tcl lists.  The arrays can contain other array
-references or plain scalars to form nested lists.
+The arguments passed can be plain scalars or array references.  Array
+references are converted to Tcl lists.  The arrays can contain other
+array references or plain scalars to form nested lists.
 
 For Tcl APIs that require callbacks you can pass a reference to a
 perl function.  Alternatively an array reference with a code
@@ -254,7 +260,11 @@ fill in Tcl provided info as arguments.  Eg:
     yTk::after(3000, sub { print "Hi" });
     yTk::bind(".", "<Key>", [sub { print "$_[0]\n"; }, yTk::Ev("%A")]);
 
-If the boolean variable $yTk::TRACE is set to a true value, then we a
+In scalar context the Tcl string result is returned.  In array context
+the return value is interpreted as a list and broken up before it is
+returned to Perl.  Tcl errors are propagated as Perl exceptions.
+
+If the boolean variable $yTk::TRACE is set to a true value, then a
 trace of all commands passed to Tcl will be printed on STDERR.  This
 variable is initialized from the C<PERL_YTK_TRACE> environment
 variable.
@@ -293,10 +303,11 @@ Example:
 
     $w->n_label(-text => "Hello", -relief => "sunken");
 
-The name selected for the child will be the first letter in the widget
-followed by a number to ensure uniqeness among the childen.  If a
-C<-name> argument is passed it is used to form the name and then
-removed from the arglist passed to Tcl.  Example:
+The name selected for the child will be the first letter in the
+widget.  If that name is not unique a number is appended to ensure
+uniqueness among the children.  If a C<-name> argument is passed it is
+used to form the name and then removed from the arglist passed to Tcl.
+Example:
 
     $w->n_iwidgets_calendar(-name => "cal");
 
@@ -309,7 +320,8 @@ is the same as:
     &$func(expand("foo"), @args);
 
 where the expand() function expands underscores as described for
-yTk::foo() above.
+yTk::foo() above.  Note that methods that do not start with a prefix
+of the form /^[a-zA-Z]_/ are also treated as the C<i_> methods.
 
 Example:
 
@@ -346,3 +358,4 @@ The C<PERL_YTK_TRACE> environment variable initialize the $yTk::TRACE setting.
 
 L<Tcl>, L<Tcl::Tk>, L<Tk>
 
+L<http://www.tcl.tk/>
