@@ -1,0 +1,49 @@
+Some design ideas for how I think a sensible Perl Tcl/Tk binding
+should work.
+
+    use yTk;
+    
+    my $w = $yTk::MW;       # or $yTk::MainWindow
+    yTk::MainLoop();
+    yTk::XXX(@arg)          # call 'XXX @arg'
+    $yTk::XXX               # mirror tkvars
+    
+    $w->_n_XXX( @arg )      # call 'XXX [npath($w->_path, XXX)] @arg'
+    $w->_m_XXX( @arg )      # call yTk::XXX->new($w, @arg)
+    $w->_e_XXX( @arg )      # call 'XXX $w @arg'
+    $w->_d_XXX( @arg )      # call 'XXX -displayof $w'
+    $w->_p_XXX( @arg )      # call 'XXX -parent $w'
+    $w->_i_XXX( @arg )      # call '$w XXX YYY @arg'
+    $w->_t_XXX( @arg )      # call 'XXX @arg'
+    
+    $w->_path               # this widgets name
+    $w->_data               # instance data hash (needed?)
+    
+    "$w"                    # $w->_path
+
+When names are mapped from Perl to Tcl we do the following transformation:
+
+   "_"      --> <space>
+   "__"     --> "::"
+   "___"    --> "_"
+
+
+Return values:
+
+   Broken up list returned in array context (might croak).
+   Strings returned in scalar context.
+   Errors -> Exception
+
+Example:
+
+   use yTk qw($MainWindow);
+
+   my $label = $MainWindow->_n_Label(-text => "Hello");
+   if (my $file = $MainWindow->_p_tk_getOpenFile) {
+       $label->_i_configure(-text => "File [$file]");
+       $MainWindow->_t_after(5000, sub { $MainWindow->_e_destroy });
+   }
+
+   print $label->_e_winfo_geometry, "\n";
+
+   yTk::MainLoop();
