@@ -1,5 +1,9 @@
 Revision history for Perl extension Tcl.
 
+0.81    09-may-2004
+	- some Tcl.xs improvements, Makefile.PL now requires Tcl/Tk version
+	  8.4 (Jeff Hobbs)
+
 0.80    03-may-2004
 	- many Tcl.xs improvements from Jeff Hobbs, Gisle Aas (better
 	  handling for numbers, Unicode)

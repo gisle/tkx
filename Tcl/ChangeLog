@@ -1,3 +1,26 @@
+2004-05-10  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (NpInitialize): change load around to use different
+	dll-kit based init that call TclKit_SetKitPath to indicate the
+	path of the kit for loading (the dll).
+	(NpLoadLibrary): take filename arg to pass the found library name
+	back to the caller.
+
+2004-05-09  Konovalov <vkonovalov@peterstar.ru>
+
+	* Changes: brief summary between 0.80 and 0.81
+
+2004-05-07  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.PL: force Tcl 8.4 as the minimum version
+
+2004-05-06  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs: enhance stubs-based initialization to check for a
+	preloaded Tcl dll as well as for stubs-based dll that is
+	tclkit-based.  This requires maintaining the first created interp
+	through the lifetime of the module.
+
 2004-05-04  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Tcl.pm: bump to 0.81 and add commands for icall and invoke.

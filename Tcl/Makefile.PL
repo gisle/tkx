@@ -10,7 +10,7 @@ use Getopt::Long qw(GetOptions);
 use ExtUtils::MakeMaker;
 
 my $tclsh = 'tclsh';
-my $tclconfig;
+my $tclconfig = "/local/ActiveTcl/8.4.6.1.99118/lib/tclConfig.sh";
 my $buildspec;
 my $usestubs;
 my $libpath;
@@ -71,6 +71,9 @@ if ($tclconfig) {
     my $libspecvar = "TCL${variant}_LIB_SPEC";
     my %tclcfg;
     process_tclconfig($tclconfig, \%tclcfg);
+    die "Tcl requires Tcl v8.4 or greater, found '$tclcfg{TCL_VERSION}'\n"
+	unless (defined $tclcfg{'TCL_VERSION'}
+		&& $tclcfg{'TCL_VERSION'} >= 8.4);
     $libpath = $tclcfg{$libspecvar};
     $incpath = $tclcfg{'TCL_INCLUDE_SPEC'};
     if ($usestubs) {
@@ -97,11 +100,10 @@ if ($tclconfig) {
     } else {
 	my $tclver = $tclcfg{tcl_version};
 
-	# currently version must be >8.0
+	# currently version must be 8.4+
 	my ($vmaj,$vmin) = ($tclver =~ /^(\d+)\.(\d+)/);
-	if ($vmin==0) {
-	    die "Tcl version '$vmaj.$vmin' not supported, must be >8.0";
-	}
+	die "Tcl requires Tcl v8.4 or greater, found '$vmaj.$vmin'\n"
+	    if ($vmaj < 8 || ($vmaj == 8 && $vmin < 4));
 
 	if ($tclcfg{tcl_library} =~ /^(.*)[\\\/]lib[\\\/]/) {
 	    $libpath = "-L$1/lib";
