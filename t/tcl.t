@@ -15,10 +15,11 @@ ok($list, "2 {3 4} 5");
 ok(ref($list), "Tcl::List");
 ok($list->[0], 2);
 ok($list->[1][0], 3);
+ok(j(@$list), "2:3 4:5");
 
 ok(list(2, list(3, 4), 5), "2 3 4 5");
 ok(list(2, scalar(list(3, 4)), 5), "2 {3 4} 5");
-#ok(j(list(2, scalar(list(3, 4), 5))), "2:3 4:5");
+ok(j(list(2, scalar(list(3, 4)), 5)), "2:3 4:5");
 ok(lindex([0..9, [], "}"], 5), 5);
 ok(lindex([0..9], "end"), 9);
 
