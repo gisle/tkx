@@ -3,7 +3,7 @@
 use strict;
 use yTk;
 
-my $mw = $yTk::MW;
+my $mw = yTk::widget->new(".");
 my $b;
 
 $b = $mw->n_button(
@@ -19,6 +19,12 @@ $b->e_pack;
 
 yTk::package_require("BWidget");
 $mw->n_ArrowButton->e_pack;
+$mw->n_ArrowButton->e_pack;
+$mw->n_ArrowButton->e_pack;
+
+my $f = $mw->n_frame(-width => 30, -height => 30, -background => "white");
+$f->e_pack;
+$f->n_ArrowButton->e_pack;
 
 yTk::package_require("Iwidgets");
 $mw->n_iwidgets__calendar->e_pack;

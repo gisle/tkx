@@ -10,7 +10,7 @@ our $VERSION = '0.01';
 }
 
 package_require("Tk");
-our $MW = yTk::widget::->new(".");
+
 our $TRACE;
 $TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
 
@@ -178,9 +178,10 @@ yTk - Yet another Tk interface
 =head1 SYNOPSIS
 
   use yTk;
-  $yTk::MW->n_button(
+  my $mw = yTk::widget->new(".");
+  $mw->n_button(
        -text => "Hello, world",
-       -command => sub { $yTk::MW->_e_destroy; },
+       -command => sub { $mw->_e_destroy; },
   )->e_pack;
   yTk::MainLoop();
 
@@ -247,11 +248,6 @@ substitutions on its name.
 The following variables are provided by the yTk namespace:
 
 =over
-
-=item $yTk::MW
-
-This variable holds a reference to widget handle for the root widget;
-C<.> in Tcl.  See L</Widget handles> for more information.
 
 =item $yTk::TRACE
 
