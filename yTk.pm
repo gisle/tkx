@@ -256,7 +256,7 @@ C<.> in Tcl.  See L</Widget handles> for more information.
 =item $yTk::TRACE
 
 If this boolean is set to a true value, then we a trace of all
-commands passed to Tcl will be printed on STDOUT.  This variable is
+commands passed to Tcl will be printed on STDERR.  This variable is
 initialized from the C<PERL_YTK_TRACE> environment variable.
 
 =back
