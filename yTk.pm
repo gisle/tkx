@@ -33,6 +33,48 @@ my %count;
 my %data;
 my %class;
 
+my %method = (
+    bell        => "_d_bell",
+    bind        => "_e_bind",
+    bindtags    => "_e_bindtags",
+    button      => "_n_button",
+    canvas      => "_n_canvas",
+    cget        => "_i_cget",
+    checkbutton => "_n_checkbutton",
+    chooseColor => "_p_tk_chooseColor",
+    chooseDirectory => "_p_tk_chooseDirectory",
+    configure   => "_i_configure",
+    destroy     => "_e_destroy",
+    entry       => "_n_entry",
+    focus       => "_e_focus",
+    frame       => "_n_frame",
+    getOpenFile => "_p_tk_getOpenFile",
+    getSaveFile => "_p_tk_getSaveFile",
+    grid        => "_e_grid",
+    label       => "_n_label",
+    labelframe  => "_n_labelframe",
+    listbox     => "_n_listbox",
+    lower       => "_e_lower",
+    menu        => "_n_menu",
+    menubutton  => "_n_menubutton",
+    message     => "_n_message",
+    messageBox  => "_p_tk_messageBox",
+    optionMenu  => "_n_tk_optionMenu",
+    pack        => "_e_pack",
+    panedwindow => "_n_panedwindow",
+    place       => "_e_place",
+    popup       => "_e_tk_popup",
+    radiobutton => "_n_radiobutton",
+    raise       => "_e_raise",
+    scale       => "_n_scale",
+    selection   => "_d_selection",
+    spinbox     => "_n_spinbox",
+    text        => "_n_text",
+    toplevel    => "_n_toplevel",
+    winfo       => "_e_winfo",
+    wm          => "_e_wm",
+);
+
 sub _new {
     my $class = shift;
     my $name = shift;
@@ -47,33 +89,30 @@ sub _data {
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
+    my @m = yTk::i::expand_name($method);
+    $method = shift(@m);
+    $method = $method{$method} if $method{$method};
     my $self = shift;
     if (substr($method, 0, 1) eq "_") {
 	my $kind = substr($method, 0, 3, "");
 	if ($kind eq "_n_") {
 	    my $n = $method . ++$count{$method};
 	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
-	    no strict 'refs';
-	    my $m = "yTk::$method";
-	    return ref($self)->_new(&$m($n, @_));
+	    return ref($self)->_new(yTk::i::call($method, $n, @m, @_));
 	}
 	elsif ($kind eq "_i_") {
-	    return yTk::i::call($$self, yTk::i::expand_name($method), @_);
+	    return yTk::i::call($$self, $method, @m, @_);
 	}
 	elsif ($kind eq "_e_") {
-	    no strict 'refs';
-	    my $m = "yTk::$method";
-	    return &$m($$self, @_);
+	    return yTk::i::call($method, @m, $$self, @_);
 	}
 	elsif ($kind eq "_d_" || $kind eq "_p_") {
-	    no strict 'refs';
-	    my $m = "yTk::$method";
-	    return &$m(($kind eq "_d_" ? "-displayof" : "-parent"), $$self, @_);
+	    return yTk::i::call($method, @m,
+				($kind eq "_d_" ? "-displayof" : "-parent"), $$self,
+				@_);
 	}
 	elsif ($kind eq "_t_") {
-	    no strict 'refs';
-	    my $m = "yTk::$method";
-	    return &$m(@_);
+	    return yTk::i::call($method, @m, @_);
 	}
 	$method = "$kind$method";
     }
