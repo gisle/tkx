@@ -112,7 +112,34 @@ sub AUTOLOAD {
 
 sub DESTROY {
     my $self = shift;
-    print "DESTROY $self\n";
+    print "DESTROY widget handle for $$self\n";
+}
+
+package yTk::widget::_destroy;
+
+sub new {
+    my($class, @paths) = @_;
+    bless \@paths, $class;
+}
+
+sub DESTROY {
+    my $self = shift;
+    print "DESTROY @$self\n";
+    for my $path (@$self) {
+	if ($path eq ".") {
+	    %data = ();
+	    %class = ();
+	    return;
+	}
+
+	my $path_re = qr/^\Q$path\E(?:\.|\z)/;
+	for my $hash (\%data, \%class) {
+	    for my $key (keys %$hash) {
+		next unless $key =~ $path_re;
+		delete $hash->{$key};
+	    }
+	}
+    }
 }
 
 package yTk::i;
@@ -142,6 +169,12 @@ sub call {
     if ($TRACE) {
 	$trace_count++;
 	print STDERR join(" ", "yTk-$trace_count:", @_) . "\n";
+    }
+    my @cleanup;
+    if ($_[0] eq "destroy") {
+	my @paths = @_;
+	shift(@paths);
+	push(@cleanup, yTk::widget::_destroy->new(@paths));
     }
     return $interp->call(@_);
 }
