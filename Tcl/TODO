@@ -1,0 +1,3 @@
+ - implement interaction with catch/break/error mechanism
+ - an option to specify path to Tcl binary to have an option
+   to provide own binaries that are known to work for given script.

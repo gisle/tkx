@@ -1,0 +1,257 @@
+2004-05-04  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.pm: bump to 0.81 and add commands for icall and invoke.
+	* Tcl.xs: change Tcl::icall to Tcl::invoke and make alternate
+	Tcl::icall the default one.  Tcl::icall will now have command
+	tracing and use Tcl's unknown mechanism, whereas Tcl::invoke does
+	the direct command invocation (where it is an error if the command
+	does not already exist).  This is the better default as Tcl uses
+	unknown for autoload in many cases.
+
+2004-05-03  Vadim Konovalov <vkonovalov@peterstar.ru>
+
+	* Tcl.pm (call): return of \\'xy' convenience
+	
+	* Changes: brief summary for version 0.80
+
+2004-04-30  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (TclObjFromSv): pass strings to Tcl in a strictly correct
+	way - check SvUTF8 before making a String obj, otherwise make a
+	ByteArray obj.  This is 100% correct, but not as efficient as
+	ignoring the corner-case binary/utf-8 discrepancies.
+
+2004-04-29  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs: add a hash of interps created that we can force delete
+	of prior to Tcl_Finalize, ensuring better cleanup.
+
+	* Makefile.PL: Added --usestubs option, which adds DEFINE flags.
+	* Tcl.pm:      Add stubs support to give us version and dll location
+	* Tcl.xs:      independence.  Tcl.xs can handle the loading and
+	finalization of Tcl.  Tcl_Finalize is now called by an END block
+	in Tcl.pm in all cases, flipping a bit that says we shouldn't call
+	any more Tcl_* APIs.
+
+	* Tcl.xs (Tcl_DoOneEvent): expose Tcl::DoOneEvent for perl and add
+	TCL_*_EVENTS and TCL_DONT_WAIT constants to BOOT block.
+	(TclObjFromSv): remove SvIOK check in SvNOK block to force the
+	int-equiv double check.  By default, perl does math with doubles,
+	so we need to force this check.  Possibly not necessary for 5.8+.
+
+2004-04-27  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (Tcl_SetVar, Tcl_SetVar2): make SV/Tcl_Obj aware.
+
+2004-04-25  Vadim Konovalov  <vkonovalov@peterstar.ru>
+
+	* Tcl.pm: rename Tcl::EV to Tcl::Ev
+
+2004-04-22  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (SvFromTclObj): For boolean types, use the string value
+	if it's not empty, as booleans that came from strings are often
+	not 0/1.  For list types, use "" for empty lists instead of an
+	empty AV.  This corrects a problem with Tcl literal sharing where
+	"" can be marked as a list, although the string is intended.
+
+2004-04-21  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (Tcl_EvalInPerl): create ::perl::Eval proc in Tcl_Init.
+	This can be used in Tcl to eval whatever you want in Perl.
+
+	* Tcl.pm: jump to v0.80.
+	Remove Tcl::Ev, replace with Tcl::EV.  This is used in the
+	callback creation instead of in the callback sub, passing the args
+	as proper args to the sub.  Removed the previously ability to have
+	ref-ref scalars magically convert to %-subs and consume the next
+	arg as a code ref.  What used to be written:
+	     '<Motion>', \\'XY', \&mysub, ...
+	is now written:
+	     '<Motion>', [\&mysub, Tcl::EV('%X', '%Y')], ...
+	and they are pass in as true args (no Tcl::Ev calls required).
+		**** POTENTIAL INCOMPATABILITY ****
+	Arguments from Tcl passed to sub with Perl args now properly pass
+	those args to the Perl sub as well (precede Perl args).  IOW, a
+	reference to [\&mysub, "foo"] that becomes CODE(0x1234) called
+	from Tcl as "CODE(0x1234) bar" will have ("bar", "foo") in @_.
+	(call): Create tied vars in Tcl in the ::perl namespace and leave
+	the ()s, making them all elements of the Tcl array ::perl::SCALAR.
+	(create_tcl_sub): Create procs in Tcl in the ::perl namespace.
+
+2004-04-21  Gisle Aas  <gisle@ActiveState.com>
+
+	* Tcl.pm (call): undo hack to prevent 1=>1.0 (for r1.17).  Should
+	not be needed after Jeff's r1.23 change to Tcl.xs.
+
+2004-04-20  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (TclObjFromSv): check for IV == NV in SvNOK to account
+	for some perl versions' overaggressiveness in promoting ints.
+
+2004-04-17  Vadim Konovalov  <vkonovalov@peterstar.ru>
+
+	* Tcl.pm (call): add hack to prevent 1=>1.0
+	* Tcl.pm: add wcall wrapper to 'call' function
+	* Changes: brief summary of changes between 0.76 and 0.77
+	
+2004-04-17  Vadim Konovalov  <vkonovalov@peterstar.ru>
+
+	* Makefile.PL: fix WinCE case, check if Tcl version supported
+	* README: change WinCE explanations; add authors; change file
+	format to be more consistent with other modules
+	* Tcl.pm: change version to 0.76 for CPAN release; make AUTHORS
+	section more complete.
+	* Changes: brief summary of changes between 0.75 and 0.76
+	* t/info.t: should ignore difference between '/' and '\' on Win32.
+	
+2004-04-16  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* t/info.t: return -longname of nameofexe on Windows to match $^X.
+
+2004-04-16  Gisle Aas  <gisle@ActiveState.com>
+
+	* Tcl.xs: Make it possible to subclass Tcl.
+	* Tcl.pm: Don't subclass Tcl::Tk any more.  Tcl::Tcl will subclass
+	Tcl instead.
+	
+2004-04-15  Gisle Aas  <gisle@ActiveState.com>
+
+	* Tcl.xs: Added BOOT: section and moved initializations there.
+	* Tcl.xs, Tcl.pm, t/constants.t: Avoid hardcoded constants.  Let
+	tcl.h provide the values.  The old constants actually got the
+	values for TCL_APPEND_VALUE and TCL_LIST_ELEMENT wrong from what I
+	observe in the 8.4 tcl.h.
+	* Tcl.xs: Got rid of the Tcl_DESTROY and Tcl_result macros.  More
+	obvious what's going on with explict CODE sections instead of
+	global macros.
+	* Tcl.xs, t/info.t: Make 'info nameofexecutable' work.
+	* Tcl.xs: Use boolSV() instead of int to represent bools. A user
+	visible difference is that false is now "" instead of 0, but
+	that's the official perl way.
+	* Tcl.xs: The !SvOBJECT() test is just fine.  Remove XXX comment.
+	* Tcl.pm: Improved argument check in Tcl::Ev.
+	* Tcl.pm: Enable XS version check during bootstrap.
+	* Makefile.PL: Integrate ceMakefile.PL
+	* Makefile.PL: Cleanup.  Use Getopt::Long instead of handcoded
+	option parsing
+	* Tcl.xs, Tcl.pm: Whitespace cleanup.  Remove trailing space.
+
+2004-04-14  Gisle Aas  <gisle@ActiveState.com>
+
+	* Tcl.xs (has_highbit): renamed 'l' as 'len'. 'l' is not a good
+	variable name as it looks quite a lot like '1' in many fonts
+
+2004-04-14  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (SvFromTclObj): turn on Tcl_ListObj to AV conversion.
+	* Tcl.pm (call): rework with much clearer comments on what is
+	going on.  Don't bother doing map of undefined vals to "", icall
+	does that for us.  Cache arg ref for use in the if/elsifs.
+	Remove commented out listify and listify sub - icall properly
+	handles the AV to Tcl_ListObj conversions.
+	Correct result handling by matching expectations with icall.  If
+	we are called in ARRAY context, invoke icall in array context,
+	otherwise invoke icall in scalar context.
+
+	* t/call.t (new): some tests for call and icall functions
+
+2004-04-13  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (SvFromTclObj): correct if/else if for objPtr == NULL and
+	return newSV(0) instead of &PL_sv_undef for cleanliness.
+
+	* t/var.t: do unicode tests on 5.8, correct some test result output.
+
+	* Tcl.xs (SvFromTclObj): set newSV* to sv, then return that var.
+	(Tcl_new): changed it to force Tcl_FindExecutable call before
+	first Tcl_CreateInterp and cache data types on first new.
+	(Tcl_Init): moved Tcl_FindExecutable call to Tcl_new.
+
+2004-04-12  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs: #define PERL_NO_GET_CONTEXT and pass perl context
+	through internal funcs.
+	(SvFromTclObj): add possible Tcl_ListObj -> SV conversion.  This
+	needs further examination as it forces coding changes and is not
+	yet used.
+	(TclObjFromSv): change to return Tcl_Objs with refcount 0 and
+	manage refcount from caller.  This corrects the recursive refcount
+	getting too high (caused objects not to be freed when done).
+
+	* Tcl.pm (listify): add more comments about usage and add
+	backslash correcting.
+
+2004-04-09  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.PL: add the ability to control what tclsh we build with
+	* tclcfg.tcl:  by passing --tclsh (path to tclsh to use when
+	calling tclcfg.tcl), --tclconfig (path to tclConfig.sh to get data
+	from) and --buildspec (use BUILD spec info in conjunction with
+	--tclconfig).
+
+	* Tcl.pm (FETCH, STORE): add perl versions for reference (not used)
+
+	* Tcl.xs (SvFromTclObj): if objPtr == NULL, return &PL_sv_undef.
+	(TclObjFromSv): Add SvGMAGICAL check and check that RV is not an
+	object.  Remove one impotent cycle check and add empty array elem
+	check.  Remove impotent SvUOK check.  Always return Tcl_Obj with
+	refcount 1.
+	(Tcl_PerlCallWrapper): Tcl_Obj-ify input and result.
+	(Tcl_icall): rewrite from scratch to allow for recursive calls,
+	which can occur via commands or tied vars.
+	(Tcl_icall #2): added alternate implementation (not default) that
+	calls Tcl_EvalObjv instead of direct command invocation.
+	(Tcl_Init): pass NULL (not ".") to Tcl_FindExecutable.  Create
+	Tcl_PerlCallWrapper as a Tcl_Obj command.
+	(Tcl_SetResult): use SVs/Tcl_Objs
+	(Tcl_GetVar, Tcl_GetVar2): return SV instead of char *
+	(Tcl_UnsetVar): call Tcl_UnsetVar2
+	(FETCH): return SV
+	(STORE): call Tcl_SetVar2Ex always, use SVs
+
+2004-04-07  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs (TclObjFromSv): updated to correctly descend into ARRAY
+	refs and add possible ref cycle checking.
+	Move SvUOK check below SvIOK check.
+	(Tcl_icall): also check cmdinfo.isNativeObjectProc before using,
+	although we might want to use this when non-native since the
+	string version must use Tcl_Obj routines now for correctness.
+	The string version also calls TclObjFromSv to properly handle
+	ARRAY to list conversion.
+	* Tcl.pm (call): let icall do the ARRAY to Tcl_Obj list conversion
+	(create_tcl_sub): don't s/\W/_/g $tclname, Tcl doesn't care.
+	(listify): add routine that does rough listification of Perl sv.
+
+	* Tcl.xs (Tcl_PerlCallWrapper): handle the perl sub error case
+	where an error occurs calling perl sub from Tcl callback.
+	(Tcl_Init): move init of Tcl_Obj typePtrs
+
+2004-04-06  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.xs: use ANSI prototypes for some functions.
+	Remove use of PL_na in favor of SvPV_nolen.
+	(SvFromTclObj, TclObjFromSv): create bridge routines to translate
+	to/from Tcl_Obj and SV.  May need refinement.
+	(prepare_Tcl_result): made use of newer GIMME_V macro and Tcl_Obj
+	based return results.
+	(Tcl_Eval, Tcl_GlobalEval): use more efficient Tcl_EvalEx.
+	(Tcl_icall): prefer objProc over string proc and make efficient
+	Tcl_Obj list out of SVs.
+
+2004-04-01  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.pm (call): define tie'd var to "" if undefined before setting.
+
+	* Tcl.xs: code cleanup to squelch AIX compiler warnings
+
+2004-03-22  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Tcl.pm: modifications from Vadim to fix minor ref issues and
+	initial attempt to support code with args in array refs.
+
+	* Tcl.xs (USE_NON_CONST): define to squelch 8.4 const warnings
+
+	started using ChangeLog
+

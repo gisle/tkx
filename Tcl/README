@@ -1,0 +1,59 @@
+NAME
+    Tcl extension module for Perl5
+
+DESCRIPTION
+    
+    The Tcl extension provides a small but complete interface into libtcl
+    and any other Tcl-based library. It lets you create Tcl interpreters
+    (as perl5 objects), bind in commands to them (either perl subroutines
+    or C functions dynamically loaded with the DynaLoader extension) and
+    execute Tcl code in those interpreters. There is a Tcl::Tk extension
+    (not to be confused with "native" perl5 Perl/Tk extension) distributed
+    separately which provides a raw but complete interface to the whole of
+    libtk via this Tcl extension.
+
+Build in the usual way for a perl extension:
+
+1. Tweak Makefile.PL is necessary only if your Tcl include files could
+not be found automatically by Makefile.PL script. Normally you just make
+sure you have right tcl in your path at a moment of running Makefile.PL
+script.
+
+2. perl Makefile.PL
+   make
+
+3. Before installing, you can run the small test suite with
+   make test if you wish.
+
+4.  make install
+
+In rare case when you do cross-compiling for WinCE, you need to edit
+Makefile.PL to reflect your paths, and then invoke as
+  perl -MCross=[your-cross-name] Makefile.PL
+
+AUTHOR
+    Malcolm Beattie	mbeattie@sable.ox.ac.uk
+
+MAINTAINERS
+    Vadim Konovalov	vkonovalov@peterstar.ru
+    Jeff Hobbs
+    Gisle Aas
+
+LICENSE
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of either:
+
+        a) the GNU General Public License as published by the Free
+        Software Foundation; either version 1, or (at your option) any
+        later version, or
+
+        b) the "Artistic License" which comes with every Perl distribution.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either
+    the GNU General Public License or the Artistic License for more details.
+
+	      Copyright (c) 1994-1997, Malcolm Beattie
+			 All rights reserved.
+

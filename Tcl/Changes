@@ -1,0 +1,69 @@
+Revision history for Perl extension Tcl.
+
+0.80    03-may-2004
+	- many Tcl.xs improvements from Jeff Hobbs, Gisle Aas (better
+	  handling for numbers, Unicode)
+	- changes for event variables and in Tcl::Ev
+	- ::perl::Eval proc in Tcl to eval in Perl
+	- references to Perl objects now created in Tcl in ::perl namespace
+
+0.77    17-apr-2004
+	- quick fix of 1=>1.0 problem
+	- add wcall wrapper to Tcl.pm
+
+0.76    17-apr-2004
+	- many improvements in Tcl.pm, Tcl.xs from Jeff Hobbs
+	- many improvements in Tcl.pm, Tcl.xs from Gisle Aas
+	- more tests by Jeff Hobbs, Gisle Aas
+	- subclassing is more correct with respect to Tcl::Tk module
+	- Makefile.PL and ceMakefile.PL now integrated to one file
+	- General cleaning of code, more comments
+	- Tcl-800 currently not supported, only recent versions
+
+0.75    28-mar-2004, Vadim Konovalov
+	- ARRAY REF are processed in $interp->call(...) for perlTk compat
+	- replace undef with '' in $interp->call(...)
+
+0.72    20-aug-2003, Vadim Konovalov
+        - now widget object become replaced to widget path in arguments to 'call'
+        - better error handling and diagnostic for calls to Tcl/Tk
+        - now returning undef from handler subroutine do not causes an
+          error in Tcl side. Instead, some error traping should be invented
+
+0.71    03-jul-2003, Vadim Konovalov
+        - support Tcl version 8.0.x
+
+0.7     02-jul-2003, Vadim Konovalov
+        - Some possible coredumps were fixed (but not completely, hence FIXME
+          warning in Tcl.xs)
+        - some fixes from Slaven Rezic, (FreeBSD support and some more)
+        - perl-5.005 support (FreeBSD has this version after installation)
+
+0.6     08-jun-2003, Vadim Konovalov
+        - now Tcl 'is-a' Tcl::Tk
+        - improved access method for TCL Events (%y, %y and so on)
+        - WinCE support
+        - few BUGs fixed
+
+0.5	25-may-2003, Vadim Konovalov
+	- 'linux' and 'cygwin' supported
+
+0.4	19-may-2003, Vadim Konovalov
+	- changed version system and added module VERSION variable
+	- compatibility changes to support modern versions of Perl and Tcl
+	  (perl-5.6.0, perl-5.8.0, tcl-8.4.2)
+	- call to Tcl_FindExecutable, as long as Tcl now requires this
+	  (otherwise Tcl dumps core, as RTFS-ing of Tcl shows)
+	- XS function "Tcl::call" renamed to "Tcl::icall" and "Tcl::call"
+	  implemented in Tcl.pm and now contains more complex logic.
+	- sub create_tcl_sub and ev_sub were added, they could be used
+	  to create event fields-aware subroutines
+	- added 'tclcfg.tcl' to output tcl configuration, used from Makefile.PL
+	- Makefile.PL changed to be more consistent
+	- use strict;
+
+Tcl-b3	11-mar-2001, Andrew Brown
+	- minor update for compatability with perl 5.6.0 by Andrew Brown
+
+Tcl-b2	1997, Malcolm Beattie
+	- Created entire module.

@@ -1,0 +1,19 @@
+Changes
+ChangeLog
+TODO
+Makefile.PL		Tcl extension makefile writer
+MANIFEST		This list of files
+README			Introduction to the Tcl extension
+Tcl.pm			Tcl extension module
+Tcl.xs			Tcl extension implementation
+t/call.t		See the 'call' and 'icall' methods
+t/constants.t		See if constants and flags are set up properly
+t/createcmd.t		See if command creation works
+t/eval.t		See if Eval-ish things work
+t/info.t	        See if Tcl info command works
+t/result.t		See if Tcl result protocol works
+t/subclass.t		See if we can subclass Tcl
+t/trace.t		See if variable tarcing works
+t/var.t			See if access to/from Tcl variables works
+typemap			Tcl extension types
+tclcfg.tcl		Tcl script to discover TCL installation options
