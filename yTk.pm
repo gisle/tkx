@@ -26,6 +26,8 @@ sub MainLoop {
     }
 }
 
+*Ev = \&Tcl::Ev;
+
 package yTk::widget;
 
 use overload '""' => sub { ${$_[0]} },
