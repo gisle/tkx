@@ -89,14 +89,14 @@ sub _data {
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    my @m = yTk::i::expand_name($method);
+    my @m = substr($method, 0, 1) eq "_" ? ($method) : yTk::i::expand_name($method);
     $method = shift(@m);
     $method = $method{$method} if $method{$method};
     my $self = shift;
     if (substr($method, 0, 1) eq "_") {
 	my $kind = substr($method, 0, 3, "");
 	if ($kind eq "_n_") {
-	    my $n = $method . ++$count{$method};
+	    my $n = lc($method) . ++$count{lc($method)};
 	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
 	    return ref($self)->_new(yTk::i::call($method, $n, @m, @_));
 	}
