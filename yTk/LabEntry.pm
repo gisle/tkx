@@ -21,11 +21,11 @@ sub _i {
 }
 
 sub i_configure {
-         my($self, %opt) = @_;
-        if (exists $opt{-label}) {
-	    $self->_kid("lab")->i_configure(-text => delete $opt{-label});
-        }
-        return $self->SUPER::i_configure(%opt) if %opt;
+    my($self, %opt) = @_;
+    if (exists $opt{-label}) {
+	$self->_kid("lab")->i_configure(-text => delete $opt{-label});
+    }
+    return $self->SUPER::i_configure(%opt) if %opt;
 }
 
 sub i_cget {

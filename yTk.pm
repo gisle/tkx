@@ -76,7 +76,7 @@ sub _data {
 sub _kid {
     my($self, $name) = @_;
     substr($name, 0, 0) = $$self eq "." ? "." : "$$self.";
-    return ref($self)->new($name);
+    return $self->_nclass->new($name);
 }
 
 sub _parent {
@@ -85,14 +85,18 @@ sub _parent {
     return undef if $name eq ".";
     substr($name, rindex($name, ".")) = "";
     $name = "." unless length($name);
-    return ref($self)->new($name);
+    return $self->_nclass->new($name);
 }
 
 sub _class {
     my $self = shift;
-    my $class = shift || caller;
-    $class{$$self} = $class;
-    bless $self, $class;
+    my $old = ref($self);
+    if (@_) {
+	my $class = shift;
+	$class{$$self} = $class;
+	bless $self, $class;
+    }
+    $old;
 }
 
 sub _Mega {
@@ -100,6 +104,10 @@ sub _Mega {
     my $widget = shift;
     my $impclass = shift || caller;
     $mega{$widget} = $impclass;
+}
+
+sub _nclass {
+    __PACKAGE__;
 }
 
 sub _i {
@@ -129,7 +137,7 @@ sub AUTOLOAD {
 	if (my $mega = $mega{$widget}) {
 	    return $mega->_Populate($widget, $name, @_);
 	}
-	return ref($self)->new(yTk::i::call($widget, $name, @_));
+	return $self->_nclass->new(yTk::i::call($widget, $name, @_));
     }
 
     if ($prefix eq "e_") {
