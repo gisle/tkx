@@ -222,24 +222,24 @@ yTk - Yet another Tk interface
 =head1 DESCRIPTION
 
 The yTk module provide yet another Tk interface.  The main idea behind
-yTk is that it should just be a thin wrapper on top of Tcl.  The
+yTk is that it should only be a thin wrapper on top of Tcl.  The
 following functions are provided by the yTk namespace:
 
 =over
 
-=item MainLoop( )
+=item yTk::MainLoop( )
 
 This will enter the Tk mainloop and start processing events.  The
 function returns when the main window has been destoryed.  There is no
 return value.
 
-=item Ev( $field )
+=item yTk::Ev( $field )
 
 This creates an object that if passed as an argument to a callback
 will expand the corresponding Tcl template vars in the context of that
 callback.
 
-=item I<foo>( @args )
+=item yTk::I<foo>( @args )
 
 Any other function will invoke the given Tcl function with the given
 arguments.
@@ -251,12 +251,38 @@ embedded underlines:
     foo__bar -->  "foo::bar"
     foo___bar --> "foo_bar"
 
-This allow us conveniently to map all of the Tcl namespace to perl.  Examples:
+This allow us conveniently to map most of the Tcl namespace to perl.
+Examples:
 
-    yTk::expr("3", "+", "3");
+    yTk::expr("3 + 3");
     yTk::package_require("BWidget");
     yTk::DynamicHelp__add(".", -text => "Hi there");
 
+The tripple underscore makes it it a bit hard to invoke the Tcl
+commands prefixed with "tk_", but since there is also a "tk"
+subcommand it is probably not worth it to make a special rule for
+them.  For many of them widget handle method mapping can be used to
+avoid the inconvenience.  Alternativly you might use the yTk::i::call
+API to invoke these.
+
+The arguments passed can be plain scalars or array references which
+are converted to Tcl lists.  The arrays can contain other array
+references or plain scalars.
+
+For Tcl APIs that require callbacks you can pass references to a
+perl function.  Alternatively an array reference with a code
+reference as the first argument will allow the callback to receive the
+given arguments when invoked.  The yTk::Ev() function can be used to
+fill in Tcl provided info as arguments.  Eg:
+
+    yTk::after(3000, sub { print "Hi" });
+    yTk::bind(".", "<Key>", [sub { print "$_[0]\n"; }, yTk::Ev("%A")]);
+
+=item yTk::i:call($foo, @args)
+
+This will invoke the $foo function without doing any magic
+substitutions on its name.
+   
 =back
 
 The following variables are provided by the yTk namespace:
@@ -282,37 +308,125 @@ The class C<yTk::widget> is used to wrap Tk widget paths or names.
 These objects stringify as the path they wrap so they can be used as
 if they were the plain path as well.
 
+Only names starting with C<_> are used by the interface.  All other
+names can be set up for as suitable by the user code.  See the
+_MapMethod() function for details.
+
 The following methods are provided:
 
 =over
 
 =item $w = yTk::widget->_new( $path )
 
-Constructor
+This constructs a new widget handle for a given path.  It is not a
+problem to have multiple handle objects to the same path.
 
 =item $w->_data
 
 Returns a hash that can be used to keep instance specific data.
+Hopefully useful for implementing mega-widgets.  The data is
+automatically destroyed when the corresponding widget is destroyed.
 
-=item $w->_n_I<foo>( @args )
+=item $w2 = $w->_n_I<foo>( @args )
+
+This creates a new I<foo> widget as a child of the current widget.  It
+will call the I<foo> Tcl command and pass it a new unique subpath of
+the current path.  The handle to the new widget is returned.
+
+Any underscores in the name I<foo> is expanded as described for
+yTk::foo() above.  Example:
+
+    $w->_n_label(-text => "Hello", -relief => "sunken");
 
 =item $w->_i_I<foo>( @args )
 
+This will invoke the I<foo> subcommand for the current widget.  This
+is the same as:
+
+    $func = "yTk::$w";
+    &$func("foo", @args);
+
+Example:
+
+    $w->_i_configure(-background => "red");
+
 =item $w->_e_I<foo>( @args )
+
+This will invoke the I<foo> command with the current widget as first
+argument.  This is the same as:
+
+    $func = "yTk::foo";
+    &$func($w, @args);
+
+Example:
+
+    $w->_e_pack_forget;
 
 =item $w->_d_I<foo>( @args )
 
+This will invoke the I<foo> subcommand with C<<-displayof => $w>> as
+argument.  This is the same as:
+
+    $func = "yTk::foo";
+    &$func(-displayof => $w, @args);
+
+Example:
+
+    $w->_d_bell;
+
 =item $w->_p_I<foo>( @args )
+
+This will invoke the I<foo> subcommand with C<<-parent => $w>> as
+argument.  This is the same as:
+
+    $func = "yTk::foo";
+    &$func(-parent => $w, @args);
+
+Example:
+
+    $w->_p_tk___getOpenFile;
 
 =item $w->_t_I<foo>( @args )
 
+This will invoke the I<foo> subcommand with the given arguments.  The
+current widget is not passed as argument.  This is the same as:
+
+    $func = "yTk::foo";
+    &$func(@args);
+
+Example:
+
+    $w->_t_image_create_photo(-file => "donkey.png");
+
+Usually it would be better to just do:
+
+    yTk::image_create_photo(-file => "donkey.png");
+
+directly, but the _t_ form can be useful to emulate some of the Tk
+APIs by mapping certain method names to the C<_t_> form.
+
 =back
 
-The following functions are provided:
+The following functions are provided by the yTk::widget namespace:
 
 =over
 
 =item yTk::widget::_MapMethod( $from, $to )
+
+This allow the application to set up shotcuts for widget handle
+methods that don't start with underscore.  The $from argumement might
+be a plain string or a Regexp object.  If this method is called then
+it is resolved as if the method $to was called instead.  If from is a
+Regexp object only the part of the method name that mached $from is
+replaced with $to.
+
+Examples:
+
+    yTk::widget::_MapMethod("button", "_n_button");
+    yTk::widget::_MapMethod("pack", "_e_pack");
+    yTk::widget::_MapMethod(qr/^winfo_/, "_e_winfo_");
+    yTk::widget::_MapMethod("configure", "_i_configure");
+    yTk::widget::_MapMethod("getOpenFile", "_p_tk___getOpenFile");
 
 =back
 
