@@ -42,13 +42,20 @@ sub import {
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    return yTk::i::call(yTk::i::expand_name($method), @_);
+    return scalar(yTk::i::call(yTk::i::expand_name($method), @_));
 }
 
-sub MainLoop {
+sub MainLoop () {
     while (eval { local $TRACE; yTk::i::call("winfo", "exists", ".") }) {
 	yTk::i::DoOneEvent(0);
     }
+}
+
+sub SplitList ($) {
+    my $list = shift;
+    return $list unless wantarray;
+    return @$list if ref($list) eq "ARRAY" || ref($list) eq "Tcl::List";
+    return yTk::i::call("concat", $list);
 }
 
 *Ev = \&Tcl::Ev;
@@ -137,16 +144,16 @@ sub AUTOLOAD {
 	if (my $mega = $mega{$widget}) {
 	    return $mega->_Populate($widget, $name, @_);
 	}
-	return $self->_nclass->new(yTk::i::call($widget, $name, @_));
+	return $self->_nclass->new(scalar(yTk::i::call($widget, $name, @_)));
     }
 
     if ($prefix eq "e_") {
-        return yTk::i::call(yTk::i::expand_name(substr($method, 2)), $$self, @_);
+        return scalar(yTk::i::call(yTk::i::expand_name(substr($method, 2)), $$self, @_));
     }
 
     if ($prefix eq "i_") {
 	my @i = yTk::i::expand_name(substr($method, 2));
-	return yTk::i::call($self->_ipath($i[0]), @i, @_);
+	return scalar(yTk::i::call($self->_ipath($i[0]), @i, @_));
     }
     elsif (index($prefix, "_") != -1) {
 	require Carp;
@@ -343,6 +350,16 @@ This creates an object that if passed as an argument to a callback
 will expand the corresponding Tcl template vars in the context of that
 callback.
 
+=item yTk::SplitList( $list )
+
+This will split up a Tcl list into Perl list.  The individual elements
+of the list are returned as separate elements:
+
+    @a = yTk::SplitList(yTk::set("a"));
+
+This function might croak if the argument is not a well formed list.
+In scalar context this function is a no-op and it returns $list unchanged.
+
 =item yTk::I<foo>( @args )
 
 Any other function will invoke the I<foo> Tcl function with the given
@@ -379,9 +396,8 @@ fill in Tcl provided info as arguments.  Eg:
     yTk::after(3000, sub { print "Hi" });
     yTk::bind(".", "<Key>", [sub { print "$_[0]\n"; }, yTk::Ev("%A")]);
 
-In scalar context the Tcl string result is returned.  In array context
-the return value is interpreted as a list and broken up before it is
-returned to Perl.  Tcl errors are propagated as Perl exceptions.
+The Tcl string result is returned in both scalar and array context.
+Tcl errors are propagated as Perl exceptions.
 
 If the boolean variable $yTk::TRACE is set to a true value, then a
 trace of all commands passed to Tcl will be printed on STDERR.  This
