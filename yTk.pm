@@ -126,6 +126,7 @@ sub DESTROY {
 package yTk::i;
 
 use Tcl;
+$Tcl::STACK_TRACE = 0;
 
 my $interp;
 my $trace_count = 0;

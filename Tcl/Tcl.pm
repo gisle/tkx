@@ -2,6 +2,7 @@ package Tcl;
 use Carp;
 
 $Tcl::VERSION = '0.81';
+$Tcl::STACK_TRACE = 1;
 
 =head1 NAME
 
@@ -404,7 +405,10 @@ sub call {
     # A SvIV will become a Tcl_IntObj, ARRAY refs will become Tcl_ListObjs,
     # and so on.  The return result from icall will do the opposite,
     # converting a Tcl_Obj to an SV.
-    if (wantarray) {
+    if (!$Tcl::STACK_TRACE) {
+	return $interp->icall(@args);
+    }
+    elsif (wantarray) {
 	my @res;
 	eval { @res = $interp->icall(@args); };
 	if ($@) {
