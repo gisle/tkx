@@ -87,3 +87,66 @@ sub i_cget {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+yTk::MegaConfig - handle configuration options for mega widgets
+
+=head1 SYNOPSIS
+
+  package Foo;
+  use base qw(yTk::widget yTk::MegaConfig);
+
+  __PACKAGE__->_Mega("foo");
+  __PACKAGE__->_Config(
+      -option  => [$where, $dbName, $dbClass, $default],
+  );
+
+=head1 DESCRIPTION
+
+The C<yTk::MegaConfig> class provide implementations of i_configure()
+and i_cget() that can handle configuration options for mega widgets.
+How there methods behave is set up by calling the _Config() class
+method.  The _Config() method takes a set option/option spec pairs as
+argument.
+
+An option argument is either the name of an option (with leading '-')
+or the string 'DEFAULT' if this spec applies to all option with no
+explict spec.
+
+The spec should be an array reference.  The first element of the array
+($where) describe how this option is handled.  Some $where specs take
+arguments.  If you need to provide argument replace $where with an
+array reference containg [$where, @args].  The rest specify names and
+default for the options database, but is currently ignored.
+
+The following $where specs are understood:
+
+=over
+
+=item .foo
+
+Delegate the given configuration option to the "foo" kid of the mega
+widget.  The name "." can be used to deletegate to the mega widget
+root itself.  An argument can be given to delegate using a different
+name on the "foo" widget.
+
+=item METHOD
+
+Call the I<_config_>I<opt> method.  For i_cget() no arguments are
+given, while for i_configure() the new value is passed.  An argument
+can be given to forward to that method instead of I<_config_>I<opt>.
+
+=item PASSIVE
+
+Store or retrieve option from $self->_data.
+
+=back
+
+=head1 SEE ALSO
+
+L<yTk>
+
+Inspiration for this module comes from L<Tk::ConfigSpecs>.

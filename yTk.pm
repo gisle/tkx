@@ -357,8 +357,8 @@ embedded underlines:
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
 This allow us conveniently to map most of the Tcl namespace to perl.
-If this mapping does not suit you use yTk::i::call($foo, @args); this
-will invoke the given function with no substitutions.
+If this mapping does not suit you use yTk::i::call($func, @args); this
+will invoke the given function $func with no substitutions or magic.
 
 Examples:
 
@@ -427,24 +427,39 @@ L</Meta widgets>.
 
 =item $w->_data
 
-Returns a hash that can be used to keep instance specific data.
-Hopefully useful for implementing mega-widgets.  The data is
+Returns a hash that can be used to keep instance specific data.  This
+is useful for holding instance data for mega widgets.  The data is
 automatically destroyed when the corresponding widget is destroyed.
 
 =item $w->_parent
 
-Returns a handle for the parent widget.
+Returns a handle for the parent widget.  Returns C<undef> if there is
+no parent, i.e. $w is the root.
 
 =item $w->_kid( $name )
 
-Returns a handle for a kid widget with the given name.
+Returns a handle for a kid widget with the given name.  The $name
+should not contain any dots.
 
 =item $w->_class( $class )
 
 Set widget handle class for the current path.  This will both change
 the class of the current handle and make sure later handles created
 for the path have belong to the given class.  The class should
-normally be a subclass of C<yTk::widget>.
+normally be a subclass of C<yTk::widget>.  Overriding the class for a
+path is useful for implementing mega widgets.
+
+=item $w->_nclass
+
+This returns the default widget handle class that will be used for
+kids and parent.  Subclasses might want to override this method.
+The default implementation always returns C<yTk::widget>.
+
+=item $w->_ipath( $method )
+
+This returns a Tcl widget path that will be used to forward any
+i_I<foo> method calls.  Mega widgets might want to override this
+method.  The default implementation returns C<$w>.
 
 =item $new_w = $w->n_I<foo>( @args )
 
@@ -466,6 +481,10 @@ Example:
 
     $w->n_iwidgets_calendar(-name => "cal");
 
+If a mega widget implementation class has be registered for I<foo>,
+then its _Populate() method is called instead of passing widget
+creation to Tcl.
+
 =item $w->i_I<foo>( @args )
 
 This will invoke the I<foo> subcommand for the current widget.  This
@@ -482,17 +501,25 @@ Example:
 
     $w->i_configure(-background => "red");
 
+Subclasses might override the _ipath() method to have i_I<foo> forward
+the subcommand somewhere else than the current widget.
+
 =item $w->e_I<foo>( @args )
 
-This will invoke the I<foo> command with the current widget as first
-argument.  This is the same as:
+This will invoke the I<foo> Tcl command with the current widget as
+first argument.  This is the same as:
 
     $func = "yTk::foo";
     &$func($w, @args);
 
+Any underscores in the name I<foo> are expanded as described for
+yTk::foo() above.
+
 Example:
 
     $w->e_pack_forget;
+
+
 
 =item $w->I<foo>( @args )
 
@@ -508,7 +535,7 @@ future extensions to this API.
 =head2 Mega widgets
 
 Mega widgets can be implemented in Perl and used by yTk.  To declare a
-mega widget make a perl class like this one:
+mega widget make a Perl class like this one:
 
     package Foo;
     use base 'yTk::widget';
@@ -528,21 +555,24 @@ with:
     $w->n_foo(-text => "Hi", -foo => 1);
 
 then the _Populate() class method of C<Foo> is called.  It will be
-passed the name of the widget type to create, the full path to use as
-name and any option passed in.  The widget name is passed in so that a
+passed the the widget type to create, the full path to use as widget
+name and any options passed in.  The widget name is passed in so that a
 single Perl class can implement multiple widget types.
 
 The _Populate() class should create a root object with the given $path
 as name and populate it with the internal widgets.  Normally the root
 object will be forced to belong to the implementation class so that it
 can trap various method calls on it.  By using the _class() method to
-set class we ensure that new handles to this mega widget also get this
-class.
+set class _Populate() can ensure that new handles to this mega widget
+also use this class.
 
-The implementation class can define an _i() method to delegate any
+The implementation class can define an _ipath() method to delegate any
 i_I<foo> method calls to one of its subwidgets and it might want to
 override the i_configure() and i_cget() methods if it implements
-additional options or want more control over delegation.
+additional options or want more control over delegation.  The class
+C<yTk::MegaConfig> provide implementations of i_configure() and
+i_cget() that can be useful for controlling delegation of
+configuration options.
 
 See L<yTk::LabEntry> for a trivial example mega widget.
 
