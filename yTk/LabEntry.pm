@@ -11,11 +11,11 @@ sub _Populate {
     my($class, $widget, $path, %opt) = @_;
 
     my $self = $class->new($path)->_parent->n_frame(-name => $path);
+    $self->_class($class);
 
     $self->n_label(-name => "lab", -text => delete $opt{-label})->e_pack(-side => "left");
     $self->n_entry(-name => "e", %opt)->e_pack(-side => "left", -fill => "both", -expand => 1);
 
-    $self->_class($class);
     $self;
 }
 
