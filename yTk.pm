@@ -185,7 +185,13 @@ sub call {
 	}
 	my($cmd, @args) = @_;
 	for (@args) {
-	    if (!ref) {
+	    if (ref eq "ARRAY" || ref eq "Tcl::List") {
+		$_ = $interp->call("format", "[list %s]", $_);
+	    }
+	    elsif (ref eq "CODE" || ref eq "ARRAY" && ref($_->[0]) eq "CODE") {
+		$_ = "perl::callback";
+	    }
+	    else {
 		if ($TRACE_MAX_STRING && length > $TRACE_MAX_STRING) {
 		    substr($_, 2*$TRACE_MAX_STRING/3, -$TRACE_MAX_STRING/3) = " ... ";
 		}
@@ -196,12 +202,6 @@ sub call {
 		s/([^\x00-\xFF])/sprintf "\\u%04x", ord($1)/ge;
 		s/([^\x20-\x7e])/sprintf "\\x%02x", ord($1)/ge;
 		$_ = "{$_}" if / /;
-	    }
-	    elsif (ref eq "CODE" || ref eq "ARRAY" && ref($_->[0]) eq "CODE") {
-		$_ = "perl::callback";
-	    }
-	    else {
-		$_ = $interp->call("format", "[list %s]", $_);
 	    }
 	}
 	print STDERR join(" ", "yTk-$trace_count-$ts:", $cmd, @args) . "\n";
