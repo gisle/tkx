@@ -22,7 +22,7 @@ $mw->n_ArrowButton->e_pack;
 $mw->n_ArrowButton->e_pack;
 $mw->n_ArrowButton->e_pack;
 
-my $f = $mw->n_frame(-width => 30, -height => 30, -background => "white");
+my $f = $mw->n_frame(-width => 30, -height => 30, -background => "white", -name => "xxx");
 $f->e_pack;
 $f->n_ArrowButton->e_pack;
 

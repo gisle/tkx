@@ -33,7 +33,6 @@ package yTk::widget;
 use overload '""' => sub { ${$_[0]} },
              fallback => 1;
 
-my %count;
 my %data;
 my %class;
 
@@ -45,7 +44,7 @@ sub new {
                                                   ($class{$name} = $class));
 }
 
-sub data {
+sub _data {
     my $self = shift;
     return $data{$$self} ||= {};
 }
@@ -59,11 +58,15 @@ sub AUTOLOAD {
 
     if ($prefix eq "n_") {
 	my $widget = yTk::i::expand_name(substr($method, 2));
-	my $name = lc($widget) . ++$count{lc($widget)};
-	while ((my $i = index($name, "::")) >= 0) {
-	    substr($name, $i, 2) = "_";
+	my $name;
+	for (my $i = 0; $i < @_; $i += 2) {
+	    if ($_[$i] eq "-name") {
+		(undef, $name) = splice(@_, $i, 2);
+		substr($name, 0, 0) = ($$self eq "." ? "." : "$$self.");
+		last;
+	    }
 	}
-	substr($name, 0, 0) = ($$self eq "." ? "." : "$$self.");
+	$name ||= yTk::i::wname($widget, $$self);
 	return ref($self)->new(yTk::i::call($widget, $name, @_));
     }
 
@@ -132,6 +135,22 @@ sub expand_name {
     }
     splice(@f, 0, 2, "$f[0]_$f[1]") if @f >= 2 && $f[0] eq "tk";  # tk_foo kept as is
     wantarray ? @f : $f[0];
+}
+
+sub wname {
+    my($class, $parent) = @_;
+    my $name = lc($class);
+    $name =~ s/.*:://;
+    substr($name, 1) = "";
+    my @kids = call("winfo", "children", $parent);
+    substr($name, 0, 0) = ($parent eq "." ? "." : "$parent.");
+    if (grep $_ eq $name, @kids) {
+	my %kids = map { $_ => 1 } @kids;
+	my $count = 2;
+	$count++ while $kids{"$name$count"};
+	$name .= $count;
+    }
+    $name;
 }
 
 sub call {
@@ -207,18 +226,21 @@ callback.
 
 =item yTk::I<foo>( @args )
 
-Any other function will invoke the given Tcl function with the given
+Any other function will invoke the I<foo> Tcl function with the given
 arguments.
 
-The name I<foo> is first undergo the following substitutions of
+The name I<foo> first undergo the following substitutions of
 embedded underlines:
 
-    foo_bar  -->  "foo", "bar"
+    foo_bar  -->  "foo", "bar"   # break into words
     tk_bar   -->  "tk_bar"       # don't expand a "tk_" prefix
     foo__bar -->  "foo::bar"
-    foo___bar --> "foo_bar"
+    foo___bar --> "foo_bar"      # when you actually need a '_'
 
 This allow us conveniently to map most of the Tcl namespace to perl.
+For the rest call yTk::i::call($foo, @args).  This will invoke the
+given function with no substitutions.
+
 Examples:
 
     yTk::expr("3 + 3");
@@ -227,45 +249,28 @@ Examples:
 
 The arguments passed can be plain scalars or array references which
 are converted to Tcl lists.  The arrays can contain other array
-references or plain scalars.
+references or plain scalars to form nested lists.
 
-For Tcl APIs that require callbacks you can pass references to a
+For Tcl APIs that require callbacks you can pass a reference to a
 perl function.  Alternatively an array reference with a code
-reference as the first argument will allow the callback to receive the
+reference as the first argument, will allow the callback to receive the
 given arguments when invoked.  The yTk::Ev() function can be used to
 fill in Tcl provided info as arguments.  Eg:
 
     yTk::after(3000, sub { print "Hi" });
     yTk::bind(".", "<Key>", [sub { print "$_[0]\n"; }, yTk::Ev("%A")]);
 
-=item yTk::i:call($foo, @args)
-
-This will invoke the $foo function without doing any magic
-substitutions on its name.
-
-=back
-
-The following variables are provided by the yTk namespace:
-
-=over
-
-=item $yTk::TRACE
-
-If this boolean is set to a true value, then we a trace of all
-commands passed to Tcl will be printed on STDERR.  This variable is
-initialized from the C<PERL_YTK_TRACE> environment variable.
+If the boolean variable $yTk::TRACE is set to a true value, then we a
+trace of all commands passed to Tcl will be printed on STDERR.  This
+variable is initialized from the C<PERL_YTK_TRACE> environment
+variable.
 
 =back
 
 =head2 Widget handles
 
 The class C<yTk::widget> is used to wrap Tk widget paths or names.
-These objects stringify as the path they wrap so they can be used as
-if they were the plain path as well.
-
-Only names starting with C<_> are used by the interface.  All other
-names can be set up for as suitable by the user code.  See the
-_MapMethod() function for details.
+These objects stringify as the path they wrap.
 
 The following methods are provided:
 
@@ -276,7 +281,7 @@ The following methods are provided:
 This constructs a new widget handle for a given path.  It is not a
 problem to have multiple handle objects to the same path.
 
-=item $w->data
+=item $w->_data
 
 Returns a hash that can be used to keep instance specific data.
 Hopefully useful for implementing mega-widgets.  The data is
@@ -286,13 +291,20 @@ automatically destroyed when the corresponding widget is destroyed.
 
 This creates a new I<foo> widget as a child of the current widget.  It
 will call the I<foo> Tcl command and pass it a new unique subpath of
-the current path.  The handle to the new widget is returned.
-Any underscores in the name I<foo> is expanded as described for
+the current path.  The handle to the new widget is returned.  Any
+double underscores in the name I<foo> is expanded as described for
 yTk::foo() above.
 
 Example:
 
     $w->n_label(-text => "Hello", -relief => "sunken");
+
+The name selected for the child will be the first letter in the widget
+followed by a number to ensure uniqeness among the childen.  If a
+C<-name> argument is passed it is used to form the name and then
+removed from the arglist passed to Tcl.  Example:
+
+    $w->n_iwidgets_calendar(-name => "cal");
 
 =item $w->i_I<foo>( @args )
 
