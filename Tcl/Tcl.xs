@@ -484,7 +484,7 @@ SvFromTclObj(pTHX_ Tcl_Obj *objPtr)
 	    for (i = 0; i < objc; i++) {
 		av_push(av, SvFromTclObj(aTHX_ objv[i]));
 	    }
-	    sv = newRV_noinc((SV *) av);
+	    sv = sv_bless(newRV_noinc((SV *) av), gv_stashpv("Tcl::List", 1));
 	}
 	else {
 	    sv = newSVpvn("", 0);
@@ -516,7 +516,9 @@ TclObjFromSv(pTHX_ SV *sv)
     if (SvGMAGICAL(sv))
 	mg_get(sv);
 
-    if (SvROK(sv) && !SvOBJECT(SvRV(sv)) && (SvTYPE(SvRV(sv)) == SVt_PVAV)) {
+    if (SvROK(sv) && SvTYPE(SvRV(sv)) == SVt_PVAV &&
+	(!SvOBJECT(SvRV(sv)) || sv_isa(sv, "Tcl::List")))
+    {
 	/*
 	 * Recurse into ARRAYs, turning them into Tcl list Objs
 	 */
@@ -1411,6 +1413,29 @@ Tcl_perl_detach(interp, name)
 	    NULL /* clientData*/
 	    );
         SPAGAIN;
+
+
+MODULE = Tcl		PACKAGE = Tcl::List
+
+SV*
+as_string(SV* sv,...)
+    PREINIT:
+	Tcl_Obj* objPtr;
+	int len;
+	char *str;
+    CODE:
+	objPtr = TclObjFromSv(aTHX_ sv);
+	Tcl_IncrRefCount(objPtr);
+	str = Tcl_GetStringFromObj(objPtr, &len);
+	RETVAL = newSVpvn(str, len);
+	/* should turn on, but let's check this first for efficiency */
+	if (len && has_highbit(str, len)) {
+	    SvUTF8_on(RETVAL);
+	}
+	Tcl_DecrRefCount(objPtr);
+    OUTPUT:
+	RETVAL
+
 
 MODULE = Tcl		PACKAGE = Tcl::Var
 
