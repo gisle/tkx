@@ -86,12 +86,14 @@ sub AUTOLOAD {
         return yTk::i::call(yTk::i::expand_name(substr($method, 2)), $$self, @_);
     }
 
-    if (substr($prefix, 1, 1) eq "_") {
+    if ($prefix eq "i_") {
+	$method = substr($method, 2);
+    }
+    elsif (substr($prefix, 1, 1) eq "_") {
 	require Carp;
 	Carp::croak("method '$method' reserved by yTk");
     }
 
-    $method = substr($method, 2) if $prefix eq "i_";
     return yTk::i::call($$self, yTk::i::expand_name($method), @_);
 }
 
