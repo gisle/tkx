@@ -422,11 +422,12 @@ replaced with $to.
 
 Examples:
 
-    yTk::widget::_MapMethod("button", "_n_button");
+    yTk::widget::_MapMethod("new_button", "_n_button");
     yTk::widget::_MapMethod("pack", "_e_pack");
     yTk::widget::_MapMethod(qr/^winfo_/, "_e_winfo_");
-    yTk::widget::_MapMethod("configure", "_i_configure");
-    yTk::widget::_MapMethod("getOpenFile", "_p_tk___getOpenFile");
+    yTk::widget::_MapMethod("cset", "_i_configure");
+    yTk::widget::_MapMethod("cget", "_i_cget");
+    yTk::widget::_MapMethod("get_open_file", "_p_tk___getOpenFile");
 
 =back
 
