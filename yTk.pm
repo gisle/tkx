@@ -12,8 +12,17 @@ our $VERSION = '0.01';
 package_require("Tk");
 
 our $TRACE;
-our $TRACE_MAX_STRING = 64;
+our $TRACE_MAX_STRING;
+our $TRACE_COUNT;
+our $TRACE_TIME;
+our $TRACE_CALLER;
+
 $TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
+$TRACE_MAX_STRING = 64 unless defined $TRACE_MAX_STRING;
+$TRACE_COUNT = 1 unless defined $TRACE_COUNT;
+$TRACE_TIME = 1 unless defined $TRACE_TIME;
+$TRACE_CALLER = 1 unless defined $TRACE_CALLER;
+
 
 sub import {
     my($class, @subs) = @_;
@@ -167,22 +176,41 @@ sub wname {
 
 sub call {
     if ($yTk::TRACE) {
-	$trace_count++;
-	unless ($trace_start_time) {
-	    if (eval { require Time::HiRes }) {
-		$trace_start_time = Time::HiRes::time();
+	my @prefix = "yTk";
+	if ($yTk::TRACE_COUNT) {
+	    push(@prefix, ++$trace_count);
+	}
+	if ($yTk::TRACE_TIME) {
+	    my $ts;
+	    unless ($trace_start_time) {
+		if (eval { require Time::HiRes }) {
+		    $trace_start_time = Time::HiRes::time();
+		}
+		else {
+		    $trace_start_time = time;
+		}
+	    }
+	    if (defined &Time::HiRes::time) {
+		$ts = sprintf "%.1fs", Time::HiRes::time() - $trace_start_time;
 	    }
 	    else {
-		$trace_start_time = time;
+		$ts = time - $trace_start_time;
+		$ts .= "s";
+	    }
+	    push(@prefix, $ts);
+	}
+	if ($yTk::TRACE_CALLER) {
+	    my $i = 0;
+	    while (my($pkg, $file, $line) = caller($i)) {
+		unless ($pkg eq "yTk" || $pkg =~ /^yTk::/) {
+		    $file =~ s,.*[/\\],,;
+		    push(@prefix, $file, $line);
+		    last;
+		}
+		$i++;
 	    }
 	}
-	my $ts;
-	if (defined &Time::HiRes::time) {
-	    $ts = sprintf "%.1f", Time::HiRes::time() - $trace_start_time;
-	}
-	else {
-	    $ts = time - $trace_start_time;
-	}
+
 	my($cmd, @args) = @_;
 	for (@args) {
 	    if (ref eq "ARRAY" || ref eq "Tcl::List") {
@@ -204,7 +232,7 @@ sub call {
 		$_ = "{$_}" if / /;
 	    }
 	}
-	print STDERR join(" ", "yTk-$trace_count-$ts:", $cmd, @args) . "\n";
+	print STDERR join(" ", (join("-", @prefix) . ":"), $cmd, @args) . "\n";
     }
     my @cleanup;
     if ($_[0] eq "destroy") {
