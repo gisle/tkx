@@ -20,6 +20,8 @@ $b->pack;
 yTk::package_require("BWidget");
 $mw->_n_ArrowButton->pack;
 
+$b->_e_DynamicHelp__add(-text => "Click here to exit");
+
 print "NAME:" . $b->winfo_name . "\n";
 
 yTk::MainLoop();

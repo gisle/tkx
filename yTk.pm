@@ -89,12 +89,15 @@ sub _data {
 sub AUTOLOAD {
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    my @m = substr($method, 0, 1) eq "_" ? ($method) : yTk::i::expand_name($method);
+    my $orig = $method;
+    my $underline = substr($method, 0, 1) eq "_";
+    my @m = $underline ? ($method) : yTk::i::expand_name($method);
     $method = shift(@m);
     $method = $method{$method} if $method{$method};
     my $self = shift;
     if (substr($method, 0, 1) eq "_") {
 	my $kind = substr($method, 0, 3, "");
+	($method, @m) = yTk::i::expand_name($method) if $underline;
 	if ($kind eq "_n_") {
 	    my $n = lc($method) . ++$count{lc($method)};
 	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
@@ -114,9 +117,8 @@ sub AUTOLOAD {
 	elsif ($kind eq "_t_") {
 	    return yTk::i::call($method, @m, @_);
 	}
-	$method = "$kind$method";
     }
-    die "Can't locate method '$method' for yTk widget";
+    die "Can't locate method '$orig' for yTk widget";
 }
 
 sub DESTROY {
