@@ -12,6 +12,7 @@ our $VERSION = '0.01';
 package_require("Tk");
 
 our $TRACE;
+our $TRACE_MAX_STRING = 64;
 $TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
 
 sub import {
@@ -184,12 +185,23 @@ sub call {
 	}
 	my($cmd, @args) = @_;
 	for (@args) {
-	    next unless ref;
-	    if (ref eq "CODE" || ref eq "ARRAY" && ref($_->[0]) eq "CODE") {
+	    if (!ref) {
+		if ($TRACE_MAX_STRING && length > $TRACE_MAX_STRING) {
+		    substr($_, 2*$TRACE_MAX_STRING/3, -$TRACE_MAX_STRING/3) = " ... ";
+		}
+		s/([\\{}\"\[\]\$])/\\$1/g;
+		s/\r/\\r/g;
+		s/\n/\\n/g;
+		s/\t/\\t/g;
+		s/([^\x00-\xFF])/sprintf "\\u%04x", ord($1)/ge;
+		s/([^\x20-\x7e])/sprintf "\\x%02x", ord($1)/ge;
+		$_ = "{$_}" if / /;
+	    }
+	    elsif (ref eq "CODE" || ref eq "ARRAY" && ref($_->[0]) eq "CODE") {
 		$_ = "perl::callback";
 	    }
 	    else {
-		$_ = $interp->call("format", "{%s}", $_);
+		$_ = $interp->call("format", "[list %s]", $_);
 	    }
 	}
 	print STDERR join(" ", "yTk-$trace_count-$ts:", $cmd, @args) . "\n";
