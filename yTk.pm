@@ -36,7 +36,7 @@ sub AUTOLOAD {
 }
 
 sub MainLoop {
-    while (eval { yTk::i::call("winfo", "exists", ".") }) {
+    while (eval { local $TRACE; yTk::i::call("winfo", "exists", ".") }) {
 	yTk::i::DoOneEvent(0);
     }
 }
@@ -107,7 +107,6 @@ sub new {
 
 sub DESTROY {
     my $self = shift;
-    print "DESTROY @$self\n";
     for my $path (@$self) {
 	if ($path eq ".") {
 	    %data = ();
@@ -220,8 +219,8 @@ GUI toolkit tied to the Tcl language, and C<yTk> provide a bridge to
 Tcl that allows Tk based applications to be written in Perl.
 
 The main idea behind yTk is that it should only be a thin wrapper on
-top of Tcl, i.e. that what you get is exactly what you read in the
-Tcl/Tk docs.
+top of Tcl, i.e. that what you get is exactly the behaviour you read
+about in the Tcl/Tk documentation.
 
 The following functions are provided:
 
@@ -282,7 +281,13 @@ returned to Perl.  Tcl errors are propagated as Perl exceptions.
 If the boolean variable $yTk::TRACE is set to a true value, then a
 trace of all commands passed to Tcl will be printed on STDERR.  This
 variable is initialized from the C<PERL_YTK_TRACE> environment
-variable.
+variable.  The trace is useful for debugging and if you need to report
+errors to the Tcl maintainers.  The trace lines are prefixed with:
+
+    yTk-$seq-$ts:
+
+where $seq is a sequence number and $ts is a timestamp in seconds
+since the first command was issued.
 
 =back
 
