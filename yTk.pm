@@ -59,16 +59,52 @@ use overload '""' => sub { ${$_[0]} },
              fallback => 1;
 
 my %data;
+my %class;
+my %mega;
 
 sub new {
     my $class = shift;
     my $name = shift;
-    return bless \$name, $class;
+    return bless \$name, $class{$name} || $class;
 }
 
 sub _data {
     my $self = shift;
     return $data{$$self} ||= {};
+}
+
+sub _kid {
+    my($self, $name) = @_;
+    substr($name, 0, 0) = $$self eq "." ? "." : "$$self.";
+    return ref($self)->new($name);
+}
+
+sub _parent {
+    my $self = shift;
+    my $name = $$self;
+    return undef if $name eq ".";
+    substr($name, rindex($name, ".")) = "";
+    $name = "." unless length($name);
+    return ref($self)->new($name);
+}
+
+sub _class {
+    my $self = shift;
+    my $class = shift || caller;
+    $class{$$self} = $class;
+    bless $self, $class;
+}
+
+sub _Mega {
+    my $class = shift;
+    my $widget = shift;
+    my $impclass = shift || caller;
+    $mega{$widget} = $impclass;
+}
+
+sub _i {
+    my $self = shift;
+    $$self;
 }
 
 sub AUTOLOAD {
@@ -84,11 +120,15 @@ sub AUTOLOAD {
 	for (my $i = 0; $i < @_; $i += 2) {
 	    if ($_[$i] eq "-name") {
 		(undef, $name) = splice(@_, $i, 2);
-		substr($name, 0, 0) = ($$self eq "." ? "." : "$$self.");
+		substr($name, 0, 0) = ($$self eq "." ? "." : "$$self.")
+		    if index($name, ".") == -1;
 		last;
 	    }
 	}
 	$name ||= yTk::i::wname($widget, $$self);
+	if (my $mega = $mega{$widget}) {
+	    return $mega->_Populate($widget, $name, @_);
+	}
 	return ref($self)->new(yTk::i::call($widget, $name, @_));
     }
 
@@ -97,14 +137,15 @@ sub AUTOLOAD {
     }
 
     if ($prefix eq "i_") {
-	$method = substr($method, 2);
+	return yTk::i::call($self->_i, yTk::i::expand_name(substr($method, 2)), @_);
     }
-    elsif (substr($prefix, 1, 1) eq "_") {
+    elsif (index($prefix, "_") != -1) {
 	require Carp;
 	Carp::croak("method '$method' reserved by yTk");
     }
 
-    return yTk::i::call($$self, yTk::i::expand_name($method), @_);
+    $method = "i_$method";
+    return $self->$method(@_);
 }
 
 sub DESTROY {}  # avoid AUTOLOADing it
@@ -126,9 +167,11 @@ sub DESTROY {
 	}
 
 	my $path_re = qr/^\Q$path\E(?:\.|\z)/;
-	for my $key (keys %data) {
-	    next unless $key =~ $path_re;
-	    delete $data{$key};
+        for my $hash (\%data, \%class) {
+	    for my $key (keys %$hash) {
+		next unless $key =~ $path_re;
+		delete $hash->{$key};
+	    }
 	}
     }
 }
@@ -368,11 +411,31 @@ The following methods are provided:
 This constructs a new widget handle for a given path.  It is not a
 problem to have multiple handle objects to the same path.
 
+=item yTk::widget->_Mega( $widget, $class )
+
+This register $class as the one implementing $widget widgets.  See
+L</Meta widgets>.
+
 =item $w->_data
 
 Returns a hash that can be used to keep instance specific data.
 Hopefully useful for implementing mega-widgets.  The data is
 automatically destroyed when the corresponding widget is destroyed.
+
+=item $w->_parent
+
+Returns a handle for the parent widget.
+
+=item $w->_kid( $name )
+
+Returns a handle for a kid widget with the given name.
+
+=item $w->_class( $class )
+
+Set widget handle class for the current path.  This will both change
+the class of the current handle and make sure later handles created
+for the path have belong to the given class.  The class should
+normally be a subclass of C<yTk::widget>.
 
 =item $new_w = $w->n_I<foo>( @args )
 
@@ -424,14 +487,55 @@ Example:
 
 =item $w->I<foo>( @args )
 
-If there is no prefix of the form /^[a-zA-Z]_/, then it is treated as
-if it had the "i_" prefix, i.e. the I<foo> subcommand for the current
-widget is invoked.
+If there is no prefix of the form /^[a-zA-Z]_/ or /^_/, then it is
+treated as if it had the "i_" prefix, i.e. the I<foo> subcommand for
+the current widget is invoked.
 
-The method names with prefix /^[a-zA-Z]_/ are reserved for future
-extensions to this API.
+The method names with prefix /^[a-zA-Z]_/ and /^_/ are reserved for
+future extensions to this API.
 
 =back
+
+=head2 Mega widgets
+
+Mega widgets can be implemented in Perl and used by yTk.  To declare a
+mega widget make a perl class like this one:
+
+    package Foo;
+    use base 'yTk::widget';
+    Foo->_Mega("foo");
+
+    sub _Populate {
+        my($class, $widget, $path, %opt) = @_;
+        ...
+    }
+
+The mega widget class should inherit from C<yTk::widget> and will
+register itself by calling the _Mega() class method.  In the example
+above we tell yTk that any "foo" widgets should be handled by the Perl
+class "Foo" instead of Tcl.  When a new "foo" widget is instantiated
+with:
+
+    $w->n_foo(-text => "Hi", -foo => 1);
+
+then the _Populate() class method of C<Foo> is called.  It will be
+passed the name of the widget type to create, the full path to use as
+name and any option passed in.  The widget name is passed in so that a
+single Perl class can implement multiple widget types.
+
+The _Populate() class should create a root object with the given $path
+as name and populate it with the internal widgets.  Normally the root
+object will be forced to belong to the implementation class so that it
+can trap various method calls on it.  By using the _class() method to
+set class we ensure that new handles to this mega widget also get this
+class.
+
+The implementation class can define an _i() method to delegate any
+i_I<foo> method calls to one of its subwidgets and it might want to
+override the i_configure() and i_cget() methods if it implements
+additional options or want more control over delegation.
+
+See L<yTk::LabEntry> for a trivial example mega widget.
 
 =head1 ENVIRONMENT
 
