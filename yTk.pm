@@ -33,52 +33,12 @@ my %count;
 my %data;
 my %class;
 
-my %method = (
-    bell        => "_d_bell",
-    bind        => "_e_bind",
-    bindtags    => "_e_bindtags",
-    button      => "_n_button",
-    canvas      => "_n_canvas",
-    cget        => "_i_cget",
-    checkbutton => "_n_checkbutton",
-    chooseColor => "_p_tk_chooseColor",
-    chooseDirectory => "_p_tk_chooseDirectory",
-    configure   => "_i_configure",
-    destroy     => "_e_destroy",
-    entry       => "_n_entry",
-    focus       => "_e_focus",
-    frame       => "_n_frame",
-    getOpenFile => "_p_tk_getOpenFile",
-    getSaveFile => "_p_tk_getSaveFile",
-    grid        => "_e_grid",
-    label       => "_n_label",
-    labelframe  => "_n_labelframe",
-    listbox     => "_n_listbox",
-    lower       => "_e_lower",
-    menu        => "_n_menu",
-    menubutton  => "_n_menubutton",
-    message     => "_n_message",
-    messageBox  => "_p_tk_messageBox",
-    optionMenu  => "_n_tk_optionMenu",
-    pack        => "_e_pack",
-    panedwindow => "_n_panedwindow",
-    place       => "_e_place",
-    popup       => "_e_tk_popup",
-    radiobutton => "_n_radiobutton",
-    raise       => "_e_raise",
-    scale       => "_n_scale",
-    selection   => "_d_selection",
-    spinbox     => "_n_spinbox",
-    text        => "_n_text",
-    toplevel    => "_n_toplevel",
-    winfo       => "_e_winfo",
-    wm          => "_e_wm",
-);
-
 sub _new {
     my $class = shift;
     my $name = shift;
-    return bless \$name, $class{$name} || ($class eq __PACKAGE__ ? $class : ($class{$name} = $class));
+    return bless \$name, $class{$name} ||
+	                 ($class eq __PACKAGE__ ? $class :
+                                                  ($class{$name} = $class));
 }
 
 sub _data {
@@ -86,39 +46,68 @@ sub _data {
     return $data{$$self} ||= {};
 }
 
+my @method_re_map;
+my %method_map;
+
+sub _MapMethod {
+    my($from, $to) = @_;
+    if (ref($from) eq "Regexp") {
+	push(@method_re_map, [$from, $to]);
+    }
+    else {
+	$method_map{$from} = $to;
+    }
+}
+
+sub _method {
+    my(undef, $method) = @_;  # ignore self
+    return $method_map{$method} if exists $method_map{$method};
+    for (@method_re_map) {
+	my($re, $replacement) = @$_;
+	if ($method =~ $re) {
+	    print "MATCH [$method] [@-] [@+]\n";
+	    substr($method, $-[0], $+[0] - $-[0]) = $replacement;
+	    print "   --- $method\n";
+	    last;
+	}
+    }
+    return $method;
+}
+
 sub AUTOLOAD {
+    my $self = shift;
+
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
     my $orig = $method;
-    my $underline = substr($method, 0, 1) eq "_";
-    my @m = $underline ? ($method) : yTk::i::expand_name($method);
-    $method = shift(@m);
-    $method = $method{$method} if $method{$method};
-    my $self = shift;
+
+    $method = $self->_method($method) unless substr($method, 0, 1) eq "_";
+
     if (substr($method, 0, 1) eq "_") {
 	my $kind = substr($method, 0, 3, "");
-	($method, @m) = yTk::i::expand_name($method) if $underline;
+	my @m_args;
+	($method, @m_args) = yTk::i::expand_name($method);
 	if ($kind eq "_n_") {
 	    my $n = lc($method) . ++$count{lc($method)};
 	    substr($n, 0, 0) = ($$self eq "." ? "." : "$$self.");
-	    return ref($self)->_new(yTk::i::call($method, $n, @m, @_));
+	    return ref($self)->_new(yTk::i::call($method, $n, @m_args, @_));
 	}
 	elsif ($kind eq "_i_") {
-	    return yTk::i::call($$self, $method, @m, @_);
+	    return yTk::i::call($$self, $method, @m_args, @_);
 	}
 	elsif ($kind eq "_e_") {
-	    return yTk::i::call($method, @m, $$self, @_);
+	    return yTk::i::call($method, @m_args, $$self, @_);
 	}
 	elsif ($kind eq "_d_" || $kind eq "_p_") {
-	    return yTk::i::call($method, @m,
+	    return yTk::i::call($method, @m_args,
 				($kind eq "_d_" ? "-displayof" : "-parent"), $$self,
 				@_);
 	}
 	elsif ($kind eq "_t_") {
-	    return yTk::i::call($method, @m, @_);
+	    return yTk::i::call($method, @m_args, @_);
 	}
     }
-    die "Can't locate method '$orig' for yTk widget";
+    die "Can't locate method '$orig' for " . ref($self);
 }
 
 sub DESTROY {
