@@ -67,7 +67,9 @@ sub _method {
     for (@method_re_map) {
 	my($re, $replacement) = @$_;
 	if ($method =~ $re) {
+	    my $orig_method = $method;
 	    substr($method, $-[0], $+[0] - $-[0]) = $replacement;
+	    $method_map{$orig_method} = $method;  # faster lookup next time
 	    last;
 	}
     }
