@@ -203,3 +203,124 @@ sub DoOneEvent {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+yTk - Yet another Tk interface
+
+=head1 SYNOPSIS
+
+  use yTk;
+  $yTk::MW->_n_button(
+       -text => "Hello, world",
+       -command => sub { $yTk::MW->_e_destroy; },
+  )->_e_pack;
+  yTk::MainLoop();
+
+=head1 DESCRIPTION
+
+The yTk module provide yet another Tk interface.  The main idea behind
+yTk is that it should just be a thin wrapper on top of Tcl.  The
+following functions are provided by the yTk namespace:
+
+=over
+
+=item MainLoop( )
+
+This will enter the Tk mainloop and start processing events.  The
+function returns when the main window has been destoryed.  There is no
+return value.
+
+=item Ev( $field )
+
+This creates an object that if passed as an argument to a callback
+will expand the corresponding Tcl template vars in the context of that
+callback.
+
+=item I<foo>( @args )
+
+Any other function will invoke the given Tcl function with the given
+arguments.
+
+The name I<foo> is first undergo the following substitutions of
+embedded underlines:
+
+    foo_bar  -->  "foo", "bar"
+    foo__bar -->  "foo::bar"
+    foo___bar --> "foo_bar"
+
+This allow us conveniently to map all of the Tcl namespace to perl.  Examples:
+
+    yTk::expr("3", "+", "3");
+    yTk::package_require("BWidget");
+    yTk::DynamicHelp__add(".", -text => "Hi there");
+
+=back
+
+The following variables are provided by the yTk namespace:
+
+=over
+
+=item $yTk::MW
+
+This variable holds a reference to widget handle for the root widget;
+C<.> in Tcl.  See L</Widget handles> for more information.
+
+=item $yTk::TRACE
+
+If this boolean is set to a true value, then we a trace of all
+commands passed to Tcl will be printed on STDOUT.  This variable is
+initialized from the C<PERL_YTK_TRACE> environment variable.
+
+=back
+
+=head2 Widget handles
+
+The class C<yTk::widget> is used to wrap Tk widget paths or names.
+These objects stringify as the path they wrap so they can be used as
+if they were the plain path as well.
+
+The following methods are provided:
+
+=over
+
+=item $w = yTk::widget->_new( $path )
+
+Constructor
+
+=item $w->_data
+
+Returns a hash that can be used to keep instance specific data.
+
+=item $w->_n_I<foo>( @args )
+
+=item $w->_i_I<foo>( @args )
+
+=item $w->_e_I<foo>( @args )
+
+=item $w->_d_I<foo>( @args )
+
+=item $w->_p_I<foo>( @args )
+
+=item $w->_t_I<foo>( @args )
+
+=back
+
+The following functions are provided:
+
+=over
+
+=item yTk::widget::_MapMethod( $from, $to )
+
+=back
+
+=head1 ENVIRONMENT
+
+The C<PERL_YTK_TRACE> environment variable initialize the $yTk::TRACE setting.
+
+=head1 SEE ALSO
+
+L<Tcl>, L<Tcl::Tk>, L<Tk>
+
