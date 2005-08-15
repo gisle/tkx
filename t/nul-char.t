@@ -12,11 +12,11 @@ use Test qw(plan ok);
 
 plan tests => 1;
 
-use yTk;
+use Tkx;
 
 my $delay = shift || 1;
 
-my $mw = yTk::widget->new(".");
+my $mw = Tkx::widget->new(".");
 
 my $t = $mw->n_text();
 $t->e_pack(-fill => "both", -expand => 1);
@@ -28,7 +28,7 @@ $t->insert("end", "[\0 \x{2030}]\n");
 $t->insert("end", "bytes: " . join("", map chr, 0 .. 255) . "\n");
 $t->insert("end", "uni: " . join("", map chr, 0 .. 300) . "\n");
 
-yTk::eval("$t insert end \"\\0\\1\\2\\n\"");
+Tkx::eval("$t insert end \"\\0\\1\\2\\n\"");
 
 ok($t->get("1.0", "end"), <<"EOT");
 This is a string
@@ -43,10 +43,10 @@ uni: \0\1\2\3\4\5\6\a\b\t
 
 EOT
 
-yTk::after($delay * 1000, sub {
+Tkx::after($delay * 1000, sub {
     $mw->e_destroy;
 });
 
-yTk::MainLoop;
+Tkx::MainLoop;
 
 sub j { join(":", @_) }

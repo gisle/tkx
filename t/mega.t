@@ -5,11 +5,11 @@ use Test qw(plan ok);
 
 plan tests => 4;
 
-use yTk;
+use Tkx;
 
 my $delay = shift || 1;
 
-my $mw = yTk::widget->new(".");
+my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
 $mw->n_label(-text => "Foo")->e_pack;
@@ -28,19 +28,19 @@ ok($foo->cget("-foo"), undef);
 $foo->configure(-background => "yellow", -foo => 1);
 ok($foo->cget("-foo"), 1);
 
-yTk::after($delay * 1000, sub {
+Tkx::after($delay * 1000, sub {
     $mw->e_destroy;
 });
 
-yTk::MainLoop;
+Tkx::MainLoop;
 
 sub j { join(":", @_) }
 
 
 BEGIN {
     package Foo;
-    use base 'yTk::widget';
-    yTk::widget->_Mega("foo");
+    use base 'Tkx::widget';
+    Tkx::widget->_Mega("foo");
 
     sub _Populate {
 	my($class, $widget, $path, %opt) = @_;

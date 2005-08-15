@@ -12,12 +12,12 @@ use Test qw(plan ok);
 
 plan tests => 1;
 
-use yTk;
+use Tkx;
 
 my $delay = shift || 1;
 my $text = "«1000 \x{2030}»";
 
-my $mw = yTk::widget->new(".");
+my $mw = Tkx::widget->new(".");
 #$mw->configure(-border => 10);
 
 my $b = $mw->n_button(
@@ -34,10 +34,10 @@ $e->e_pack(-fill => "x", -expand => 1);
 $mw->e_wm_title("«1000 \x{2030}» is enough");
 ok($mw->e_wm_title, "«1000 \x{2030}» is enough");
 
-yTk::after($delay * 1000, sub {
+Tkx::after($delay * 1000, sub {
     $mw->e_destroy;
 });
 
-yTk::MainLoop;
+Tkx::MainLoop;
 
 sub j { join(":", @_) }

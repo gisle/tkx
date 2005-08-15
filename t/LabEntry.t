@@ -5,12 +5,12 @@ use Test qw(plan ok);
 
 plan tests => 1;
 
-use yTk;
-use yTk::LabEntry;
+use Tkx;
+use Tkx::LabEntry;
 
 my $delay = shift || 1;
 
-my $mw = yTk::widget->new(".");
+my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
 $mw->n_ytk_LabEntry(-label => "foo", -name => "e")->e_pack;
@@ -28,9 +28,9 @@ $mw->n_button(
 
 ok($e->cget("-label"), "foo");
 
-yTk::after($delay * 1000, sub {
+Tkx::after($delay * 1000, sub {
     $mw->e_destroy;
 });
 
-yTk::MainLoop;
+Tkx::MainLoop;
 

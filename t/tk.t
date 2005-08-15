@@ -5,18 +5,18 @@ use Test qw(plan ok);
 
 plan tests => 10;
 
-use yTk;
+use Tkx;
 
 my $delay = shift || 1;
 
-my $mw = yTk::widget->new(".");
+my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
 my $b = $mw->n_button(
     -text => "Test",
     -background => "gray",
     -command => sub {
-	if (yTk::tk_messageBox(
+	if (Tkx::tk_messageBox(
 	        -title => "Hi there",
                 -icon => "question",
                 -message => "Is this a fine day?",
@@ -45,11 +45,11 @@ ok(ref($b->_data), "HASH");
 $b->_data->{foo} = "bar";
 ok($b->_data->{foo}, "bar");
 
-yTk::after($delay * 1000, sub {
+Tkx::after($delay * 1000, sub {
     ok($b->e_winfo_ismapped);
     $mw->e_destroy;
 });
 
-yTk::MainLoop;
+Tkx::MainLoop;
 
 sub j { join(":", @_) }
