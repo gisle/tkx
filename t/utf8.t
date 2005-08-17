@@ -20,22 +20,22 @@ my $text = "«1000 \x{2030}»";
 my $mw = Tkx::widget->new(".");
 #$mw->configure(-border => 10);
 
-my $b = $mw->n_button(
+my $b = $mw->c_button(
     -text => "«1000 \x{2030}»",
     -width => 40,
 );
-$b->e_pack(-fill => "x", -expand => 1);
+$b->g_pack(-fill => "x", -expand => 1);
 
-my $e = $mw->n_entry(
+my $e = $mw->c_entry(
     -textvariable => \$text,
 );
-$e->e_pack(-fill => "x", -expand => 1);
+$e->g_pack(-fill => "x", -expand => 1);
 
-$mw->e_wm_title("«1000 \x{2030}» is enough");
-ok($mw->e_wm_title, "«1000 \x{2030}» is enough");
+$mw->g_wm_title("«1000 \x{2030}» is enough");
+ok($mw->g_wm_title, "«1000 \x{2030}» is enough");
 
 Tkx::after($delay * 1000, sub {
-    $mw->e_destroy;
+    $mw->g_destroy;
 });
 
 Tkx::MainLoop;

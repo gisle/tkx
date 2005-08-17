@@ -12,7 +12,7 @@ sub _Config {
     }
 }
 
-sub i_configure {
+sub m_configure {
     my $self = shift;
     my @rest;
     while (@_) {
@@ -30,7 +30,7 @@ sub i_configure {
 	}
 
 	if ($where =~ s/^\.//) {
-	    $self->_kid($where)->i_configure($where_args[0] || $opt, $val);
+	    $self->_kid($where)->m_configure($where_args[0] || $opt, $val);
 	    next;
 	}
 
@@ -52,13 +52,13 @@ sub i_configure {
 	die;
     }
 
-    $self->Tkx::widget::i_configure(@rest) if @rest;   # XXX want NEXT instead
+    $self->Tkx::widget::m_configure(@rest) if @rest;   # XXX want NEXT instead
 }
 
-sub i_cget {
+sub m_cget {
     my($self, $opt) = @_;
     my $spec = $spec{ref($self)}{$opt} || $spec{ref($self)}{DEFAULT};
-    return $self->Tkx::widget::i_cget($opt) unless $spec;  # XXX want NEXT instead
+    return $self->Tkx::widget::m_cget($opt) unless $spec;  # XXX want NEXT instead
 
     my $where = $spec->[0];
     my @where_args;
@@ -67,7 +67,7 @@ sub i_cget {
     }
 
     if ($where =~ s/^\.//) {
-	return $self->_kid($where)->i_cget($where_args[0] || $opt);
+	return $self->_kid($where)->m_cget($where_args[0] || $opt);
     }
 
     if ($where eq "METHOD") {
@@ -106,8 +106,8 @@ Tkx::MegaConfig - handle configuration options for mega widgets
 
 =head1 DESCRIPTION
 
-The C<Tkx::MegaConfig> class provide implementations of i_configure()
-and i_cget() that can handle configuration options for mega widgets.
+The C<Tkx::MegaConfig> class provide implementations of m_configure()
+and m_cget() that can handle configuration options for mega widgets.
 How these methods behave is set up by calling the _Config() class
 method.  The _Config() method takes a set option/option spec pairs as
 argument.
@@ -135,8 +135,8 @@ name on the "foo" widget.
 
 =item METHOD
 
-Call the I<_config_>I<opt> method.  For i_cget() no arguments are
-given, while for i_configure() the new value is passed.  An argument
+Call the I<_config_>I<opt> method.  For m_cget() no arguments are
+given, while for m_configure() the new value is passed.  An argument
 can be given to forward to that method instead of I<_config_>I<opt>.
 
 =item PASSIVE

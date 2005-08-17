@@ -120,7 +120,7 @@ sub _nclass {
     __PACKAGE__;
 }
 
-sub _ipath {
+sub _mpath {
     my $self = shift;
     $$self;
 }
@@ -132,7 +132,7 @@ sub AUTOLOAD {
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
     my $prefix = substr($method, 0, 2);
 
-    if ($prefix eq "n_") {
+    if ($prefix eq "c_") {
 	my $widget = Tkx::i::expand_name(substr($method, 2));
 	my $name;
 	for (my $i = 0; $i < @_; $i += 2) {
@@ -150,20 +150,20 @@ sub AUTOLOAD {
 	return $self->_nclass->new(scalar(Tkx::i::call($widget, $name, @_)));
     }
 
-    if ($prefix eq "e_") {
+    if ($prefix eq "g_") {
         return scalar(Tkx::i::call(Tkx::i::expand_name(substr($method, 2)), $$self, @_));
     }
 
-    if ($prefix eq "i_") {
+    if ($prefix eq "m_") {
 	my @i = Tkx::i::expand_name(substr($method, 2));
-	return scalar(Tkx::i::call($self->_ipath($i[0]), @i, @_));
+	return scalar(Tkx::i::call($self->_mpath($i[0]), @i, @_));
     }
     elsif (index($prefix, "_") != -1) {
 	require Carp;
 	Carp::croak("method '$method' reserved by Tkx");
     }
 
-    $method = "i_$method";
+    $method = "m_$method";
     return $self->$method(@_);
 }
 
@@ -320,10 +320,10 @@ Tkx - Yet another Tk interface
 
   use Tkx;
   my $mw = Tkx::widget->new(".");
-  $mw->n_button(
+  $mw->c_button(
        -text => "Hello, world",
-       -command => sub { $mw->e_destroy; },
-  )->e_pack;
+       -command => sub { $mw->g_destroy; },
+  )->g_pack;
   Tkx::MainLoop();
 
 =head1 DESCRIPTION
@@ -490,13 +490,13 @@ This returns the default widget handle class that will be used for
 kids and parent.  Subclasses might want to override this method.
 The default implementation always returns C<Tkx::widget>.
 
-=item $w->_ipath( $method )
+=item $w->_mpath( $method )
 
 This returns a Tcl widget path that will be used to forward any
-i_I<foo> method calls.  Mega widget classes might want to override
+m_I<foo> method calls.  Mega widget classes might want to override
 this method.  The default implementation returns C<$w>.
 
-=item $new_w = $w->n_I<foo>( @args )
+=item $new_w = $w->c_I<foo>( @args )
 
 This creates a new I<foo> widget as a child of the current widget.  It
 will call the I<foo> Tcl command and pass it a new unique subpath of
@@ -506,7 +506,7 @@ Tkx::foo() above.
 
 Example:
 
-    $w->n_label(-text => "Hello", -relief => "sunken");
+    $w->c_label(-text => "Hello", -relief => "sunken");
 
 The name selected for the child will be the first letter in the
 widget.  If that name is not unique a number is appended to ensure
@@ -514,13 +514,13 @@ uniqueness among the children.  If a C<-name> argument is passed it is
 used to form the name and then removed from the arglist passed to Tcl.
 Example:
 
-    $w->n_iwidgets_calendar(-name => "cal");
+    $w->c_iwidgets_calendar(-name => "cal");
 
 If a mega widget implementation class has be registered for I<foo>,
 then its _Populate() method is called instead of passing widget
 creation to Tcl.
 
-=item $w->i_I<foo>( @args )
+=item $w->m_I<foo>( @args )
 
 This will invoke the I<foo> subcommand for the current widget.  This
 is the same as:
@@ -530,16 +530,16 @@ is the same as:
 
 where the expand() function expands underscores as described for
 Tkx::foo() above.  Note that methods that do not start with a prefix
-of the form /^_/ or /^[a-zA-Z]_/ are also treated as the C<i_> methods.
+of the form /^_/ or /^[a-zA-Z]_/ are also treated as the C<m_> methods.
 
 Example:
 
-    $w->i_configure(-background => "red");
+    $w->m_configure(-background => "red");
 
-Subclasses might override the _ipath() method to have i_I<foo> forward
+Subclasses might override the _mpath() method to have m_I<foo> forward
 the subcommand somewhere else than the current widget.
 
-=item $w->e_I<foo>( @args )
+=item $w->g_I<foo>( @args )
 
 This will invoke the I<foo> Tcl command with the current widget as
 first argument.  This is the same as:
@@ -557,7 +557,7 @@ Example:
 =item $w->I<foo>( @args )
 
 If the method does not have a prefix of the form /^_/ or /^[a-zA-Z]_/,
-then it is treated as if it had the "i_" prefix, i.e. the I<foo>
+then it is treated as if it had the "m_" prefix, i.e. the I<foo>
 subcommand for the current widget is invoked.
 
 The method names with prefix /^_/ and /^[a-zA-Z]_/ are reserved for

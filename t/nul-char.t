@@ -18,8 +18,8 @@ my $delay = shift || 1;
 
 my $mw = Tkx::widget->new(".");
 
-my $t = $mw->n_text();
-$t->e_pack(-fill => "both", -expand => 1);
+my $t = $mw->c_text();
+$t->g_pack(-fill => "both", -expand => 1);
 
 $t->insert("end", "This is a string\n");
 $t->insert("end", "This is a string containing NUL (\0) and some other controls (\a\r)\n");
@@ -44,7 +44,7 @@ uni: \0\1\2\3\4\5\6\a\b\t
 EOT
 
 Tkx::after($delay * 1000, sub {
-    $mw->e_destroy;
+    $mw->g_destroy;
 });
 
 Tkx::MainLoop;

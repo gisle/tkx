@@ -12,14 +12,14 @@ my $delay = shift || 1;
 my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
-$mw->n_label(-text => "Foo")->e_pack;
-$mw->n_foo(-name => "myfoo", -text => "Bar")->e_pack;
+$mw->c_label(-text => "Foo")->g_pack;
+$mw->c_foo(-name => "myfoo", -text => "Bar")->g_pack;
 
-my $f = $mw->n_frame(-border => 5, -background => "#555555");
-$f->e_pack;
+my $f = $mw->c_frame(-border => 5, -background => "#555555");
+$f->g_pack;
 
-my $foo = $f->n_foo(-text => "Other", -foo => 42);
-$foo->e_pack;
+my $foo = $f->c_foo(-text => "Other", -foo => 42);
+$foo->g_pack;
 ok($foo->cget("-foo"), 42);
 
 $foo = $mw->_kid("myfoo");
@@ -29,7 +29,7 @@ $foo->configure(-background => "yellow", -foo => 1);
 ok($foo->cget("-foo"), 1);
 
 Tkx::after($delay * 1000, sub {
-    $mw->e_destroy;
+    $mw->g_destroy;
 });
 
 Tkx::MainLoop;
@@ -46,12 +46,12 @@ BEGIN {
 	my($class, $widget, $path, %opt) = @_;
 
 	my $parent = $class->new($path)->_parent;
-	my $self = $parent->n_frame(-name => $path);
+	my $self = $parent->c_frame(-name => $path);
 
 	$self->_data->{foo} = $opt{-foo};
 
-	$self->n_label(-name => "lab", -text => delete $opt{-text})->e_pack(-side => "left");
-	$self->n_entry->e_pack(-side => "left", -fill => "both", -expand => 1);
+	$self->c_label(-name => "lab", -text => delete $opt{-text})->g_pack(-side => "left");
+	$self->c_entry->g_pack(-side => "left", -fill => "both", -expand => 1);
 
 	$self->_class($class);
 	$self;
@@ -62,20 +62,20 @@ BEGIN {
 	"$self.lab";  # delegate
     }
 
-    sub i_configure {
+    sub m_configure {
 	my($self, %opt) = @_;
 	if (exists $opt{-foo}) {
 	    $self->_data->{foo} = delete $opt{-foo};
 	}
-	return $self->SUPER::i_configure(%opt);
+	return $self->SUPER::m_configure(%opt);
     }
 
-    sub i_cget {
+    sub m_cget {
 	my($self, $opt) = @_;
 	if ($opt eq "-foo") {
 	    return $self->_data->{foo};
 	}
 
-	return $self->SUPER::i_cget($opt);
+	return $self->SUPER::m_cget($opt);
     }
 }

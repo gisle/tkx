@@ -12,7 +12,7 @@ my $delay = shift || 1;
 my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
-my $b = $mw->n_button(
+my $b = $mw->c_button(
     -text => "Test",
     -background => "gray",
     -command => sub {
@@ -31,23 +31,23 @@ my $b = $mw->n_button(
 	}
     },
 );
-$b->e_pack;
+$b->g_pack;
 
-ok(j($mw->e_winfo_children), $b);
-ok(j($b->e_winfo_children), "");
+ok(j($mw->g_winfo_children), $b);
+ok(j($b->g_winfo_children), "");
 ok($b, ".b");
-ok($b->i_cget("-text"), "Test");
+ok($b->m_cget("-text"), "Test");
 ok($b->cget("-text"), "Test");
 ok($b->configure(-text => "Test me!"), '');
-ok(!$b->e_winfo_ismapped);
+ok(!$b->g_winfo_ismapped);
 
 ok(ref($b->_data), "HASH");
 $b->_data->{foo} = "bar";
 ok($b->_data->{foo}, "bar");
 
 Tkx::after($delay * 1000, sub {
-    ok($b->e_winfo_ismapped);
-    $mw->e_destroy;
+    ok($b->g_winfo_ismapped);
+    $mw->g_destroy;
 });
 
 Tkx::MainLoop;
