@@ -5,15 +5,31 @@ The Tkx module provide yet another Tk interface for Perl.  Tk is a GUI
 toolkit tied to the Tcl language, and Tkx provide a bridge to Tcl that
 allows Tk based applications to be written in Perl.
 
-The main idea behind Tkx is that it should only be a thin wrapper on
+The main idea behind Tkx is that it should be a very thin wrapper on
 top of Tcl, i.e. that what you get is exactly the behaviour you read
 about in the Tcl/Tk documentation with no surprises added by the Perl
-layer.
+layer.  In order to use Tkx, you need to understand enough Tcl to be
+able to read the documentation for Tcl/Tk and figure out how this maps
+to the Tkx.  You will not need to write any Tcl code though, as all
+your GUI work, including the creation of mega widgets can be done in
+Perl using Tkx.
 
-Tkx has been used to implement ActiveState's PDK tools.
+The benefit of this approach compared Nick Ing-Simmons's classic Tk.pm
+module is that you can always use the latest features that Tk/Tcl
+provide and that you can use Tcl's native megawidgets directly.  Tk.pm
+has stagnated recently because of the huge effort needed to port it to
+run with newer versions of Tk.  The downside of the Tkx approach is
+that you will need to know a bit about Tcl and that you have to
+install Tcl/Tk on both your development and deployment systems.
+Another downside is that you will not be able to use any of Tk::
+add-ons or megawidgets already present on CPAN.
 
-In order to install Tkx, you will need to have Tcl/Tk and the Tcl.pm
-module installed.  Installation otherwise follow the normal drill:
+Tkx is the toolkit used to implement the GUI frontends of
+ActiveState's PDK tools.
+
+In order to install Tkx, you will need to have Tcl/Tk-8.4 installed as
+well as a perl-5.8 with the Tcl.pm module installed.  Installation
+otherwise follow the normal drill:
 
    perl Makefile.PL
    make
