@@ -613,6 +613,13 @@ See L<Tkx::LabEntry> for a trivial example mega widget.
 
 The C<PERL_YTK_TRACE> environment variable initialize the $Tkx::TRACE setting.
 
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+Copyright 2004 ActiveState.  All rights reserved.
+
 =head1 SEE ALSO
 
 L<Tcl>, L<Tcl::Tk>, L<Tk>
