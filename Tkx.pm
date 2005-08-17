@@ -216,7 +216,6 @@ sub expand_name {
 	s/(?<!_)__(?!_)/::/g;
 	s/(?<!_)___(?!_)/_/g;
     }
-    splice(@f, 0, 2, "$f[0]_$f[1]") if @f >= 2 && $f[0] eq "tk";  # tk_foo kept as is
     wantarray ? @f : $f[0];
 }
 
@@ -374,7 +373,6 @@ arguments.  The name I<foo> first undergo the following substitutions
 of embedded underlines:
 
     foo_bar  -->  "foo", "bar"   # break into words
-    tk_bar   -->  "tk_bar"       # but don't expand a "tk_" prefix
     foo__bar -->  "foo::bar"     # access namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
