@@ -328,14 +328,13 @@ Tkx - Yet another Tk interface
 
 =head1 DESCRIPTION
 
-The C<Tkx> module provide yet another Tk interface for Perl.  Tk is a
-GUI toolkit tied to the Tcl language, and C<Tkx> provide a bridge to
+The C<Tkx> module provides yet another Tk interface for Perl.  Tk is a
+GUI toolkit tied to the Tcl language, and C<Tkx> provides a bridge to
 Tcl that allows Tk based applications to be written in Perl.
 
-The main idea behind Tkx is that it should only be a thin wrapper on
-top of Tcl, i.e. that what you get is exactly the behaviour you read
-about in the Tcl/Tk documentation with no surprises added by the Perl
-layer.
+The main idea behind Tkx is that it is a very thin wrapper on top of
+Tcl, i.e. that what you get is exactly the behaviour you read about in
+the Tcl/Tk documentation with no surprises added by the Perl layer.
 
 The following functions are provided:
 
