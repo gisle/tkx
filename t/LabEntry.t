@@ -13,7 +13,7 @@ my $delay = shift || 1;
 my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
-$mw->c_ytk_LabEntry(-label => "foo", -name => "e")->g_pack;
+$mw->c_tkx_LabEntry(-label => "foo", -name => "e")->g_pack;
 
 my $e = $mw->_kid("e");
 

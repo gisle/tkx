@@ -17,7 +17,7 @@ our $TRACE_COUNT;
 our $TRACE_TIME;
 our $TRACE_CALLER;
 
-$TRACE = $ENV{PERL_YTK_TRACE} unless defined $TRACE;
+$TRACE = $ENV{PERL_TKX_TRACE} unless defined $TRACE;
 $TRACE_MAX_STRING = 64 unless defined $TRACE_MAX_STRING;
 $TRACE_COUNT = 1 unless defined $TRACE_COUNT;
 $TRACE_TIME = 1 unless defined $TRACE_TIME;
@@ -411,7 +411,7 @@ Tcl errors are propagated as Perl exceptions.
 
 If the boolean variable $Tkx::TRACE is set to a true value, then a
 trace of all commands passed to Tcl will be printed on STDERR.  This
-variable is initialized from the C<PERL_YTK_TRACE> environment
+variable is initialized from the C<PERL_TKX_TRACE> environment
 variable.  The trace is useful for debugging and if you need to report
 errors to the Tcl maintainers in terms of Tcl statements.  The trace
 lines are prefixed with:
@@ -611,7 +611,7 @@ See L<Tkx::LabEntry> for a trivial example mega widget.
 
 =head1 ENVIRONMENT
 
-The C<PERL_YTK_TRACE> environment variable initialize the $Tkx::TRACE setting.
+The C<PERL_TKX_TRACE> environment variable initialize the $Tkx::TRACE setting.
 
 =head1 LICENSE
 

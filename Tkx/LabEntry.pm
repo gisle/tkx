@@ -2,7 +2,7 @@ package Tkx::LabEntry;
 
 use base qw(Tkx::widget Tkx::MegaConfig);
 
-__PACKAGE__->_Mega("ytk_LabEntry");
+__PACKAGE__->_Mega("tkx_LabEntry");
 __PACKAGE__->_Config(
     -label  => [[".lab" => "-text"]],
 );
