@@ -375,7 +375,7 @@ of embedded underlines:
     foo__bar -->  "foo::bar"     # access namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
-This allow us conveniently to map most of the Tcl namespace to perl.
+This allow us conveniently to map most of the Tcl namespace to Perl.
 If this mapping does not suit you, use C<< Tkx::i::call($func, @args)
 >>.  This will invoke the function named by $func with no name
 substitutions or magic.
@@ -392,7 +392,7 @@ references, or scalar references.
 Array references are converted to Tcl lists.  The arrays can contain
 other array references or plain scalars to form nested lists.
 
-For Tcl APIs that require callbacks you can pass a reference to a perl
+For Tcl APIs that require callbacks you can pass a reference to a Perl
 function.  Alternatively an array reference with a code reference as
 the first element, will allow the callback to receive the rest of the
 elements as arguments when invoked.  The Tkx::Ev() function can be
@@ -402,7 +402,7 @@ used to fill in Tcl provided info as arguments.  Eg:
     Tkx::bind(".", "<Key>", [sub { print "$_[0]\n"; }, Tkx::Ev("%A")]);
 
 For Tcl APIs that require variables to be passed, you might pass a
-reference to a perl scalar.  The scalar will be watched and updated in
+reference to a Perl scalar.  The scalar will be watched and updated in
 the same way as the Tcl variable would.
 
 The Tcl string result is returned in both scalar and array context.
@@ -621,6 +621,8 @@ Copyright 2005 ActiveState.  All rights reserved.
 
 =head1 SEE ALSO
 
-L<Tcl>, L<Tcl::Tk>, L<Tk>
+L<Tkx::MegaConfig>, L<Tcl>
 
-L<http://www.tcl.tk/>
+Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
+
+More information about Tcl/Tk can be found at L<http://www.tcl.tk/>.
