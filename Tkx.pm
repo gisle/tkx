@@ -627,7 +627,7 @@ Copyright 2005 ActiveState.  All rights reserved.
 
 =head1 SEE ALSO
 
-L<Tkx::MegaConfig>, L<Tcl>
+L<Tkx::Tutorial>, L<Tkx::MegaConfig>, L<Tcl>
 
 Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
 
