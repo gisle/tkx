@@ -10,12 +10,12 @@ use File::Basename qw(basename);
 Tkx::package_require("BWidget");
 
 Tkx::package_require("style");
-Tkx::style__use("as", -priority => 70);
+Tkx::style__use("lobster", -priority => 70);
 
 # state
 my $file = "";
 
-
+# set up main window
 my $mw = Tkx::widget->new(".");
 my $sw = $mw->c_ScrolledWindow(
     -managed => 0,
@@ -40,7 +40,6 @@ if (@ARGV) {
 else {
     new();
 }
-
 
 Tkx::MainLoop();
 exit;
