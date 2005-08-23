@@ -617,7 +617,7 @@ The C<PERL_TKX_TRACE> environment variable initialize the $Tkx::TRACE setting.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-Copyright 2004 ActiveState.  All rights reserved.
+Copyright 2005 ActiveState.  All rights reserved.
 
 =head1 SEE ALSO
 
