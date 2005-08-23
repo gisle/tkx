@@ -612,6 +612,12 @@ See L<Tkx::LabEntry> for a trivial example mega widget.
 
 The C<PERL_TKX_TRACE> environment variable initialize the $Tkx::TRACE setting.
 
+=head1 SUPPORT
+
+If you have questions about this code or want to report bugs send a
+message to the <tcltk@perl.org> mailing list.  To subscribe to this
+list send an empty message to <tcltk-subscribe@perl.org>.
+
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify

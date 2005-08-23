@@ -36,6 +36,10 @@ normal drill:
    make test
    make install
 
+If you have questions about this code or want to report bugs send a
+message to the <tcltk@perl.org> mailing list.  To subscribe to this
+list send an empty message to <tcltk-subscribe@perl.org>.
+
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
