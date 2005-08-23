@@ -68,6 +68,23 @@ documentation with ease.
 
 =head2 Hello, world with objects
 
+The windows and controls that make up a C<Tk> interface are called
+I<widgets>.  The widgets are identified by path names of the form
+C<.a.b.c>.  These names are hierarchical in the same way as file
+system names are, but "." is used instead of "/" to separate levels.
+The name C<.a.b.c> is the name of a widget that is child of widget
+C<.a.b> which in turn is a child of C<.a>.  At the top of this
+hierarchy we have a widget called C<.>, which is the main window of
+the application.
+
+The C<Tkx> module provide a class called C<Tkx::widget>.  By utilizing
+objects of this class we can hide the details of Tk path names from
+C<Tkx> applications.  This provide a more "perlish" way to create and
+manipulate Tk widgets.
+
+Our "Hello, world" program can be rewitten like this using the
+C<Tkx::widget> class:
+
   use Tkx;
 
   my $mw = Tkx::widget->new(".");
@@ -79,8 +96,35 @@ documentation with ease.
 
   Tkx::MainLoop()
 
+By loading the C<Tkx> module we make the C<Tkx::widget> class
+available and create the main window (the widget called C<.>).  Next
+we instantiate a new C<Tkx::widget> object wrapping the main window.
+It is customary to name this object C<$mw>.
+
+To create a new button child widget we call C<< $mw->c_button >>
+method.  Constructor methods are always prefixed with C<c_>.  The rest
+of the method name is the name of the I<Tk> widget to create; i.e. "button"
+in this case.  Arguments are passed as before.
+
+Calling a "g_" method will invoke the correspoding Tk command with the
+widget path as argument.  In the code above we destroy the main window
+by calling C<< $mw->g_destroy >> and we pack the button in the main
+window by invoking C<< $b->g_pack >>.
+
+Calling a "m_" method will invoke a Tk subcommand for the given
+widget, but there is no example of this is the code above.  The most
+commonly used subcommand is "configure" that is used to change the
+attributes of a widget.  We could for instace change the text
+displayed by the button by invoking:
+
+  $b->m_configure(-text => "Goodbye, cruel world");
+
+In the end we need to invoke the MainLoop as before.
+
+For trivial programs like the one above using C<Tkx::widget> wrappers
+does not appear to be a win, but as the application grows and the Tk
+path names get longer it surely is.
+
 =head1 SEE ALSO
 
 L<Tkx>
-
-
