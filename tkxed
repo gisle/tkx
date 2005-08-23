@@ -1,0 +1,165 @@
+#!/usr/bin/perl -w
+
+#
+# This is a simple editor useful for testing and experimenting
+# with the PDK::yTk modules.
+#
+
+use strict;
+
+use lib "lib";
+use lib "../ActiveState-Utils/lib";
+use blib "../Tcl";
+
+use yTk;
+use PDK::yTk::Widget;
+use PDK::yTk::TextSyntaxTags qw(update_syntax_tags);
+
+use File::Basename qw(basename);
+
+yTk::package_require("BWidget");
+
+yTk::package_require("style");
+yTk::style__use("as", -priority => 70);
+
+# state
+my $file = "";
+my $lang;
+
+
+my $mw = PDK::yTk::Widget->new(".");
+my $t = $mw->pack_scrolled("text",
+    -padx => 5,
+    -pady => 5,
+    -background => "white",
+);
+$t->e_bind("<Button-3>", [\&post_menu, yTk::Ev("%X", "%Y"), mk_menu($t)]);
+
+if (@ARGV) {
+    yTk::after_idle([\&load, $ARGV[0]])
+}
+else {
+    new();
+}
+
+
+yTk::MainLoop();
+exit;
+
+sub mk_menu {
+    my $t = shift;
+    my $m = $t->n_menu(
+        -tearoff => 0,
+    );
+    $m->add_command(
+        -label => "New",
+        -command => \&new,
+    );
+    $m->add_command(
+        -label => "Open...",
+        -command => \&my_open,
+    );
+    $m->add_command(
+        -label => "Save",
+        -command => \&save,
+    );
+    $m->add_command(
+        -label => "Save As...",
+        -command => \&save_as,
+    );
+    $m->add_command(
+        -label => "Exit",
+        -underline => 1,
+        -command => [\&yTk::destroy, $mw],
+    );
+
+    return $m;
+}
+
+
+sub post_menu {
+    my($x, $y, $menu) = @_;
+    yTk::tk_popup($menu, $x, $y);
+}
+
+sub new {
+    $t->delete("1.0", "end");
+    set_file("");
+}
+
+sub my_open {
+    my $f = $mw->getOpenFile(
+    );
+    load($f) if length $f;
+}
+
+sub load {
+    my $f = shift;
+    open(my $fh, "<:utf8", t2p_file($f)) || die "Can't open '$file': $!";
+    $t->delete("1.0", "end");
+    $t->insert("end", scalar do { local $/; <$fh> });
+
+    set_file($f);
+
+    update_syntax_tags($t,
+        file => $file,
+        lang => $lang,
+        scineplex => "../Scineplex/scineplex",
+    ) if $lang;
+}
+
+sub set_file {
+    $file = shift;
+    if ($file =~ /\.p[lm]$/) {
+	$lang = "perl";
+    }
+    elsif ($file =~ /\.vb$/) {
+	$lang = "vb";
+    }
+    else {
+	$lang = "";
+    }
+    update_title();
+}
+
+sub save {
+    return save_as() unless length $file;
+    _save($file);
+}
+
+sub save_as {
+    my $f = $mw->getSaveFile(
+    );
+    if (length $f) {
+        _save($f);
+        set_file($f);
+    }
+}
+
+sub _save {
+    my $f = shift;
+    open(my $fh, ">", $f) || die "Can't open '$file': $!";
+    print $fh $t->get("1.0", "end");
+    close($fh) || die "Can't write '$file': $!";
+}
+
+sub update_title {
+    my $title;
+    if (length $file) {
+	$title = basename($file);
+    }
+    else {
+	$title = "<no name>";
+    }
+    $title .= " - " . basename($0);
+    $mw->e_wm_title($title);
+}
+
+sub t2p_file {
+    my $f = shift;
+    if ($^O ne "MSWin32") {
+	# undo the "encoding system"
+	$f = yTk::encoding_convertto($f);
+    }
+    $f;
+}
