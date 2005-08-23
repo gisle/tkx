@@ -25,3 +25,53 @@ sub _mpath {
 }
 
 1;
+
+=head1 NAME
+
+Tkx::LabEntry - Labeled entry widget
+
+=head1 SYNOPSIS
+
+  use Tkx;
+  use Tkx::LabEntry;
+
+  my $mw = Tkx::widget->new(".");
+
+  my $e = $mw->c_tkx_LabEntry(-label => "Name");
+  $e->g_pack;
+
+  my $b = $mw->c_button(
+      -text => "Done",
+      -command => sub {
+          print $e->get, "\n";
+          $mw->g_destroy;
+      },
+  );
+  $b->g_pack;
+
+  Tkx::MainLoop();
+
+=head1 DESCRIPTION
+
+The C<Tkx::LabEntry> module implements a trivial composite widget
+(mega widget).  It's main purpose is to demonstrate how to use the
+C<Tkx::MegaConfig> baseclass.
+
+Once the C<Tkx::LabEntry> module has been loaded, then its widgets
+can be constructed in the normal way using the C<tkx_LabEntry> name.
+Besides having a label (whose text can be accessed with the C<-label>
+configuration option), these widgets behave exactly like an C<entry>
+would.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+Copyright 2005 ActiveState.  All rights reserved.
+
+=head1 SEE ALSO
+
+The source code of Tkx::LabEntry.
+
+L<Tkx::MegaConfig>, L<Tkx>
