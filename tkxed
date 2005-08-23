@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+# pkxed - Simple editor
+
 use strict;
 
 use Tkx;
@@ -137,3 +139,25 @@ sub update_title {
     $title .= " - " . basename($0);
     $mw->g_wm_title($title);
 }
+
+__END__
+
+=head1 NAME
+
+tkxed - Simple editor
+
+=head1 SYNOPSIS
+
+ tkxed [<file>]
+
+=head1 DESCRIPTION
+
+The F<tkxed> program is a simple editor implemented with the C<Tkx>
+toolkit.  Its main purpose is to show how this kind of application is
+written, so please take a look at its source code.
+
+Right click in the editor window to bring up the menu.
+
+=head1 SEE ALSO
+
+L<Tkx>
