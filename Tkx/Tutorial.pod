@@ -1,0 +1,86 @@
+=head1 NAME
+
+Tkx::Tutorial - How to use Tkx
+
+=head1 DESCRIPTION
+
+I<Tk> is a toolkit that allows you to create applications with
+graphical interfaces.  The C<Tk> toolkit is native to the Tcl
+programming language, but its ease of use has made it the GUI toolkit
+of choice for many other dynamic languages as well.
+
+C<Tkx> is a Perl module that make the I<Tk> toolkit available to perl.
+By loading the C<Tkx> module perl programs can create windows and fill
+them with text, images, buttons and other controls that make up the
+user interface of the application.
+
+=head2 Hello, world
+
+Let's start with the mandatory exercise of creating an application
+that greats the world.  In our case we make the application window
+contain a single button which will shut down the application if
+clicked.  The code to make this happen is:
+
+  use Tkx;
+
+  Tkx::button(".b",
+      -text => "Hello, world",
+      -command => sub { Tkx::destroy("."); },
+  );
+  Tkx::pack(".b");
+
+  Tkx::MainLoop()
+
+Save this to a file called F<hello.pl> and then run C<perl hello.pl>
+to start up the application.  A window with the text "Hello, world"
+should appear on your screen.
+
+After the C<Tkx> module has been loaded the application will show an
+empty window called ".".  We create a I<button> with the name ".b" and
+tell the window to display this with I<pack>.  In the end we need to
+pass control back to I<Tk> so that it can draw the window and invoke
+our callback if the button is clicked.  The application will terminate
+when the window is destroyed.
+
+For reference this is how the same program would look in Tcl:
+
+  package require Tk
+
+  button .b \
+      -text "Hello, world" \
+      -command { destroy . }
+  pack .b
+
+This program can be executed by the F<tclsh> binary that comes with
+I<Tcl/Tk>.  As you can see the code is mostly identical, but with a
+slightly different syntax.  The only real difference is that the call
+to MainLoop() is implicit in Tcl and does not have to be spelled out.
+
+C<Tkx> does not come with documentation that explain all the widgets
+(like "button" above) that are available for use.  Instead you will
+need to read the excellent documentation that comes with C<Tcl/Tk> and
+then figure out how this translates to C<Tkx> yourself.  As you can
+see this translation is straight forward.  You basically only have add
+the prefix "Tkx::" to all the functions and use the Perl way of
+passing arguments.  Tcl is a very simple language, so it should not
+take long to understand enough of it to be able to read its
+documentation with ease.
+
+=head2 Hello, world with objects
+
+  use Tkx;
+
+  my $mw = Tkx::widget->new(".");
+  my $b = $mw->c_button(
+      -text => "Hello, world",
+      -command => sub { $mw->g_destroy; },
+  );
+  $b->g_pack;
+
+  Tkx::MainLoop()
+
+=head1 SEE ALSO
+
+L<Tkx>
+
+

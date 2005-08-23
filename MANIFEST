@@ -11,3 +11,4 @@ t/utf8.t
 Tkx.pm
 Tkx/LabEntry.pm
 Tkx/MegaConfig.pm
+Tkx/Tutorial.pod
