@@ -8,6 +8,7 @@ t/nul-char.t
 t/tcl.t
 t/tk.t
 t/utf8.t
+tkxed
 Tkx.pm
 Tkx/LabEntry.pm
 Tkx/MegaConfig.pm
