@@ -12,7 +12,7 @@ my $delay = shift || 1;
 my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
-my $b = $mw->c_button(
+my $b = $mw->new_button(
     -text => "Test",
     -background => "gray",
     -command => sub {

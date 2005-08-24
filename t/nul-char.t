@@ -18,7 +18,7 @@ my $delay = shift || 1;
 
 my $mw = Tkx::widget->new(".");
 
-my $t = $mw->c_text();
+my $t = $mw->new_text();
 $t->g_pack(-fill => "both", -expand => 1);
 
 $t->insert("end", "This is a string\n");

@@ -10,11 +10,11 @@ __PACKAGE__->_Config(
 sub _Populate {
     my($class, $widget, $path, %opt) = @_;
 
-    my $self = $class->new($path)->_parent->c_frame(-name => $path);
+    my $self = $class->new($path)->_parent->new_frame(-name => $path);
     $self->_class($class);
 
-    $self->c_label(-name => "lab", -text => delete $opt{-label})->g_pack(-side => "left");
-    $self->c_entry(-name => "e", %opt)->g_pack(-side => "left", -fill => "both", -expand => 1);
+    $self->new_label(-name => "lab", -text => delete $opt{-label})->g_pack(-side => "left");
+    $self->new_entry(-name => "e", %opt)->g_pack(-side => "left", -fill => "both", -expand => 1);
 
     $self;
 }
@@ -37,10 +37,10 @@ Tkx::LabEntry - Labeled entry widget
 
   my $mw = Tkx::widget->new(".");
 
-  my $e = $mw->c_tkx_LabEntry(-label => "Name");
+  my $e = $mw->new_tkx_LabEntry(-label => "Name");
   $e->g_pack;
 
-  my $b = $mw->c_button(
+  my $b = $mw->new_button(
       -text => "Done",
       -command => sub {
           print $e->get, "\n";

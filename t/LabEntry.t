@@ -13,11 +13,11 @@ my $delay = shift || 1;
 my $mw = Tkx::widget->new(".");
 $mw->configure(-border => 10);
 
-$mw->c_tkx_LabEntry(-label => "foo", -name => "e")->g_pack;
+$mw->new_tkx_LabEntry(-label => "foo", -name => "e")->g_pack;
 
 my $e = $mw->_kid("e");
 
-$mw->c_button(
+$mw->new_button(
     -text => "Hit me",
     -command => sub {
 	my $text = $e->get;

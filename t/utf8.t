@@ -20,13 +20,13 @@ my $text = "«1000 \x{2030}»";
 my $mw = Tkx::widget->new(".");
 #$mw->configure(-border => 10);
 
-my $b = $mw->c_button(
+my $b = $mw->new_button(
     -text => "«1000 \x{2030}»",
     -width => 40,
 );
 $b->g_pack(-fill => "x", -expand => 1);
 
-my $e = $mw->c_entry(
+my $e = $mw->new_entry(
     -textvariable => \$text,
 );
 $e->g_pack(-fill => "x", -expand => 1);

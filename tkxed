@@ -17,7 +17,7 @@ my $file = "";
 
 # set up main window
 my $mw = Tkx::widget->new(".");
-my $sw = $mw->c_ScrolledWindow(
+my $sw = $mw->new_ScrolledWindow(
     -managed => 0,
     -background => "white",
 );
@@ -25,7 +25,7 @@ $sw->g_pack(
     -fill => "both",
     -expand => 1,
 );
-my $t = $sw->c_text(
+my $t = $sw->new_text(
     -padx => 5,
     -pady => 5,
     -background => "white",
@@ -46,7 +46,7 @@ exit;
 
 sub mk_menu {
     my $t = shift;
-    my $m = $t->c_menu(
+    my $m = $t->new_menu(
         -tearoff => 0,
     );
     $m->add_command(

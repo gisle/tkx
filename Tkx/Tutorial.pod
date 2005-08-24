@@ -88,7 +88,7 @@ C<Tkx::widget> class:
   use Tkx;
 
   my $mw = Tkx::widget->new(".");
-  my $b = $mw->c_button(
+  my $b = $mw->new_button(
       -text => "Hello, world",
       -command => sub { $mw->g_destroy; },
   );
@@ -101,8 +101,8 @@ available and create the main window (the widget called C<.>).  Next
 we instantiate a new C<Tkx::widget> object wrapping the main window.
 It is customary to name this object C<$mw>.
 
-To create a new button child widget we call C<< $mw->c_button >>
-method.  Constructor methods are always prefixed with C<c_>.  The rest
+To create a new button child widget we call C<< $mw->new_button >>
+method.  Constructor methods are always prefixed with C<new_>.  The rest
 of the method name is the name of the I<Tk> widget to create; i.e. "button"
 in this case.  Arguments are passed as before.
 

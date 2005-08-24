@@ -130,10 +130,9 @@ sub AUTOLOAD {
 
     our $AUTOLOAD;
     my $method = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
-    my $prefix = substr($method, 0, 2);
 
-    if ($prefix eq "c_") {
-	my $widget = Tkx::i::expand_name(substr($method, 2));
+    if (substr($method, 0, 4) eq "new_") {
+	my $widget = Tkx::i::expand_name(substr($method, 4));
 	my $name;
 	for (my $i = 0; $i < @_; $i += 2) {
 	    if ($_[$i] eq "-name") {
@@ -150,6 +149,7 @@ sub AUTOLOAD {
 	return $self->_nclass->new(scalar(Tkx::i::call($widget, $name, @_)));
     }
 
+    my $prefix = substr($method, 0, 2);
     if ($prefix eq "g_") {
         return scalar(Tkx::i::call(Tkx::i::expand_name(substr($method, 2)), $$self, @_));
     }
@@ -320,7 +320,7 @@ Tkx - Yet another Tk interface
 
   use Tkx;
   my $mw = Tkx::widget->new(".");
-  $mw->c_button(
+  $mw->new_button(
        -text => "Hello, world",
        -command => sub { $mw->g_destroy; },
   )->g_pack;
@@ -495,7 +495,7 @@ This returns a Tcl widget path that will be used to forward any
 m_I<foo> method calls.  Mega widget classes might want to override
 this method.  The default implementation returns C<$w>.
 
-=item $new_w = $w->c_I<foo>( @args )
+=item $new_w = $w->new_I<foo>( @args )
 
 This creates a new I<foo> widget as a child of the current widget.  It
 will call the I<foo> Tcl command and pass it a new unique subpath of
@@ -505,7 +505,7 @@ Tkx::foo() above.
 
 Example:
 
-    $w->c_label(-text => "Hello", -relief => "sunken");
+    $w->new_label(-text => "Hello", -relief => "sunken");
 
 The name selected for the child will be the first letter in the
 widget.  If that name is not unique a number is appended to ensure
@@ -513,7 +513,7 @@ uniqueness among the children.  If a C<-name> argument is passed it is
 used to form the name and then removed from the arglist passed to Tcl.
 Example:
 
-    $w->c_iwidgets_calendar(-name => "cal");
+    $w->new_iwidgets_calendar(-name => "cal");
 
 If a mega widget implementation class has be registered for I<foo>,
 then its _Populate() method is called instead of passing widget
@@ -584,7 +584,7 @@ above we tell Tkx that any "foo" widgets should be handled by the Perl
 class "Foo" instead of Tcl.  When a new "foo" widget is instantiated
 with:
 
-    $w->c_foo(-text => "Hi", -foo => 1);
+    $w->new_foo(-text => "Hi", -foo => 1);
 
 then the _Populate() class method of C<Foo> is called.  It will be
 passed the widget type to create, the full path to use as widget
