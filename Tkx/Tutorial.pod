@@ -66,6 +66,12 @@ passing arguments.  Tcl is a very simple language, so it should not
 take long to understand enough of it to be able to read its
 documentation with ease.
 
+A great place to look up the Tk documentation is
+L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
+This documents core Tk as well as all the useful add-on packages that
+are part of ActiveTcl.  The official Tcl/Tk docs are found at
+L<http://www.tcl.tk/doc/>.
+
 =head2 Hello, world with objects
 
 The windows and controls that make up a C<Tk> interface are called

@@ -632,3 +632,4 @@ L<Tkx::Tutorial>, L<Tkx::MegaConfig>, L<Tcl>
 Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
 
 More information about Tcl/Tk can be found at L<http://www.tcl.tk/>.
+Tk documentation is also available at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
