@@ -551,7 +551,7 @@ Tkx::foo() above.
 
 Example:
 
-    $w->e_pack_forget;
+    $w->g_pack_forget;
 
 =item $w->I<foo>( @args )
 
@@ -584,7 +584,7 @@ above we tell Tkx that any "foo" widgets should be handled by the Perl
 class "Foo" instead of Tcl.  When a new "foo" widget is instantiated
 with:
 
-    $w->n_foo(-text => "Hi", -foo => 1);
+    $w->c_foo(-text => "Hi", -foo => 1);
 
 then the _Populate() class method of C<Foo> is called.  It will be
 passed the widget type to create, the full path to use as widget
@@ -599,11 +599,11 @@ set class _Populate() can ensure that new handles to this mega widget
 also use this class.
 
 The implementation class can define an _ipath() method to delegate any
-i_I<foo> method calls to one of its subwidgets and it might want to
-override the i_configure() and i_cget() methods if it implements
+m_I<foo> method calls to one of its subwidgets and it might want to
+override the m_configure() and m_cget() methods if it implements
 additional options or want more control over delegation.  The class
-C<Tkx::MegaConfig> provide implementations of i_configure() and
-i_cget() that can be useful for controlling delegation of
+C<Tkx::MegaConfig> provide implementations of m_configure() and
+m_cget() that can be useful for controlling delegation of
 configuration options.
 
 See L<Tkx::LabEntry> for a trivial example mega widget.
