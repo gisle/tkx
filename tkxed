@@ -155,7 +155,12 @@ The F<tkxed> program is a simple editor implemented with the C<Tkx>
 toolkit.  Its main purpose is to show how this kind of application is
 written, so please take a look at its source code.
 
-Right click in the editor window to bring up the menu.
+When the editor starts up it shows a blank page where you can start
+entering text directly.  Right click in the editor window to bring up
+the menu that allow you to load and save files.
+
+If a file name is passed on the command line when the editor is
+started it will visit this file initially.
 
 =head1 LICENSE
 
