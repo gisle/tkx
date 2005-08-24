@@ -1,0 +1,168 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Tkx;
+
+our $VERSION = "1.00";
+
+(my $progname = $0) =~ s,.*[\\/],,;
+
+Tkx::package_require("style");
+Tkx::style__use("lobster", -priority => 70);
+
+my $mw = Tkx::widget->new(".");
+$mw->configure(-menu => mk_menu($mw));
+
+Tkx::MainLoop();
+exit;
+
+sub mk_menu {
+    my $mw = shift;
+    my $menu = $mw->new_menu;
+
+    my $file = $menu->new_menu(
+        -tearoff => 0,
+    );
+    $menu->add_cascade(
+        -label => "File",
+        -underline => 0,
+        -menu => $file,
+    );
+    $file->add_command(
+        -label => "New",
+        -underline => 0,
+        -accelerator => "Ctrl+N",
+        -command => \&new,
+    );
+    $mw->g_bind("<Control-n>", \&new);
+    $file->add_command(
+        -label   => "Exit",
+        -underline => 1,
+        -command => [\&Tkx::destroy, $mw],
+    );
+
+    my $help = $menu->new_menu(
+        -tearoff => 0,
+    );
+    $menu->add_cascade(
+        -label => "Help",
+        -underline => 0,
+        -menu => $help,
+    );
+    $help->add_command(
+        -label => "\u$progname Manual",
+        -command => \&show_manual,
+    );
+    $help->add_command(
+        -label => "About \u$progname",
+        -command => \&about,
+    );
+
+    return $menu;
+}
+
+
+sub about {
+    Tkx::tk___messageBox(
+        -parent => $mw,
+        -title => "About \u$progname",
+        -type => "ok",
+        -icon => "info",
+        -message => "$progname v$VERSION\nCopyright 2005 ActiveState.  All rights reserved.",
+    );
+}
+
+BEGIN {
+    my @pod;
+    my $manual_window;
+    my $bold;
+
+    sub show_manual {
+	if ($manual_window && Tkx::winfo_exists($manual_window)) {
+	    $manual_window->g_wm_deiconify;
+	    $manual_window->g_raise;
+	    return $manual_window;
+	}
+
+	unless (@pod) {
+	    @pod = <DATA>;
+	    shift(@pod) while $pod[0] =~ /^\s*$/;
+	}
+
+	my $w = $manual_window = $mw->new_toplevel();
+	$w->g_wm_title("\u$progname Manual");
+
+	Tkx::package_require("BWidget");
+	my $sw = $w->new_ScrolledWindow(
+            -managed => 0,
+        );
+        $sw->g_pack(
+            -fill => "both",
+            -expand => 1,
+        );
+        my $t = $sw->new_text(
+            -padx => 5,
+            -pady => 5,
+            -background => "white",
+        );
+        $sw->setwidget($t);
+
+	unless ($bold) {
+	    my $font = $t->cget("-font");
+	    if (Tkx::font_configure($font, "-weight") ne "bold") {
+		$bold = Tkx::font_create(Tkx::SplitList(Tkx::font_configure($font)));
+		Tkx::font_configure($bold,
+		    -weight => "bold",
+		    -size => int(Tkx::font_configure($font, "-size") * 1.4),
+                );
+	    }
+	    else {
+		$bold = $font;
+	    }
+	}
+
+	$t->tag_configure("head1",
+	    -background => "gray90",
+            -font => $bold,
+        );
+
+	for my $line (@pod) {
+	    local $_ = $line;  # copy since we modify
+	    if (s/^=(head[1-4])\s+//) {
+		$t->insert("end", $_, $1);
+	    }
+	    else {
+		s/[A-Z]<([^>]*)>/$1/g;
+		$t->insert("end", $_);
+	    }
+	}
+
+	return $manual_window;
+    }
+}
+
+__DATA__
+
+=head1 NAME
+
+menu - Application framework demo
+
+=head1 SYNOPSIS
+
+ menu
+
+=head1 DESCRIPTION
+
+This program demonstrates how a standard menu is set up, so please
+take a look at its source code.
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+Copyright 2005 ActiveState.  All rights reserved.
+
+=head1 SEE ALSO
+
+L<Tkx>
