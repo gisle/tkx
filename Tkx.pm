@@ -371,8 +371,8 @@ Any other function will invoke the I<foo> Tcl function with the given
 arguments.  The name I<foo> first undergo the following substitutions
 of embedded underlines:
 
-    foo_bar  -->  "foo", "bar"   # break into words
-    foo__bar -->  "foo::bar"     # access namespaces
+    foo_bar   --> "foo", "bar"   # break into words
+    foo__bar  --> "foo::bar"     # access namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
 This allow us conveniently to map most of the Tcl namespace to Perl.
