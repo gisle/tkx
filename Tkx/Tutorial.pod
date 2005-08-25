@@ -63,7 +63,7 @@ to MainLoop() is implicit in Tcl and does not have to be spelled out.
 
 Tkx does not come with documentation that explain all the widgets
 (like "button" above) that are available for use.  Instead you will
-need to read the mostly excellent documentation that comes with C<Tcl/Tk> and
+need to read the mostly excellent documentation that comes with Tcl/Tk and
 then figure out how this translates to Tkx yourself.  As you can
 see this translation is straight forward.  You basically only have add
 the prefix "Tkx::" to all the functions and use the Perl way of
@@ -297,7 +297,7 @@ special significance to Tk.  Menu items added to the "apple" menu
 will show up in the application menu.  The name is historic from the
 time when this stuff would actually show in the menu with the picture
 of the Apple logo.  In Mac OS X these entries show up at the top of
-the menu just right of the apple.  If not provided C<Tk> will provide
+the menu just right of the apple.  If not provided Tk will provide
 its own "About" entry that will tell you about what version of
 Tcl/Tk you are using.  A menu called "help" menu will be flushed
 right on Unix even though this style seems to be out of fashion in
@@ -343,7 +343,7 @@ documentation will call the package in the example above I<TkTable>
 of the package name (only one upper case "T").  In some cases the
 "synopsis" section describing the package will spell out the package
 name, but in cases like this we have found no better way than to peek
-into the F<pkgIndex.tcl> files in the Tcl C<lib/> area if loading the
+into the F<pkgIndex.tcl> files in the Tcl F<lib/> area if loading the
 package fails.  The package documented as "BWidgets" should be loaded
 as "BWidget" (without the "s") and the package documented as
 "IWidgets" should be loaded as "Iwidgets" (with a lower case "w").
