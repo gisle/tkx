@@ -1,7 +1,7 @@
 package Tkx;
 
 use strict;
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 {
     # predeclare
