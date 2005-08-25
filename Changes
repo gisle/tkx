@@ -1,3 +1,18 @@
+2005-08-25   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.01  [182713]
+
+     Expanded the Tkx::Tutorial.
+
+     Added sample program called menu.
+
+     Make the tkxed menu available with Ctrl-Button-1 on Mac OS.
+
+     The README was not included because it was missing from the
+     MANIFEST.
+
+
+
 2005-08-24   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.00  [181521]
