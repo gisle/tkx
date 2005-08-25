@@ -9,7 +9,7 @@ our $VERSION = "1.00";
 my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
 
 Tkx::package_require("style");
-Tkx::style__use("lobster", -priority => 70);
+Tkx::style__use("as", -priority => 70);
 
 my $mw = Tkx::widget->new(".");
 $mw->configure(-menu => mk_menu($mw));
