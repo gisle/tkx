@@ -139,7 +139,173 @@ path names get longer it surely is.
 
 =head2 Setting up a menu line
 
-Not written yet.
+Most real GUI application will need a menu line at the top of the
+application window or screen.  The following runnable program shows
+how a minimal menu can be set up with Tkx:
+
+     1	#!/usr/bin/perl -w
+     2	
+     3	use strict;
+     4	use Tkx;
+     5	
+     6	our $VERSION = "1.00";
+     7	
+     8	(my $progname = $0) =~ s,.*[\\/],,;
+     9	my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
+    10	
+    11	Tkx::package_require("style");
+    12	Tkx::style__use("as", -priority => 70);
+    13	
+    14	my $mw = Tkx::widget->new(".");
+    15	$mw->configure(-menu => mk_menu($mw));
+    16	
+    17	Tkx::MainLoop();
+    18	exit;
+    19	
+    20	sub mk_menu {
+    21	    my $mw = shift;
+    22	    my $menu = $mw->new_menu;
+    23	
+    24	    my $file = $menu->new_menu(
+    25	        -tearoff => 0,
+    26	    );
+    27	    $menu->add_cascade(
+    28	        -label => "File",
+    29	        -underline => 0,
+    30	        -menu => $file,
+    31	    );
+    32	    $file->add_command(
+    33	        -label => "New",
+    34	        -underline => 0,
+    35	        -accelerator => "Ctrl+N",
+    36	        -command => \&new,
+    37	    );
+    38	    $mw->g_bind("<Control-n>", \&new);
+    39	    $file->add_command(
+    40	        -label   => "Exit",
+    41	        -underline => 1,
+    42	        -command => [\&Tkx::destroy, $mw],
+    43	    ) unless $IS_AQUA;
+    44	
+    45	    my $help = $menu->new_menu(
+    46	        -name => "help",
+    47	        -tearoff => 0,
+    48	    );
+    49	    $menu->add_cascade(
+    50	        -label => "Help",
+    51	        -underline => 0,
+    52	        -menu => $help,
+    53	    );
+    54	    $help->add_command(
+    55	        -label => "\u$progname Manual",
+    56	        -command => \&show_manual,
+    57	    );
+    58	
+    59	    my $about_menu = $help;
+    60	    if ($IS_AQUA) {
+    61		# On Mac OS we want about box to appear in the application
+    62		# menu.  Anything added to a menu with the name "apple" will
+    63		# appear in this menu.
+    64		$about_menu = $menu->new_menu(
+    65		    -name => "apple",
+    66	        );
+    67		$menu->add_cascade(
+    68		    -menu => $about_menu,
+    69	        );
+    70	    }
+    71	    $about_menu->add_command(
+    72	        -label => "About \u$progname",
+    73	        -command => \&about,
+    74	    );
+    75	
+    76	    return $menu;
+    77	}
+    78	
+    79	
+    80	sub about {
+    81	    Tkx::tk___messageBox(
+    82	        -parent => $mw,
+    83	        -title => "About \u$progname",
+    84	        -type => "ok",
+    85	        -icon => "info",
+    86	        -message => "$progname v$VERSION\n" .
+    87	                    "Copyright 2005 ActiveState. " .
+    88	                    "All rights reserved.",
+    89	    );
+    90	}
+
+We start out as all proper Perl programs should by enabling warnings
+and stricture at line 1 and 3.  Then we load Tkx which will create our
+main application window at line 4.
+
+In line 9 we initialize $IS_AQUA constant.  Aqua is the native
+interface of Mac OS X.  We need this constant because the menu layout
+on Aqua is not the same as for the other windowing systems.  Note that
+Tk on Mac OS X can be compiled against either Aqua or X11.  When our
+application runs under X11 we want to use the standard Unix menu
+layout, so it would not be correct to just make our code conditional
+on what operating system it runs under (C<< $^O eq 'darwin' >> for Mac
+OS X).
+
+In line 11 and 12 we override the default look&feel style of Tk to a
+more modern variant. Tcl packages can be loaded with the
+C<Tkx::package_require()> function and we can access the Tcl command
+C<style::use> as C<Tkx::style__use> in Perl, i.e. we need to turn the
+double colon into a double underscore.  More about Tcl packages and
+namespaces in the next section.
+
+In line 14 we obtain a C<Tkx::widget> reference to the main window as
+before and then we simply set up the application menu by setting up the
+C<-menu> option of the main window in line 15.
+
+In a real application there would be additional code between line 15
+and 17 to set up the rest of the application window, but for this
+demonstration we just leave the window empty.
+
+In line 17 we ask I<Tk> to start processing events, by invoking
+C<Tkx::MainLoop()>.  This function will return when the application
+window has been destroyed and when that happens we are done at line
+18.
+
+The application menu itself is set up and returned by the C<mk_menu()>
+function in line 20 to 77.  This code should be easy enough to follow.
+Note how we make I<File | New> and I<Help | Foo Manual> both reference
+functions that are not yet written.  The application will still run,
+but when you try to invoke these menu entries you get an "Application
+Error Dialog" from Tk.  It is handy to be able to leave stubs like
+this around during the development.  Just remember to add the C<new>
+and C<show_manual> functions before the appliation ships. :-)
+
+The C<-underline> options are provided to make it possible to select
+menu entries with the keyboard.  The corresponding character of the
+C<-label> will be underlined and you will be able to select this entry
+by pressing the key when the menu is active.
+
+It is also possible to set up direct keyboard shortcuts like we done
+for the I<File | New> function at line 32.  Note that the
+C<-accelerator> option only adds the text to the menu item, so we need
+to use an explict call to set up this binding as done in line 38.
+
+For Aqua we don't want to add the "File | Exit" entry to the menu
+because the OS itself always provide a Quit action in the application
+menu.  Proper Aqua applications will also need to add the "About" function
+on the application menu instead of the "Help" menu as is common on
+other platforms.
+
+The menu names "apple" and "help" provided in line 46 and 65 has
+special significance to I<Tk>.  Menu items added to the "apple" menu
+will show up in the application menu.  The name is historic from the
+time when this stuff would actually show in the menu with the picture
+of the Apple logo.  In Mac OS X these entries show up at the top of
+the menu just right of the apple.  If not provided C<Tk> will provide
+its own "About" entry that will tell you about what version of
+I<Tcl/Tk> you are using.  A menu called "help" menu will be flushed
+right on Unix even though this style seems to be out of fashion in
+modern Unix applications.
+
+The Tkx distribution contain a script called C<menu> which is a
+runnable version of the program shown here.  You might want to use
+this as a starting point for your own Tkx application.
 
 =head2 Using Tcl packages
 
