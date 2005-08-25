@@ -148,8 +148,9 @@ which allows for C<Tkx> to make use of any available I<Tcl> packages.
 You can load these packages with C<Tkx::package_require>:
 
     use Tkx;
-    
-    my $mw = Tkx::package_require("Tktable");
+    Tkx::package_require("Tktable");
+
+    my $mw = Tkx::widget->new(".");
     my $t = $mw->new_table(
         -rows => 5,
         -cols => 3,
