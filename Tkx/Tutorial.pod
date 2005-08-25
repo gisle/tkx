@@ -5,13 +5,13 @@ Tkx::Tutorial - How to use Tkx
 =head1 DESCRIPTION
 
 I<Tk> is a toolkit that allows you to create applications with
-graphical interfaces for Windows, Mac OS X and X11.  The C<Tk> toolkit
-is native to the Tcl programming language, but its ease of use and
+graphical interfaces for Windows, Mac OS X and X11.  The Tk toolkit
+is native to the I<Tcl> programming language, but its ease of use and
 cross-platform availabilty has made it the GUI toolkit of choice for
 many other dynamic languages as well.
 
-C<Tkx> is a Perl module that makes the I<Tk> toolkit available to Perl
-programs.  By loading the C<Tkx> module Perl programs can create
+I<Tkx> is a Perl module that makes the Tk toolkit available to Perl
+programs.  By loading the Tkx module Perl programs can create
 windows and fill them with text, images, buttons and other controls
 that make up the user interface of the application.
 
@@ -36,11 +36,11 @@ Save this to a file called F<hello.pl> and then run C<perl hello.pl>
 to start up the application.  A window with the text "Hello, world"
 should appear on your screen.
 
-After the C<Tkx> module has been loaded by the C<use Tkx;> statement
+After the Tkx module has been loaded by the C<use Tkx> statement
 the application will show an empty window called ".".  We create a
 I<button> with the name ".b" and tell the window to display the button
 with the call to C<Tkx::pack()>.  After the layout of the window has
-been set up we need to pass control back to I<Tk> so that it can draw
+been set up we need to pass control back to Tk so that it can draw
 the window and invoke our callback if the button is clicked.  This is
 achieved by the C<Tkx::MainLoop()> call at the end.  Clicking the
 button will invoke the subroutine registered with the C<-command>
@@ -57,14 +57,14 @@ For reference this is how the same program would look in Tcl:
     pack .b
 
 This program can be executed by the F<tclsh> binary that comes with
-I<Tcl/Tk>.  As you can see the code is mostly identical, but with a
+Tcl/Tk.  As you can see the code is mostly identical, but with a
 slightly different syntax.  The only real difference is that the call
 to MainLoop() is implicit in Tcl and does not have to be spelled out.
 
-C<Tkx> does not come with documentation that explain all the widgets
+Tkx does not come with documentation that explain all the widgets
 (like "button" above) that are available for use.  Instead you will
 need to read the excellent documentation that comes with C<Tcl/Tk> and
-then figure out how this translates to C<Tkx> yourself.  As you can
+then figure out how this translates to Tkx yourself.  As you can
 see this translation is straight forward.  You basically only have add
 the prefix "Tkx::" to all the functions and use the Perl way of
 passing arguments.  Tcl is a very simple language, so it should not
@@ -81,7 +81,7 @@ L<http://www.tcl.tk/doc/>.
 
 =head2 Hello World with objects
 
-The windows and controls that make up a C<Tk> interface are called
+The windows and controls that make up a Tk interface are called
 I<widgets>.  The widgets are identified by path names of the form
 C<.foo.bar.baz>.  These names are hierarchical in the same way as file
 system names are, but "." is used instead of "/" to separate levels.
@@ -90,8 +90,8 @@ C<.foo.bar> which in turn is a child of C<.foo>.  At the top of this
 hierarchy we have a widget called C<.>, which is the main window of
 the application.
 
-The C<Tkx> module provide a class called C<Tkx::widget>, that can be
-used to hide the details of Tk path names from C<Tkx> applications.
+The Tkx module provide a class called C<Tkx::widget>, that can be
+used to hide the details of Tk path names from Tkx applications.
 This provide a more "perlish" way to create and manipulate Tk widgets.
 
 Our "Hello, world" program can be rewitten like this using the
@@ -108,14 +108,14 @@ C<Tkx::widget> class:
     
     Tkx::MainLoop()
 
-By loading the C<Tkx> module we make the C<Tkx::widget> class
+By loading the Tkx module we make the C<Tkx::widget> class
 available and create the main window (the widget called C<.>).  Next
 we instantiate a new C<Tkx::widget> object wrapping the main window.
 It is customary to name this object C<$mw>.
 
 To create a new button child widget we call C<< $mw->new_button >>
 method.  Constructor methods are always prefixed with C<new_>.  The rest
-of the method name is the name of the I<Tk> widget to create; i.e. "button"
+of the method name is the name of the Tk widget to create; i.e. "button"
 in this case.  Arguments are passed as before.
 
 Calling a "g_" method will invoke the correspoding Tk command with the
@@ -238,7 +238,7 @@ We start out as all proper Perl programs should by enabling warnings
 and stricture at line 1 and 3.  Then we load Tkx which will create our
 main application window at line 4.
 
-In line 9 we initialize $IS_AQUA constant.  Aqua is the native
+In line 9 we initialize C<$IS_AQUA> constant.  Aqua is the native
 interface of Mac OS X.  We need this constant because the menu layout
 on Aqua is not the same as for the other windowing systems.  Note that
 Tk on Mac OS X can be compiled against either Aqua or X11.  When our
@@ -262,7 +262,7 @@ In a real application there would be additional code between line 15
 and 17 to set up the rest of the application window, but for this
 demonstration we just leave the window empty.
 
-In line 17 we ask I<Tk> to start processing events, by invoking
+In line 17 we ask Tk to start processing events, by invoking
 C<Tkx::MainLoop()>.  This function will return when the application
 window has been destroyed and when that happens we are done at line
 18.
@@ -293,24 +293,24 @@ on the application menu instead of the "Help" menu as is common on
 other platforms.
 
 The menu names "apple" and "help" provided in line 46 and 65 has
-special significance to I<Tk>.  Menu items added to the "apple" menu
+special significance to Tk.  Menu items added to the "apple" menu
 will show up in the application menu.  The name is historic from the
 time when this stuff would actually show in the menu with the picture
 of the Apple logo.  In Mac OS X these entries show up at the top of
 the menu just right of the apple.  If not provided C<Tk> will provide
 its own "About" entry that will tell you about what version of
-I<Tcl/Tk> you are using.  A menu called "help" menu will be flushed
+Tcl/Tk you are using.  A menu called "help" menu will be flushed
 right on Unix even though this style seems to be out of fashion in
 modern Unix applications.
 
-The Tkx distribution contain a script called C<menu> which is a
+The Tkx distribution contain a script called F<menu> which is a
 runnable version of the program shown here.  You might want to use
-this as a starting point for your own Tkx application.
+this as a starting point for your own Tkx applications.
 
 =head2 Using Tcl packages
 
-The C<Tkx> Perl module binds to the I<Tk> toolkit through I<Tcl>,
-which allows for C<Tkx> to make use of any available I<Tcl> packages.
+The Tkx Perl module binds to the Tk toolkit through Tcl,
+which allows for Tkx to make use of any available Tcl packages.
 You can load these packages with C<Tkx::package_require>:
 
     use Tkx;
