@@ -7,7 +7,7 @@ Tkx::Tutorial - How to use Tkx
 I<Tk> is a toolkit that allows you to create applications with
 graphical interfaces for Windows, Mac OS X and X11.  The Tk toolkit
 is native to the I<Tcl> programming language, but its ease of use and
-cross-platform availabilty has made it the GUI toolkit of choice for
+cross-platform availability has made it the GUI toolkit of choice for
 many other dynamic languages as well.
 
 I<Tkx> is a Perl module that makes the Tk toolkit available to Perl
@@ -94,7 +94,7 @@ The Tkx module provide a class called C<Tkx::widget>, that can be
 used to hide the details of Tk path names from Tkx applications.
 This provide a more "perlish" way to create and manipulate Tk widgets.
 
-Our "Hello, world" program can be rewitten like this using the
+Our "Hello, world" program can be rewritten like this using the
 C<Tkx::widget> class:
 
     use Tkx;
@@ -118,7 +118,7 @@ method.  Constructor methods are always prefixed with C<new_>.  The rest
 of the method name is the name of the Tk widget to create; i.e. "button"
 in this case.  Arguments are passed as before.
 
-Calling a "g_" method will invoke the correspoding Tk command with the
+Calling a "g_" method will invoke the corresponding Tk command with the
 widget path as argument.  In the code above we destroy the main window
 by calling C<< $mw->g_destroy >> and we pack the button in the main
 window by invoking C<< $b->g_pack >>.
@@ -126,7 +126,7 @@ window by invoking C<< $b->g_pack >>.
 Calling a "m_" method will invoke a Tk subcommand for the given
 widget, but there is no example of this is the code above.  The most
 commonly used subcommand is "configure" that is used to change the
-attributes of a widget.  We could for instace change the text
+attributes of a widget.  We could for instance change the text
 displayed by the button by invoking:
 
     $b->m_configure(-text => "Goodbye, cruel world");
@@ -274,7 +274,7 @@ functions that are not yet written.  The application will still run,
 but when you try to invoke these menu entries you get an "Application
 Error Dialog" from Tk.  It is handy to be able to leave stubs like
 this around during the development.  Just remember to add the C<new>
-and C<show_manual> functions before the appliation ships. :-)
+and C<show_manual> functions before the application ships. :-)
 
 The C<-underline> options are provided to make it possible to select
 menu entries with the keyboard.  The corresponding character of the
@@ -284,7 +284,7 @@ by pressing the key when the menu is active.
 It is also possible to set up direct keyboard shortcuts like we done
 for the I<File | New> function at line 32.  Note that the
 C<-accelerator> option only adds the text to the menu item, so we need
-to use an explict call to set up this binding as done in line 38.
+to use an explicit call to set up this binding as done in line 38.
 
 For Aqua we don't want to add the "File | Exit" entry to the menu
 because the OS itself always provide a Quit action in the application
