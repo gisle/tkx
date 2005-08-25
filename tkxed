@@ -35,7 +35,8 @@ $sw->setwidget($t);
 $t->g_bind("<Button-3>", [\&post_menu, Tkx::Ev("%X", "%Y"), mk_menu($t)]);
 
 # Alternative menu binding for Mac OS X where not everybody have a Button-3
-$t->g_bind("<Control-Button-1>", [\&post_menu, Tkx::Ev("%X", "%Y"), mk_menu($t)]);
+$t->g_bind("<Control-Button-1>", [\&post_menu, Tkx::Ev("%X", "%Y"), mk_menu($t)])
+    if $^O eq "darwin";
 
 if (@ARGV) {
     Tkx::after_idle([\&load, $ARGV[0]])
