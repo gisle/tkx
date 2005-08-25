@@ -63,7 +63,7 @@ to MainLoop() is implicit in Tcl and does not have to be spelled out.
 
 Tkx does not come with documentation that explain all the widgets
 (like "button" above) that are available for use.  Instead you will
-need to read the excellent documentation that comes with C<Tcl/Tk> and
+need to read the mostly excellent documentation that comes with C<Tcl/Tk> and
 then figure out how this translates to Tkx yourself.  As you can
 see this translation is straight forward.  You basically only have add
 the prefix "Tkx::" to all the functions and use the Perl way of
@@ -309,9 +309,15 @@ this as a starting point for your own Tkx applications.
 
 =head2 Using Tcl packages
 
-The Tkx Perl module binds to the Tk toolkit through Tcl,
-which allows for Tkx to make use of any available Tcl packages.
-You can load these packages with C<Tkx::package_require>:
+When the Perl application starts up and load Tkx, the only functions
+available in the C<Tkx::> namespace are those commands provided by core
+Tcl/Tk.  These commands are described in the "Tcl" and "Tk" sections
+at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
+
+Additional commands can be loaded from Tcl packages.  Once loaded new
+commands show up in the C<Tkx::> namespace.  This example loads the
+"Tktable" package in order to make the C<table> command to create
+I<table> widgets available:
 
     use Tkx;
     Tkx::package_require("Tktable");
@@ -324,6 +330,35 @@ You can load these packages with C<Tkx::package_require>:
     $t->g_pack;
     
     Tkx::MainLoop()
+
+Packages are loaded by calling the C<Tkx::package_require()> function
+taking the package name as argument.  An optional version number can
+be provided as the second argument if you want to make sure a certain
+version or newer is loaded.
+
+One source of confusion here is what the proper spelling of the
+package name to provide to Tkx::package_require() is.  The Tcl/Tk
+documentation will call the package in the example above I<TkTable>
+(with two upper case "T"s) and not really mention the exact spelling
+of the package name (only one upper case "T").  In some cases the
+"synopsis" section describing the package will spell out the package
+name, but in cases like this we have found no better way than to peek
+into the F<pkgIndex.tcl> files in the Tcl C<lib/> area if loading the
+package fails.  The package documented as "BWidgets" should be loaded
+as "BWidget" (without the "s") and the package documented as
+"IWidgets" should be loaded as "Iwidgets" (with a lower case "w").
+Somebody ought to be spanked.
+
+Most modern Tcl packages will not create names at the top level like
+TkTable did above.  Instead they will create functions in a Tcl
+namespace with a name matching the package name.  In the menu example
+of the previous section we loaded the "style" package which created a
+command called "use" in the "style" namespace.  This command can be
+referenced as "::style::use" or "style::use" from Tcl.  From Perl this
+maps to a function called C<Tkx::style__use>, i.e. we replace the
+double colon with double underscore and ignore the colon in the front.
+Read L<Tkx> for details about how sequences of "_" in C<Tkx::> names
+are mapped to Tcl names.
 
 =head2 Setting up application icons
 
