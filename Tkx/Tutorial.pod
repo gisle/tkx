@@ -10,7 +10,7 @@ is native to the Tcl programming language, but its ease of use and
 cross-platform availabilty has made it the GUI toolkit of choice for
 many other dynamic languages as well.
 
-C<Tkx> is a Perl module that make the I<Tk> toolkit available to Perl
+C<Tkx> is a Perl module that makes the I<Tk> toolkit available to Perl
 programs.  By loading the C<Tkx> module Perl programs can create
 windows and fill them with text, images, buttons and other controls
 that make up the user interface of the application.
@@ -143,7 +143,20 @@ Not written yet.
 
 =head2 Using Tcl packages
 
-Not written yet.
+The C<Tkx> Perl module binds to the I<Tk> toolkit through I<Tcl>,
+which allows for C<Tkx> to make use of any available I<Tcl> packages.
+You can load these packages with C<Tkx::package_require>:
+
+    use Tkx;
+    
+    my $mw = Tkx::package_require("Tktable");
+    my $t = $mw->new_table(
+        -rows => 5,
+        -cols => 3,
+    );
+    $t->g_pack;
+    
+    Tkx::MainLoop()
 
 =head2 Setting up application icons
 
@@ -153,7 +166,7 @@ Not written yet.
 
 Not written yet.
 
-=head2 Mega widgets
+=head2 Megawidgets
 
 Not written yet.
 
