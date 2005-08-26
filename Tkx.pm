@@ -351,7 +351,9 @@ return value.
 This creates an object that if passed as the first argument to a
 callback will expand the corresponding Tcl template substitutions in
 the context of that callback.  The description of Tkx::I<foo> below
-explain how callback arguments are provided, and the available
+explain how callback arguments are provided.
+
+The $field should be a string like "%A" or "%x". The available
 substitutions are described in the Tcl documentation for the C<bind>
 command.
 
@@ -385,21 +387,32 @@ Examples:
     Tkx::expr("3 + 3");
     Tkx::package_require("BWidget");
     Tkx::DynamicHelp__add(".", -text => "Hi there");
+    if (Tkx::tk_windowingsystem() eq "x11") { ... }
+    if (Tkx::tk___messageBox( ... ) eq "yes") { ... }
 
 The arguments passed can be plain scalars, array references, code
 references, or scalar references.
 
 Array references are converted to Tcl lists.  The arrays can contain
-other array references or plain scalars to form nested lists.
+other plain scalars or array references to form nested lists.
 
 For Tcl APIs that require callbacks you can pass a reference to a Perl
 function.  Alternatively an array reference with a code reference as
 the first element, will allow the callback to receive the rest of the
-elements as arguments when invoked.  The Tkx::Ev() function can be
-used to fill in Tcl provided info as arguments.  Eg:
+elements as arguments when invoked.  If the second element of the
+array is an Tkx::Ev() object, then the templates it contain will be
+expanded at the time of the calllback.  Some callback examples:
 
     Tkx::after(3000, sub { print "Hi" });
+    Tkx::button(".b", -command [\&Tkx::destroy, "."]);
     Tkx::bind(".", "<Key>", [sub { print "$_[0]\n"; }, Tkx::Ev("%A")]);
+    Tkx::bind(".", "<Button-1>", [
+       sub {
+           my($x, $y) = @_;
+           print "Clicked at $x $y\n";
+       },
+       Tkx::Ev("%x", "%y"),
+    ]);
 
 For Tcl APIs that require variables to be passed, you might pass a
 reference to a Perl scalar.  The scalar will be watched and updated in
@@ -432,6 +445,8 @@ the C<Tkx::> prefix.  Example:
     pack(button(".b", -text => "Press me!", -command => [\&destroy, "."]));
     MainLoop;
 
+No functions are exported by default.
+
 =head2 Widget handles
 
 The class C<Tkx::widget> is used to wrap Tk widget paths or names.
@@ -441,15 +456,16 @@ The following methods are provided:
 
 =over
 
-=item $w = Tkx::widget->new( $path )
-
-This constructs a new widget handle for a given path.  It is not a
-problem to have multiple handle objects to the same path.
-
 =item Tkx::widget->_Mega( $widget, $class )
 
 This register $class as the one implementing $widget widgets.  See
 L</Meta widgets>.
+
+=item $w = Tkx::widget->new( $path )
+
+This constructs a new widget handle for a given path.  It is not a
+problem to have multiple handle objects to the same path or to create
+handles for paths that does not exist yet.
 
 =item $w->_data
 
@@ -464,7 +480,7 @@ is destroyed.
 =item $w->_parent
 
 Returns a handle for the parent widget.  Returns C<undef> if there is
-no parent, i.e. $w is the main window (root).
+no parent, which will only happen if $w is ".", the main window.
 
 =item $w->_kid( $name )
 
@@ -481,7 +497,7 @@ change the class of the current handle and make sure later handles
 created for the path belong to the given class.  The class should
 normally be a subclass of C<Tkx::widget>.  Overriding the class for a
 path is useful for implementing mega widgets.  Kids of $w are not
-affected by this, unless the class overrides the _nclass() method.
+affected by this, unless the class overrides the C<_nclass> method.
 
 =item $w->_nclass
 
@@ -516,7 +532,7 @@ Example:
     $w->new_iwidgets_calendar(-name => "cal");
 
 If a mega widget implementation class has be registered for I<foo>,
-then its _Populate() method is called instead of passing widget
+then its C<_Populate> method is called instead of passing widget
 creation to Tcl.
 
 =item $w->m_I<foo>( @args )
@@ -555,9 +571,9 @@ Example:
 
 =item $w->I<foo>( @args )
 
-If the method does not have a prefix of the form /^_/ or /^[a-zA-Z]_/,
-then it is treated as if it had the "m_" prefix, i.e. the I<foo>
-subcommand for the current widget is invoked.
+If the method does not start with "new_" or have a prefix of the form
+/^_/ or /^[a-zA-Z]_/, then it is treated as if it had the "m_" prefix,
+i.e. the I<foo> subcommand for the current widget is invoked.
 
 The method names with prefix /^_/ and /^[a-zA-Z]_/ are reserved for
 future extensions to this API.
