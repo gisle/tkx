@@ -446,17 +446,79 @@ double colon with double underscore and ignore the colon in the front.
 Read L<Tkx> for details about how sequences of "_" in C<Tkx::> names
 are mapped to Tcl names.
 
-=head2 Setting up application icons
-
-Not written yet.
-
 =head2 Subclassing Tkx::widget
 
-Not written yet.
+In Tkx applications it is often convenient to use your own subclass of
+C<Tkx::widget> where you can introduce shortcuts and adapters for the
+raw Tcl commands.  This shows an example class, that should be saved
+to the file F<MyWidget.pm>:
 
-=head2 Megawidgets
+     1	package MyWidget;
+     2	
+     3	use strict;
+     4	use base qw(Tkx::widget);
+     5	
+     6	sub messageBox {
+     7	    my $self = shift;
+     8	    return Tkx::tk___messageBox(-parent => $self, @_);
+     9	}
+    10	
+    11	sub getOpenFile {
+    12	    my $self = shift;
+    13	    return Tkx::tk___getOpenFile(-parent => $self, @_);
+    14	}
+    15	
+    16	sub bell {
+    17	    my $self = shift;
+    18	    Tkx::bell(-displayof => $self, @_);
+    19	}
+    20	
+    21	sub children {
+    22	    my $self = shift;
+    23	    return map { $self->_nclass->new($_) }
+    24		   Tkx::SplitList($self->g_winfo_children);
+    25	}
+    26	
+    27	sub _nclass {
+    28	    return __PACKAGE__;
+    29	}
+    30	
+    31	1;
 
-Not written yet.
+In the main program you would use it like this:
+
+    use Tkx;
+    use MyWidget;
+    my $mw = MyWidget->new(".");
+    $mw->messageBox(...);
+    
+    ...
+
+    for my $kid ($mw->children) {
+        ...
+    }
+    
+    Tkx::MainLoop();
+
+The MyWidget class above provide shortcuts for the "messageBox" and
+"getOpenFile" in order to hide the triple underscore ugliness and
+propegate the C<-parent> attribute.  Similar reasoning exists for the
+"bell".
+
+The C<children> method is provided since calling C<<
+$w->g_winfo_children >> just return a Tcl-list of widget path names.
+What we usually want to get back is a list of widget objects, so that
+we can call further methods on them.
+
+The C<_nclass> method need to be overridden so that any new widget
+kids created also ends up as MyWidget objects.  This method is called
+internally by methods like C<< $mw->new_button(...) >> to determine
+which kind of object will get a chance to wrap the newly created
+widget path.
+
+Having you own application specific widget class provide a place to
+add methods discovered by refactoring of repeated code in your
+application.
 
 =head1 LICENSE
 
