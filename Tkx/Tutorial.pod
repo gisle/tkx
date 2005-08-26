@@ -123,19 +123,105 @@ widget path as argument.  In the code above we destroy the main window
 by calling C<< $mw->g_destroy >> and we pack the button in the main
 window by invoking C<< $b->g_pack >>.
 
-Calling a "m_" method will invoke a Tk subcommand for the given
-widget, but there is no example of this is the code above.  The most
-commonly used subcommand is "configure" that is used to change the
-attributes of a widget.  We could for instance change the text
-displayed by the button by invoking:
-
-    $b->m_configure(-text => "Goodbye, cruel world");
-
 In the end we need to invoke the MainLoop as before.
 
 For trivial programs like the one above using C<Tkx::widget> wrappers
 does not appear to be a win, but as the application grows and the Tk
 path names get longer it surely is.
+
+=head2 Hello World expanded
+
+In order to introduce a few more Tkx features, we now present a
+slightly expanded version of the previous Hello World program.  This
+time we added line numbers to the program so that it is easier to
+reference back to its statements:
+
+     1	use strict;
+     2	use Tkx;
+     3	
+     4	my $mw = Tkx::widget->new(".");
+     5	$mw->g_wm_title("Hello, world");
+     6	$mw->g_wm_minsize(300, 200);
+     7	
+     8	my $b;
+     9	$b = $mw->new_button(
+    10	    -text => "Hello, world",
+    11	    -command => sub {
+    12	        $b->m_configure(
+    13		    -text => "Goodbye, cruel world",
+    14	        );
+    15		Tkx::after(1500, sub { $mw->g_destroy });
+    16	    },
+    17	);
+    18	$b->g_pack(
+    19	    -padx => 10,
+    20	    -pady => 10,
+    21	);
+    22	
+    23	Tkx::tk___messageBox(
+    24	   -parent => $mw,
+    25	   -icon => "info",
+    26	   -title => "Tip of the Day",
+    27	   -message => "Please be nice!",
+    28	);
+    29	
+    30	Tkx::MainLoop()
+
+The first thing we added is the C<< use strict >> statement, simply
+because that's a good idea in general.
+
+In line 5 and 6 we set up some window manager attributes of the main
+application window.  What is noteworthy here is that we use underscore
+in the g_ method names where Tcl would use space between words.  Same
+rules apply to the function names in the C<Tkx::> namespace directly.
+We could alternatively have modified the window attributes with:
+
+    Tkx::wm_title($mw, "Hello, world");
+    Tkx::wm_minsize($mw, 300, 200);
+
+which in Tcl would have been:
+
+    wm title . "Hello, world"
+    wm minsize . 300 200
+
+The rule is: A single underscore on the Perl side turns into space on
+the Tcl side.
+
+In line 11 to 16 we have expanded the button callback to change the
+text of button and then wait 1.5 seconds before we shut down the
+application.  In addition to the "g_" methods described in the
+previous section, C<Tkx::widget> also provide "m_" methods which are
+forwarded as Tcl subcommands of the current widget.  The most commonly
+used subcommand is "configure" that is used to change the attributes
+of a widget as we do in line 12.  Since we now reference $b from the
+callback, we had to declare the variable upfront in line 8 instead of
+declaring it together with the assignment as we did previously.  In
+line 15 we schedule for the window to be destroyed after a delay of
+1500 ms.  The delay is needed so that the new button text is actually
+show before the window goes away.
+
+Btw, the "m_" method prefix is actually optional, so you might prefer
+just to leave it out.
+
+Padding around buttons is usually a good idea as we now do in line 18.
+
+In line 23 we invoke the messageBox command to pop up a useful
+reminder to our user.  But what's up with the "tk___" prefix?  In the
+Tcl docs you will find that the name of this command is actually
+"tk_messageBox".  Remember the previous rule that an underscore in
+Tkx:: names turn into a space on the Tcl side?  If you try to call
+C<Tkx::tk_messageBox()> you will get an error telling you:
+
+    bad option "messageBox": must be appname, caret, scaling,
+    useinputmethods, or windowingsystem
+
+What happens is that Tkx invoked the "tk messageBox" command, but the
+Tcl "tk" command only take the subcommands listed in the error message
+above and refuse to do anything about "messageBox".  In order to
+invoke Tcl commands with underscore their name, you need to I<triple>
+the underscore on the Perl side, which gives us
+C<Tkx::tk___messageBox()>.  Double underscores in names have yet another
+meaning that we will tell you about in the next section.
 
 =head2 Setting up a menu line
 
