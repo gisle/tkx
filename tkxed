@@ -9,8 +9,14 @@ use File::Basename qw(basename);
 
 Tkx::package_require("BWidget");
 
-Tkx::package_require("style");
-Tkx::style__use("lobster", -priority => 70);
+eval {
+    Tkx::package_require("style");
+    Tkx::style__use("lobster", -priority => 70);
+};
+if ($@) {
+    $@ =~ s/ at .*//;
+    print "Can't update style: $@";
+}
 
 # state
 my $file = "";
