@@ -198,13 +198,13 @@ sub DESTROY {
 package Tkx::i;
 
 use Tcl;
-$Tcl::STACK_TRACE = 0;
 
 my $interp;
 my $trace_count = 0;
 my $trace_start_time = 0;
 
 BEGIN {
+    $Tcl::STACK_TRACE = 0;
     $interp = Tcl->new;
     $interp->Init;
 }
