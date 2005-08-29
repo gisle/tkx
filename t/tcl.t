@@ -36,7 +36,6 @@ eval { @list = Tkx::SplitList("a {") };
 ok($@ && $@ =~ /valid Tcl list/);
 
 eval { error("Foo") };
-#print "# '$@'\n";
-ok($@ && $@ =~ /^Foo/);
+ok($@, "Foo at @{[__FILE__]} line @{[__LINE__ - 1]}.\n");
 
 sub j { join(":", @_) }

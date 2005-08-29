@@ -301,7 +301,27 @@ sub call {
 	shift(@paths);
 	push(@cleanup, Tkx::widget::_destroy->new(@paths));
     }
-    return $interp->call(@_);
+
+    if (wantarray) {
+	my @a = eval { $interp->call(@_) };
+	return @a unless $@;
+    }
+    else {
+	my $a = eval { $interp->call(@_) };
+	return $a unless $@;
+    }
+
+    # report exception relative to the non-Tkx caller
+    if (!ref($@) && $@ =~ s/( at .*[\\\/](Tkx|Tcl)\.pm line \d+\.\n\z)//) {
+           my $i = 1;
+           my($pkg, $file, $line);
+           while (($pkg, $file, $line) = caller($i)) {
+               last if $pkg !~ /^Tkx(::|$)/;
+               $i++;
+           };
+           $@ .= " at $file line $line.\n";
+    }
+    die $@;
 }
 
 sub DoOneEvent {
