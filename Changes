@@ -1,3 +1,20 @@
+2005-08-29   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.02  [186229]
+
+     Prettier error if Tk fails to initialize.  This might happen if
+     the you can't connect to the X11-server or if Tcl has been installed
+     without Tk.
+
+     Report Tcl exceptions relative to the code that uses Tkx instead of
+     somewhere internally in Tcl.pm.
+
+     Don't require style.tcl to be present for 'tkxed' and 'menu' to run.
+
+     Improved the documentation some more.
+
+
+
 2005-08-25   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.01  [182713]
