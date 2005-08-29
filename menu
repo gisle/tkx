@@ -8,8 +8,14 @@ our $VERSION = "1.00";
 (my $progname = $0) =~ s,.*[\\/],,;
 my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
 
-Tkx::package_require("style");
-Tkx::style__use("as", -priority => 70);
+eval {
+    Tkx::package_require("style");
+    Tkx::style__use("lobster", -priority => 70);
+};
+if ($@) {
+    $@ =~ s/ at .*//;
+    print "Can't update style: $@";
+}
 
 my $mw = Tkx::widget->new(".");
 $mw->configure(-menu => mk_menu($mw));
