@@ -9,7 +9,13 @@ our $VERSION = '1.02';
     package Tkx::i;
 }
 
-package_require("Tk");
+eval {
+    package_require("Tk");
+};
+if ($@) {
+    $@ =~ s/^this isn't a Tk application//;  # what crap
+    die $@;
+}
 
 our $TRACE;
 our $TRACE_MAX_STRING;
