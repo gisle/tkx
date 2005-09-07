@@ -555,7 +555,7 @@ uniqueness among the children.  If a C<-name> argument is passed it is
 used to form the name and then removed from the arglist passed to Tcl.
 Example:
 
-    $w->new_iwidgets_calendar(-name => "cal");
+    $w->new_iwidgets__calendar(-name => "cal");
 
 If a mega widget implementation class has be registered for I<foo>,
 then its C<_Populate> method is called instead of passing widget
