@@ -11,7 +11,7 @@ Tkx::package_require("BWidget");
 
 eval {
     Tkx::package_require("style");
-    Tkx::style__use("lobster", -priority => 70);
+    Tkx::style__use("as", -priority => 70);
 };
 if ($@) {
     $@ =~ s/ at .*//;
@@ -23,25 +23,40 @@ my $file = "";
 
 # set up main window
 my $mw = Tkx::widget->new(".");
-my $sw = $mw->new_ScrolledWindow(
-    -managed => 0,
-    -background => "white",
-);
+my $sw = $mw->new_ScrolledWindow();
 $sw->g_pack(
     -fill => "both",
     -expand => 1,
 );
-my $t = $sw->new_text(
-    -padx => 5,
-    -pady => 5,
-    -background => "white",
+
+eval {
+    Tkx::package_require("ctext");
+};
+my($t, $tw);
+if (Tkx::package_provide("ctext")) {
+    # A ctext's true text widget is a subwidget
+    $t = $sw->new_ctext();
+    $tw = $t->_mpath . ".t";
+    # Consider adding ctext highlighting
+}
+else {
+    $t = $tw = $sw->new_text();
+}
+$t->configure(
+    -bd => 1,
+    -undo => 1,
+    -wrap => "none",
 );
+
 $sw->setwidget($t);
 
-$t->g_bind("<Button-3>", [\&post_menu, Tkx::Ev("%X", "%Y"), mk_menu($t)]);
+my $menu = mk_menu($mw);
+$mw->configure(-menu => $menu);
+
+$t->g_bind("<Button-3>", [\&post_menu, Tkx::Ev("%X", "%Y"), $menu]);
 
 # Alternative menu binding for Mac OS X where not everybody have a Button-3
-$t->g_bind("<Control-Button-1>", [\&post_menu, Tkx::Ev("%X", "%Y"), mk_menu($t)])
+$t->g_bind("<Control-Button-1>", [\&post_menu, Tkx::Ev("%X", "%Y"), $menu])
     if $^O eq "darwin";
 
 if (@ARGV) {
@@ -55,35 +70,73 @@ Tkx::MainLoop();
 exit;
 
 sub mk_menu {
-    my $t = shift;
-    my $m = $t->new_menu(
-        -tearoff => 0,
+    my $mw = shift;
+    Tkx::option_add("*Menu.tearOff", 0);
+    my $m = $mw->new_menu();
+    my $fm = $m->new_menu();
+    my $em = $m->new_menu();
+
+    my $control = ($^O eq "darwin") ? "Command" : "Control";
+    my $ctrl    = ($^O eq "darwin") ? "Command-" : "Ctrl+";
+
+    $m->add_cascade(
+	-label => "File",
+	-menu => $fm,
     );
-    $m->add_command(
+    $m->add_cascade(
+	-label => "Edit",
+	-menu => $em,
+    );
+
+    # File menu
+    $fm->add_command(
         -label => "New",
+	-accelerator => $ctrl . "N",
         -command => \&new,
     );
-    $m->add_command(
+    Tkx::bind("all", "<$control-N>", \&new);
+    $fm->add_command(
         -label => "Open...",
+	-accelerator => $ctrl . "O",
         -command => \&my_open,
     );
-    $m->add_command(
+    Tkx::bind("all", "<$control-O>", \&my_open);
+    $fm->add_command(
         -label => "Save",
+	-accelerator => $ctrl . "S",
         -command => \&save,
     );
-    $m->add_command(
+    Tkx::bind("all", "<$control-S>", \&save);
+    $fm->add_command(
         -label => "Save As...",
         -command => \&save_as,
     );
-    $m->add_command(
+    $fm->add_command(
         -label => "Exit",
         -underline => 1,
+	-accelerator => $ctrl . "Q",
         -command => [\&Tkx::destroy, $mw],
     );
+    Tkx::bind("all", "<$control-Q>", [\&Tkx::destroy, $mw]);
+
+    # Edit menu
+    $em->add_command(
+	-label => "Cut",
+	-command => [\&Tkx::event_generate, $tw, "<<Cut>>"]
+    );
+    $em->add_command(
+	-label => "Copy",
+	-command => [\&Tkx::event_generate, $tw, "<<Copy>>"],
+    );
+    $em->add_command(
+	-label => "Paste",
+	-command => [\&Tkx::event_generate, $tw, "<<Paste>>"],
+    );
+
+    # Could add a Help -> About
 
     return $m;
 }
-
 
 sub post_menu {
     my($x, $y, $menu) = @_;
