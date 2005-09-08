@@ -49,14 +49,7 @@ $t->configure(
 
 $sw->setwidget($t);
 
-my $menu = mk_menu($mw);
-$mw->configure(-menu => $menu);
-
-$t->g_bind("<Button-3>", [\&post_menu, Tkx::Ev("%X", "%Y"), $menu]);
-
-# Alternative menu binding for Mac OS X where not everybody have a Button-3
-$t->g_bind("<Control-Button-1>", [\&post_menu, Tkx::Ev("%X", "%Y"), $menu])
-    if $^O eq "darwin";
+$mw->configure(-menu => mk_menu($mw));
 
 if (@ARGV) {
     Tkx::after_idle([\&load, $ARGV[0]])
@@ -137,11 +130,6 @@ sub mk_menu {
     return $m;
 }
 
-sub post_menu {
-    my($x, $y, $menu) = @_;
-    Tkx::tk___popup($menu, $x, $y);
-}
-
 sub new {
     $t->delete("1.0", "end");
     set_file("");
@@ -218,8 +206,7 @@ C<Tkx> toolkit.  Its main purpose is to demonstrate how this kind of
 application is written, so please take a look at its source code.
 
 When the editor starts up it shows a blank page where you can start
-entering text directly.  Right click in the editor window to bring up
-the menu that allow you to load and save files.
+entering text directly.
 
 If a file name is passed on the command line then the editor will
 visit this file initially.
