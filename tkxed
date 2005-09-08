@@ -88,19 +88,19 @@ sub mk_menu {
 	-accelerator => $ctrl . "N",
         -command => \&new,
     );
-    Tkx::bind("all", "<$control-N>", \&new);
+    Tkx::bind("all", "<$control-n>", \&new);
     $fm->add_command(
         -label => "Open...",
 	-accelerator => $ctrl . "O",
         -command => \&my_open,
     );
-    Tkx::bind("all", "<$control-O>", \&my_open);
+    Tkx::bind("all", "<$control-o>", \&my_open);
     $fm->add_command(
         -label => "Save",
 	-accelerator => $ctrl . "S",
         -command => \&save,
     );
-    Tkx::bind("all", "<$control-S>", \&save);
+    Tkx::bind("all", "<$control-s>", \&save);
     $fm->add_command(
         -label => "Save As...",
         -command => \&save_as,
@@ -111,7 +111,7 @@ sub mk_menu {
 	-accelerator => $ctrl . "Q",
         -command => [\&Tkx::destroy, $mw],
     );
-    Tkx::bind("all", "<$control-Q>", [\&Tkx::destroy, $mw]);
+    Tkx::bind("all", "<$control-q>", [\&Tkx::destroy, $mw]);
 
     # Edit menu
     $em->add_command(
