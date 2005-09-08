@@ -29,18 +29,17 @@ $sw->g_pack(
     -expand => 1,
 );
 
+my($t, $tw);
 eval {
     Tkx::package_require("ctext");
-};
-my($t, $tw);
-if (Tkx::package_provide("ctext")) {
     # A ctext's true text widget is a subwidget
     $t = $sw->new_ctext();
-    $tw = $t->_mpath . ".t";
-    # Consider adding ctext highlighting
-}
-else {
-    $t = $tw = $sw->new_text();
+    $tw = $t->_kid("t");
+};
+if ($@) {
+    # fallback is the standard widget
+    $t = $sw->new_text();
+    $tw = $t;
 }
 $t->configure(
     -bd => 1,
