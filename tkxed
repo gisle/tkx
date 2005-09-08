@@ -15,7 +15,7 @@ eval {
 };
 if ($@) {
     $@ =~ s/ at .*//;
-    print "Can't update style: $@";
+    warn "Using plain look: $@";
 }
 
 # state
@@ -38,6 +38,8 @@ eval {
 };
 if ($@) {
     # fallback is the standard widget
+    $@ =~ s/ at .*//;
+    warn "Using plain text: $@";
     $t = $sw->new_text();
     $tw = $t;
 }
