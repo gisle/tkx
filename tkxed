@@ -7,6 +7,8 @@ use strict;
 use Tkx;
 use File::Basename qw(basename);
 
+my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
+
 Tkx::package_require("BWidget");
 
 eval {
@@ -105,13 +107,15 @@ sub mk_menu {
         -label => "Save As...",
         -command => \&save_as,
     );
-    $fm->add_command(
-        -label => "Exit",
-        -underline => 1,
-	-accelerator => $ctrl . "Q",
-        -command => [\&Tkx::destroy, $mw],
-    );
-    Tkx::bind("all", "<$control-q>", [\&Tkx::destroy, $mw]);
+    unless ($IS_AQUA) {
+	$fm->add_command(
+	    -label => "Exit",
+	    -underline => 1,
+	    -accelerator => $ctrl . "Q",
+	    -command => [\&Tkx::destroy, $mw],
+	    );
+	Tkx::bind("all", "<$control-q>", [\&Tkx::destroy, $mw]);
+    }
 
     # Edit menu
     $em->add_command(
