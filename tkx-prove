@@ -1,0 +1,222 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Tkx;
+use Time::HiRes qw(time);
+
+Tkx::package_require("tile");
+
+my $mw = Tkx::widget->new(".");
+
+my $pane = $mw->new_ttk__paned(
+    -orient => "vertical",
+);
+$pane->g_pack(
+    -expand => 1,
+    -fill => "both",
+);
+
+my $frame = $pane->new_frame;
+$pane->add($frame, -weight => 1);
+
+my $tree = $frame->new_ttk__treeview(
+   -columns => [qw(status time)],
+   -height => 5,
+);
+
+$tree->heading("#0", -text => "Test Name", -command => sub { sort_rows("#0") });
+$tree->heading("status", -text => "Status", -command => sub { sort_rows("status") });
+$tree->column("status", -width => 45, -anchor => "center");
+$tree->heading("time", -text => "Time", -command => sub { sort_rows("time") });
+$tree->column("time", -width => 45, -anchor => "e");
+
+my $sb = $frame->new_ttk__scrollbar(
+    -orient => "vertical",
+    -command => [$tree, "yview"],
+);
+$sb->g_pack(
+    -side => "right",
+    -fill => "y",
+);
+
+$tree->configure(-yscrollcommand => [$sb, "set"]);
+$tree->g_pack(
+    -expand => 1,
+    -fill => "both",
+    -side => "left",
+);
+
+my $text = $pane->new_text(
+    -font => "Helvetica 10",
+    -width => 10,
+    -height => 2,
+);
+$text->tag_configure("heading", -font => "Helvetica 12 bold");
+$text->tag_configure("code", -font => "Courier 8");
+$pane->add($text, -weight => 3);
+
+$frame = $mw->new_frame(
+    -bd => 5,
+);
+$frame->g_pack(-fill => "x");
+my $bb = $frame->new_ttk__button(
+    -text => "Run all tests",
+    -command => _savecb(sub { run_tests(Tkx::SplitList($tree->children(""))) }),
+);
+$bb->g_pack(-side => "left");
+
+$bb = $frame->new_ttk__button(
+    -text => "Run selected tests",
+    -command => _savecb(sub { run_tests(Tkx::SplitList($tree->selection)) }),
+);
+$bb->g_pack(-side => "left");
+
+$bb = $frame->new_ttk__button(
+    -text => "New dir",
+    -command => _savecb(sub {
+	my $dir = Tkx::tk___chooseDirectory(
+	    -parent => $mw,
+            -title => "New test directory",
+            -mustexist => 1,
+        );
+        if ($dir) {
+	    $dir =~ s,/t/?$,,;
+	    set_dir($dir);
+        }
+    }),
+);
+$bb->g_pack(-side => "left");
+
+my $dir;
+my %result;
+
+set_dir("$ENV{HOME}/p/html-parser");
+
+sub set_dir {
+    $dir = shift;
+    %result = ();
+
+    $tree->delete($tree->children(""));
+    $text->delete("1.0", "end");
+
+    use File::Find qw(find);
+    find({
+	wanted => sub {
+	    return unless -f $_;
+	    return unless /\.t$/;
+	    my $name = substr($File::Find::name, length("$dir/t") + 1);
+	    substr($name, -2, 2, "");
+	    $tree->insert("", "end", -text => $name, -values => ["-", "-"]);
+	},
+	no_chdir => 1,
+    }, "$dir/t");
+}
+
+use Test::Harness::Straps;
+my $strap = Test::Harness::Straps->new;
+
+$tree->g_bind("<<TreeviewSelect>>", \&tree_select);
+
+Tkx::MainLoop();
+
+sub run_tests {
+    my $old_selection = $tree->selection;
+    for my $item (@_) {
+        my $test = "t/" . $tree->item($item, "-text") . ".t";
+	print "Item $item $test\n";
+	delete $result{$item};
+
+        $tree->selection_set($item);
+	$tree->see($item);
+	$tree->set($item, "status", "-");
+	$tree->set($item, "time", "-");
+	Tkx::update();
+
+	my $cmd = $strap->_command_line("$dir/$test");
+	my $before = time;
+	my @output = qx($cmd);
+	my $used = time - $before;
+	my $status = $?;
+	my %res = $strap->analyze($item, \@output);
+	$res{output} = join("", @output);
+	$res{start_time} = $before;
+	$res{used_time} = sprintf "%.03f", $used;
+	$res{status} = $status;
+	#use Data::Dump; print Data::Dump::dump(\%res), "\n";
+	$result{$item} = \%res;
+
+	$tree->set($item, "status", $res{passing} ? ($res{skip_all} ? "skipped" : "ok") : "fail");
+	$tree->set($item, "time", sprintf "%.2f", $used);
+	tree_select();
+	Tkx::update();
+	#select(undef, undef, undef, 0.4);
+    }
+    $tree->selection_set($old_selection);
+    #$tree->yview_moveto(0);
+}
+
+sub tree_select {
+    my @sel = Tkx::SplitList($tree->selection);
+    print "[select @sel]\n";
+    $text->delete("1.0", "end");
+    if (@sel == 0) {
+	$text->insert("end", "No test selected\n");
+    }
+    elsif (@sel == 1) {
+	my $name = $tree->item($sel[0], "-text");
+	#$text->insert("end", "$name\n");
+	if (my $res = $result{$sel[0]}) {
+	    $text->insert("end", "Skipped: $res->{skip_all}\n", "heading") if $res->{skip_all};
+	    $text->insert("end", "Passed $res->{ok} of $res->{max} tests in $res->{used_time} seconds.\n");
+	    $text->insert("end", "Todo tests: $res->{todo}\n") if $res->{todo};
+	    $text->insert("end", "Bonus tests: $res->{bonus}\n") if $res->{bonus};
+	    $text->insert("end", "Skipped tests: $res->{skip}\n") if $res->{skip};
+	    $text->insert("end", "Status: $res->{status}\n") if $res->{status};
+	    $text->insert("end", "\nComplete test output\n\n", "heading");
+	    $text->insert("end", $res->{output}, "code");
+	}
+	else {
+	    $text->insert("end", "No result\n");
+	}
+    }
+    else {
+	my $num_tests = @sel;
+	$text->insert("end", "$num_tests tests selected\n");
+    }
+}
+
+
+BEGIN {
+    my %ascending;
+
+    sub sort_rows {
+	my $col = shift;
+	$ascending{$col} = !$ascending{$col};
+
+	my $kids = $tree->children("");
+	my @kids = Tkx::SplitList($kids);
+	@kids = map  { $_->[0] }
+                sort {
+                    my $cmp = $a->[1] cmp $b->[1];
+                    $cmp = -$cmp if $ascending{$col};
+                    $cmp
+                }
+                map  { [$_, $col eq "#0" ? $tree->item($_, "-text") : $tree->set($_, $col) ] }
+                @kids;
+
+	$tree->detach($kids);
+	for my $item (@kids) {
+	    $tree->move($item, "", "end");
+	}
+    }
+}
+
+BEGIN {
+    my %cb;
+    # needed by my experimental Tcl.pm that pass "perlsub" objects to Tcl
+    sub _savecb {
+	my $cb = shift;
+	$cb{$cb} = $cb;
+	return $cb;
+    }
+}
