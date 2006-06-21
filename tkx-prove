@@ -61,36 +61,36 @@ $frame = $mw->new_frame(
 $frame->g_pack(-fill => "x");
 my $bb = $frame->new_ttk__button(
     -text => "Run all tests",
-    -command => _savecb(sub { run_tests(Tkx::SplitList($tree->children(""))) }),
+    -command => sub { run_tests(Tkx::SplitList($tree->children(""))) },
 );
 $bb->g_pack(-side => "left");
 
 $bb = $frame->new_ttk__button(
     -text => "Run selected tests",
-    -command => _savecb(sub { run_tests(Tkx::SplitList($tree->selection)) }),
+    -command => sub { run_tests(Tkx::SplitList($tree->selection)) },
 );
 $bb->g_pack(-side => "left");
 
 $bb = $frame->new_ttk__button(
     -text => "New dir",
-    -command => _savecb(sub {
-	my $dir = Tkx::tk___chooseDirectory(
-	    -parent => $mw,
-            -title => "New test directory",
-            -mustexist => 1,
-        );
-        if ($dir) {
-	    $dir =~ s,/t/?$,,;
-	    set_dir($dir);
-        }
-    }),
+    -command => \&new_test_dir,
 );
 $bb->g_pack(-side => "left");
 
 my $dir;
 my %result;
 
-set_dir("$ENV{HOME}/p/html-parser");
+sub new_test_dir {
+    my $dir = Tkx::tk___chooseDirectory(
+	-parent => $mw,
+        -title => "New test directory",
+        -mustexist => 1,
+    );
+    if ($dir) {
+	$dir =~ s,/t/?$,,;
+	set_dir($dir);
+    }
+}
 
 sub set_dir {
     $dir = shift;
@@ -116,6 +116,8 @@ use Test::Harness::Straps;
 my $strap = Test::Harness::Straps->new;
 
 $tree->g_bind("<<TreeviewSelect>>", \&tree_select);
+
+new_test_dir();
 
 Tkx::MainLoop();
 
@@ -208,15 +210,5 @@ BEGIN {
 	for my $item (@kids) {
 	    $tree->move($item, "", "end");
 	}
-    }
-}
-
-BEGIN {
-    my %cb;
-    # needed by my experimental Tcl.pm that pass "perlsub" objects to Tcl
-    sub _savecb {
-	my $cb = shift;
-	$cb{$cb} = $cb;
-	return $cb;
     }
 }
