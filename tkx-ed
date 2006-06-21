@@ -1,12 +1,13 @@
 #!/usr/bin/perl -w
 
-# pkxed - Simple editor
+# tkx-ed - Simple text editor
 
 use strict;
 
 use Tkx;
 use File::Basename qw(basename);
 
+(my $PROGNAME = $0) =~ s,.*[\\/],,;
 my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
 
 Tkx::package_require("BWidget");
@@ -71,6 +72,7 @@ sub mk_menu {
     my $m = $mw->new_menu();
     my $fm = $m->new_menu();
     my $em = $m->new_menu();
+    my $hm = $m->new_menu();
 
     my $control = ($^O eq "darwin") ? "Command" : "Control";
     my $ctrl    = ($^O eq "darwin") ? "Command-" : "Ctrl+";
@@ -82,6 +84,10 @@ sub mk_menu {
     $m->add_cascade(
 	-label => "Edit",
 	-menu => $em,
+    );
+    $m->add_cascade(
+	-label => "Help",
+	-menu => $hm,
     );
 
     # File menu
@@ -131,7 +137,39 @@ sub mk_menu {
 	-command => [\&Tkx::event_generate, $tw, "<<Paste>>"],
     );
 
-    # Could add a Help -> About
+    # Help menu
+
+    $hm->add_command(
+        -label => "View $PROGNAME source",
+        -command => sub { load(__FILE__) },
+    );
+
+    my $about_menu = $hm;
+    if ($IS_AQUA) {
+	# On Mac OS we want about box to appear in the application
+	# menu.  Anything added to a menu with the name "apple" will
+	# appear in this menu.
+    	$about_menu = $m->new_menu(
+	    -name => "apple",
+    	);
+    	$m->add_cascade(
+    	     -menu => $about_menu,
+    	);
+    }
+    $about_menu->add_command(
+	-label => "About $PROGNAME",
+        -command => sub {
+	    Tkx::tk___messageBox(
+	        -parent => $mw,
+                -title => "About \u$PROGNAME",
+                -type => "ok",
+                -icon => "info",
+                -message => "$PROGNAME v$Tkx::VERSION\n" .
+                            "Copyright 2005 ActiveState. " .
+                            "All rights reserved.",
+            );
+        },
+    );
 
     return $m;
 }
@@ -199,15 +237,15 @@ __END__
 
 =head1 NAME
 
-tkxed - Simple editor
+tkx-ed - Simple editor
 
 =head1 SYNOPSIS
 
- tkxed [<file>]
+ tkx-ed [<file>]
 
 =head1 DESCRIPTION
 
-The F<tkxed> program is a simple text editor implemented with the
+The F<tkx-ed> program is a simple text editor implemented with the
 C<Tkx> toolkit.  Its main purpose is to demonstrate how this kind of
 application is written, so please take a look at its source code.
 
