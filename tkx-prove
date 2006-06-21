@@ -125,7 +125,7 @@ sub run_tests {
     my $old_selection = $tree->selection;
     for my $item (@_) {
         my $test = "t/" . $tree->item($item, "-text") . ".t";
-	print "Item $item $test\n";
+	#print "Item $item $test\n";
 	delete $result{$item};
 
         $tree->selection_set($item);
@@ -159,7 +159,7 @@ sub run_tests {
 
 sub tree_select {
     my @sel = Tkx::SplitList($tree->selection);
-    print "[select @sel]\n";
+    #print "[select @sel]\n";
     $text->delete("1.0", "end");
     if (@sel == 0) {
 	$text->insert("end", "No test selected\n");
