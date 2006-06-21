@@ -1,6 +1,6 @@
 2006-06-21   Gisle Aas <gisle@ActiveState.com>
 
-     Release 1.03  []
+     Release 1.03  [264696]
 
      Renamed tkxed as tkx-ed.  Jeff Hobbs made the program have a
      proper File/Edit menu and make it use the ctext widget.  There
