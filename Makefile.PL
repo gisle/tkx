@@ -9,5 +9,5 @@ WriteMakefile(
     PREREQ_PM => {
 	Tcl => 0.81,
     },
-    EXE_FILES => [qw(tkxed)],
+    EXE_FILES => [qw(tkx-ed tkx-prove)],
 );

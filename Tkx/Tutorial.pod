@@ -547,4 +547,4 @@ Copyright 2005 ActiveState.  All rights reserved.
 
 L<Tkx>
 
-L<tkxed>
+The bundled sample programs; L<tkx-ed>, L<tkx-prove>.
