@@ -92,7 +92,7 @@ __END__
 
 =head1 NAME
 
-Tkx::MegaConfig - handle configuration options for mega widgets
+Tkx::MegaConfig - handle configuration options for megawidgets
 
 =head1 SYNOPSIS
 
@@ -107,7 +107,7 @@ Tkx::MegaConfig - handle configuration options for mega widgets
 =head1 DESCRIPTION
 
 The C<Tkx::MegaConfig> class provide implementations of m_configure()
-and m_cget() that can handle configuration options for mega widgets.
+and m_cget() that can handle configuration options for megawidgets.
 How these methods behave is set up by calling the _Config() class
 method.  The _Config() method takes a set option/option spec pairs as
 argument.
@@ -129,7 +129,7 @@ The following $where specs are understood:
 =item .foo
 
 Delegate the given configuration option to the "foo" kid of the mega
-widget.  The name "." can be used to deletegate to the mega widget
+widget.  The name "." can be used to deletegate to the megawidget
 root itself.  An argument can be given to delegate using a different
 name on the "foo" widget.
 

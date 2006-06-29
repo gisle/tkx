@@ -485,7 +485,7 @@ The following methods are provided:
 =item Tkx::widget->_Mega( $widget, $class )
 
 This register $class as the one implementing $widget widgets.  See
-L</Meta widgets>.
+L</Megawidgets>.
 
 =item $w = Tkx::widget->new( $path )
 
@@ -496,7 +496,7 @@ handles for paths that does not exist yet.
 =item $w->_data
 
 Returns a hash that can be used to keep instance specific data.  This
-is useful for holding instance data for mega widgets.  The data is
+is useful for holding instance data for megawidgets.  The data is
 attached to the underlying widget, so if you create another handle to
 the same widget it will return the same hash via its _data() method.
 
@@ -522,7 +522,7 @@ Sets the widget handle class for the current path.  This will both
 change the class of the current handle and make sure later handles
 created for the path belong to the given class.  The class should
 normally be a subclass of C<Tkx::widget>.  Overriding the class for a
-path is useful for implementing mega widgets.  Kids of $w are not
+path is useful for implementing megawidgets.  Kids of $w are not
 affected by this, unless the class overrides the C<_nclass> method.
 
 =item $w->_nclass
@@ -534,7 +534,7 @@ The default implementation always returns C<Tkx::widget>.
 =item $w->_mpath( $method )
 
 This returns a Tcl widget path that will be used to forward any
-m_I<foo> method calls.  Mega widget classes might want to override
+m_I<foo> method calls.  Megawidget classes might want to override
 this method.  The default implementation returns C<$w>.
 
 =item $new_w = $w->new_I<foo>( @args )
@@ -557,7 +557,7 @@ Example:
 
     $w->new_iwidgets__calendar(-name => "cal");
 
-If a mega widget implementation class has be registered for I<foo>,
+If a megawidget implementation class has be registered for I<foo>,
 then its C<_Populate> method is called instead of passing widget
 creation to Tcl.
 
@@ -606,10 +606,10 @@ future extensions to this API.
 
 =back
 
-=head2 Mega widgets
+=head2 Megawidgets
 
-Mega widgets can be implemented in Perl and used by Tkx.  To declare a
-mega widget make a Perl class like this one:
+Megawidgets can be implemented in Perl and used by Tkx.  To declare a
+megawidget make a Perl class like this one:
 
     package Foo;
     use base 'Tkx::widget';
@@ -620,7 +620,7 @@ mega widget make a Perl class like this one:
         ...
     }
 
-The mega widget class should inherit from C<Tkx::widget> and will
+The megawidget class should inherit from C<Tkx::widget> and will
 register itself by calling the _Mega() class method.  In the example
 above we tell Tkx that any "foo" widgets should be handled by the Perl
 class "Foo" instead of Tcl.  When a new "foo" widget is instantiated
@@ -637,7 +637,7 @@ The _Populate() class should create a root object with the given $path
 as name and populate it with the internal widgets.  Normally the root
 object will be forced to belong to the implementation class so that it
 can trap various method calls on it.  By using the _class() method to
-set class _Populate() can ensure that new handles to this mega widget
+set class _Populate() can ensure that new handles to this megawidget
 also use this class.
 
 The implementation class can define an _ipath() method to delegate any
@@ -648,7 +648,7 @@ C<Tkx::MegaConfig> provide implementations of m_configure() and
 m_cget() that can be useful for controlling delegation of
 configuration options.
 
-See L<Tkx::LabEntry> for a trivial example mega widget.
+See L<Tkx::LabEntry> for a trivial example megawidget.
 
 =head1 ENVIRONMENT
 
