@@ -31,8 +31,7 @@ sub m_configure {
 
 	if ($where =~ s/^\.//) {
 	    if ($where eq "") {
-		# Hokey way to handle configuring megawidget root item
-		Tkx::eval([$self, 'configure', $where_args[0] || $opt, $val]);
+		$self->Tkx::widget::m_configure($where_args[0] || $opt, $val);
 		next;
 	    }
 	    $self->_kid($where)->m_configure($where_args[0] || $opt, $val);
@@ -40,11 +39,7 @@ sub m_configure {
 	}
 
 	if ($where eq "METHOD") {
-	    $opt =~ s/^-//;
-	    my $method = $where_args[0];
-	    unless ($method) {
-		$method = "_config_$opt";
-	    }
+	    my $method = $where_args[0] || "_config_" . substr($opt, 1);
 	    $self->$method($val);
 	    next;
 	}
@@ -77,11 +72,7 @@ sub m_cget {
     }
 
     if ($where eq "METHOD") {
-	$opt =~ s/^-//;
-	my $method = $where_args[0];
-	unless ($method) {
-	    $method = "_config_$opt";
-	}
+	my $method = $where_args[0] || "_config_" .substr($opt, 1);
 	return $self->$method;
     }
 
