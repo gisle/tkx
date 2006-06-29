@@ -38,7 +38,7 @@ sub m_configure {
 	    $opt =~ s/^-//;
 	    my $method = $where_args[0];
 	    unless ($method) {
-		$method = "_config_" . substr($opt, 1);
+		$method = "_config_$opt";
 	    }
 	    $self->$method($val);
 	    next;
