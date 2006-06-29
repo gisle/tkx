@@ -72,6 +72,7 @@ sub m_cget {
     }
 
     if ($where =~ s/^\.//) {
+	return $self->Tkx::widget::m_cget($where_args[0] || $opt) if $where eq "";
 	return $self->_kid($where)->m_cget($where_args[0] || $opt);
     }
 
@@ -79,7 +80,7 @@ sub m_cget {
 	$opt =~ s/^-//;
 	my $method = $where_args[0];
 	unless ($method) {
-	    $method = "_config_" . substr($opt, 1);
+	    $method = "_config_$opt";
 	}
 	return $self->$method;
     }
