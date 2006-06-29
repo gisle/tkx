@@ -30,6 +30,11 @@ sub m_configure {
 	}
 
 	if ($where =~ s/^\.//) {
+	    if ($where eq "") {
+		# Hokey way to handle configuring megawidget root item
+		Tkx::eval([$self, 'configure', $where_args[0] || $opt, $val]);
+		next;
+	    }
 	    $self->_kid($where)->m_configure($where_args[0] || $opt, $val);
 	    next;
 	}
