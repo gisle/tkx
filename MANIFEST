@@ -6,6 +6,7 @@ README
 menu
 t/LabEntry.t
 t/mega.t
+t/mega-config.t
 t/nul-char.t
 t/tcl.t
 t/tk.t
