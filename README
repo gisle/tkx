@@ -11,7 +11,7 @@ the Tcl/Tk documentation with no surprises added by the Perl layer.
 In order to use Tkx, you need to understand enough Tcl to be able to
 read the documentation for Tcl/Tk and figure out how this maps to the
 Tkx.  You will not need to write any Tcl code though, as all your GUI
-work, including the creation of mega widgets can be done in Perl using
+work, including the creation of megawidgets can be done in Perl using
 Tkx.
 
 The benefit of this approach compared Nick Ing-Simmons's classic Tk.pm

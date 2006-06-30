@@ -53,9 +53,8 @@ Tkx::LabEntry - Labeled entry widget
 
 =head1 DESCRIPTION
 
-The C<Tkx::LabEntry> module implements a trivial composite widget
-(mega widget).  Its main purpose is to demonstrate how to use the
-C<Tkx::MegaConfig> baseclass.
+The C<Tkx::LabEntry> module implements a trivial megawidget.  Its main
+purpose is to demonstrate how to use the C<Tkx::MegaConfig> baseclass.
 
 Once the C<Tkx::LabEntry> module has been loaded, then its widgets
 can be constructed in the normal way using the C<tkx_LabEntry> name.
