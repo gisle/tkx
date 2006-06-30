@@ -1,3 +1,15 @@
+2006-06-30   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.04  [265087]
+
+     Some Tkx::MegaConfig fixes by Jeff Hobbs:
+       - 'METHOD' where spec would not call the documented method
+       - '.' where spec didn't work at all
+
+     Added test for Tkx::MegaConfig
+
+
+
 2006-06-21   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.03  [264696]
