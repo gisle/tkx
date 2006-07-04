@@ -4,11 +4,11 @@ Tkx::Tutorial - How to use Tkx
 
 =head1 DESCRIPTION
 
-I<Tk> is a toolkit that allows you to create applications with
-graphical interfaces for Windows, Mac OS X and X11.  The Tk toolkit
+I<Tk> is a toolkit for creating applications with
+graphical interfaces on Windows, Mac OS X and X11.  The Tk toolkit
 is native to the I<Tcl> programming language, but its ease of use and
 cross-platform availability has made it the GUI toolkit of choice for
-many other dynamic languages as well.
+many other dynamic languages.
 
 I<Tkx> is a Perl module that makes the Tk toolkit available to Perl
 programs.  By loading the Tkx module Perl programs can create
@@ -18,7 +18,7 @@ that make up the user interface of the application.
 =head2 Hello World
 
 Let's start with the mandatory exercise of creating an application
-that greats the world.  Here we make the application window contain a
+that greats the world.  We'll make the application window contain a
 single button which will shut down the application if clicked.  The
 code to make this happen is:
 
@@ -33,21 +33,21 @@ code to make this happen is:
     Tkx::MainLoop()
 
 Save this to a file called F<hello.pl> and then run C<perl hello.pl>
-to start up the application.  A window with the text "Hello, world"
-should appear on your screen.
+to start the application.  A window with the text "Hello, world"
+should appear on your screen.  Let's look at what this code is doing.
 
-After the Tkx module has been loaded by the C<use Tkx> statement
-the application will show an empty window called ".".  We create a
-I<button> with the name ".b" and tell the window to display the button
-with the call to C<Tkx::pack()>.  After the layout of the window has
-been set up we need to pass control back to Tk so that it can draw
-the window and invoke our callback if the button is clicked.  This is
-achieved by the C<Tkx::MainLoop()> call at the end.  Clicking the
-button will invoke the subroutine registered with the C<-command>
-option of the button.  In this case the callback simply destroys the
-window, which in turn will terminate the application.
+After the Tkx module has been loaded by the C<use Tkx> statement, the
+application will show an empty window called ".".  We create a I<button>
+with the name ".b" and tell the window to display the button with the
+call to C<Tkx::pack()>.  After the layout of the window has been set up,
+we need to pass control back to Tk so that it can draw the window and
+invoke our callback if the button is clicked.  This is done with the
+C<Tkx::MainLoop()> call at the end.  Clicking the button will invoke the
+subroutine registered with the button's C<-command> option.  In this
+case the callback destroys the window, which in turn terminates the
+application.
 
-For reference this is how the same program would look in Tcl:
+For reference, this is how the same program would look in Tcl:
 
     package require Tk
     
@@ -58,25 +58,23 @@ For reference this is how the same program would look in Tcl:
 
 This program can be executed by the F<tclsh> binary that comes with
 Tcl/Tk.  As you can see the code is mostly identical, but with a
-slightly different syntax.  The only real difference is that the call
+slightly different syntax.  The only difference is that the call
 to MainLoop() is implicit in Tcl and does not have to be spelled out.
 
-Tkx does not come with documentation that explain all the widgets
-(like "button" above) that are available for use.  Instead you will
-need to read the mostly excellent documentation that comes with Tcl/Tk and
-then figure out how this translates to Tkx yourself.  As you can
-see this translation is straight forward.  You basically only have add
-the prefix "Tkx::" to all the functions and use the Perl way of
-passing arguments.  Tcl is a very simple language, so it should not
-take long to understand enough of it to be able to read its
-documentation with ease.
+Tkx does not include documentation for all the Tk widgets available for
+use.  Instead you will need to read the mostly excellent documentation
+that comes with Tcl/Tk and extrapolate the Tkx syntax.  This translation
+is relatively straightforward and basically involves adding the prefix
+"Tkx::" to all the functions and passing arguments with Perl syntax (as
+with the Tkx::button examples above).  The Tk documentation can be found
+here:
 
-A great place to look up the Tk documentation is
 L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
-This documents core Tk as well as all the useful add-on packages that
-are part of ActiveTcl. The ActiveTcl HTML documentation can also be
-downloaded from L<http://downloads.activestate.com/ActiveTcl/html/>
-and installed locally.  The official Tcl/Tk docs are found at
+
+This documents core Tk and useful add-on packages that are part of
+ActiveTcl. The ActiveTcl HTML documentation can also be downloaded from
+L<http://downloads.activestate.com/ActiveTcl/html/> and installed
+locally.  The official Tcl/Tk docs are found at
 L<http://www.tcl.tk/doc/>.
 
 =head2 Hello World with objects
@@ -90,7 +88,7 @@ C<.foo.bar> which in turn is a child of C<.foo>.  At the top of this
 hierarchy we have a widget called C<.>, which is the main window of
 the application.
 
-The Tkx module provide a class called C<Tkx::widget>, that can be
+The Tkx module provides the C<Tkx::widget> class, which can be
 used to hide the details of Tk path names from Tkx applications.
 This provide a more "perlish" way to create and manipulate Tk widgets.
 
@@ -108,12 +106,12 @@ C<Tkx::widget> class:
     
     Tkx::MainLoop()
 
-By loading the Tkx module we make the C<Tkx::widget> class
-available and create the main window (the widget called C<.>).  Next
+By loading the Tkx module, we make the C<Tkx::widget> class
+available and create the main window (the widget called C<.>).  Next,
 we instantiate a new C<Tkx::widget> object wrapping the main window.
 It is customary to name this object C<$mw>.
 
-To create a new button child widget we call C<< $mw->new_button >>
+To create a new button child widget we call the C<< $mw->new_button >>
 method.  Constructor methods are always prefixed with C<new_>.  The rest
 of the method name is the name of the Tk widget to create; i.e. "button"
 in this case.  Arguments are passed as before.
@@ -123,18 +121,17 @@ widget path as argument.  In the code above we destroy the main window
 by calling C<< $mw->g_destroy >> and we pack the button in the main
 window by invoking C<< $b->g_pack >>.
 
-In the end we need to invoke the MainLoop as before.
+In the end the MainLoop is invoked as before.
 
-For trivial programs like the one above using C<Tkx::widget> wrappers
-does not appear to be a win, but as the application grows and the Tk
-path names get longer it surely is.
+For trivial programs like the one above, using C<Tkx::widget> wrappers
+does not appear to be very helpful, but as the application grows and the
+Tk path names get longer, the advantage is more noticable.
 
 =head2 Hello World expanded
 
-In order to introduce a few more Tkx features, we now present a
-slightly expanded version of the previous Hello World program.  This
-time we added line numbers to the program so that it is easier to
-reference back to its statements:
+The following, slightly expanded version of the previous Hello World
+program, introduces a few more Tkx features.  Line numbers have been
+added to the program for easier to reference back to its statements:
 
      1	use strict;
      2	use Tkx;
@@ -167,19 +164,19 @@ reference back to its statements:
     29	
     30	Tkx::MainLoop()
 
-The first thing we added is the C<< use strict >> statement, simply
-because that's a good idea in general.
+The first thing we add is the C<< use strict >> statement, because
+that's a good practice in general.
 
 In line 5 and 6 we set up some window manager attributes of the main
-application window.  What is noteworthy here is that we use underscore
-in the g_ method names where Tcl would use space between words.  Same
-rules apply to the function names in the C<Tkx::> namespace directly.
-We could alternatively have modified the window attributes with:
+application window.  We use underscore in the g_ method names where Tcl
+would use space between words.  The same rules apply to the function
+names in the C<Tkx::> namespace directly.  We could alternatively have
+modified the window attributes with:
 
     Tkx::wm_title($mw, "Hello, world");
     Tkx::wm_minsize($mw, 300, 200);
 
-which in Tcl would have been:
+In Tcl, this would be:
 
     wm title . "Hello, world"
     wm minsize . 300 200
@@ -187,23 +184,21 @@ which in Tcl would have been:
 The rule is: A single underscore on the Perl side turns into space on
 the Tcl side.
 
-In line 11 to 16 we have expanded the button callback to change the
-text of button and then wait 1.5 seconds before we shut down the
-application.  In addition to the "g_" methods described in the
-previous section, C<Tkx::widget> also provide "m_" methods which are
-forwarded as Tcl subcommands of the current widget.  The most commonly
-used subcommand is "configure" that is used to change the attributes
-of a widget as we do in line 12.  Since we now reference $b from the
-callback, we had to declare the variable upfront in line 8 instead of
-declaring it together with the assignment as we did previously.  In
-line 15 we schedule for the window to be destroyed after a delay of
-1500 ms.  The delay is needed so that the new button text is actually
-show before the window goes away.
+In line 11 to 16 we have expanded the button callback to change the text
+of button and wait 1.5 seconds before shutting down the application.  In
+addition to the "g_" methods described in the previous section,
+C<Tkx::widget> also provides "m_" methods which are forwarded as Tcl
+subcommands of the current widget.  The most commonly used subcommand is
+"configure" that is used to change the attributes of a widget as we do
+in line 12.  Since we now reference $b from the callback, we had to
+declare the variable upfront in line 8 instead of declaring it together
+with the assignment as we did previously.  In line 15 we destroy the
+window after a delay of 1500ms, which should be enough time to read the
+new "Goodbye, cruel world" text.  
 
-Btw, the "m_" method prefix is actually optional, so you might prefer
-just to leave it out.
+The "m_" method prefix is optional, you might prefer to leave it out.
 
-Padding around buttons is usually a good idea as we now do in line 18.
+Line 18 adds padding around buttons, which is usually a good idea.
 
 In line 23 we invoke the messageBox command to pop up a useful
 reminder to our user.  But what's up with the "tk___" prefix?  In the
@@ -216,12 +211,12 @@ C<Tkx::tk_messageBox()> you will get an error telling you:
     useinputmethods, or windowingsystem
 
 What happens is that Tkx invoked the "tk messageBox" command, but the
-Tcl "tk" command only take the subcommands listed in the error message
-above and refuse to do anything about "messageBox".  In order to
-invoke Tcl commands with underscore their name, you need to I<triple>
-the underscore on the Perl side, which gives us
-C<Tkx::tk___messageBox()>.  Double underscores in names have yet another
-meaning that we will tell you about in the next section.
+Tcl "tk" command only takes the subcommands listed in the error message
+above and refuse to do anything about "messageBox".  In order to invoke
+Tcl commands with underscore their name, you need to I<triple> the
+underscore on the Perl side, which gives us C<Tkx::tk___messageBox()>.
+Double underscores in names have yet another meaning that we will tell
+you about in the next section.
 
 =head2 Setting up a menu line
 
@@ -320,13 +315,13 @@ how a minimal menu can be set up with Tkx:
     89	    );
     90	}
 
-We start out as all proper Perl programs should by enabling warnings
-and stricture at line 1 and 3.  Then we load Tkx which will create our
-main application window at line 4.
+We start out as all proper Perl programs should by enabling warnings and
+stricture at line 1 and 3.  Then, we load Tkx which will create our main
+application window at line 4.
 
-In line 9 we initialize C<$IS_AQUA> constant.  Aqua is the native
+In line 9 we initialize the C<$IS_AQUA> constant.  Aqua is the native
 interface of Mac OS X.  We need this constant because the menu layout
-on Aqua is not the same as for the other windowing systems.  Note that
+on Aqua is not the same as in other windowing systems.  Note that
 Tk on Mac OS X can be compiled against either Aqua or X11.  When our
 application runs under X11 we want to use the standard Unix menu
 layout, so it would not be correct to just make our code conditional
@@ -340,18 +335,17 @@ C<style::use> as C<Tkx::style__use> in Perl, i.e. we need to turn the
 double colon into a double underscore.  More about Tcl packages and
 namespaces in the next section.
 
-In line 14 we obtain a C<Tkx::widget> reference to the main window as
-before and then we simply set up the application menu by setting up the
-C<-menu> option of the main window in line 15.
+In line 14, we obtain a C<Tkx::widget> reference to the main window as
+before, then set up the application menu by setting up the C<-menu>
+option of the main window in line 15.
 
 In a real application there would be additional code between line 15
 and 17 to set up the rest of the application window, but for this
-demonstration we just leave the window empty.
+demonstration we'll just leave the window empty.
 
-In line 17 we ask Tk to start processing events, by invoking
+In line 17, we ask Tk to start processing events by invoking
 C<Tkx::MainLoop()>.  This function will return when the application
-window has been destroyed and when that happens we are done at line
-18.
+window has been destroyed.  When that happens, we exit at line 18.
 
 The application menu itself is set up and returned by the C<mk_menu()>
 function in line 20 to 77.  This code should be easy enough to follow.
@@ -359,51 +353,49 @@ Note how we make I<File | New> and I<Help | Foo Manual> both reference
 functions that are not yet written.  The application will still run,
 but when you try to invoke these menu entries you get an "Application
 Error Dialog" from Tk.  It is handy to be able to leave stubs like
-this around during the development.  Just remember to add the C<new>
-and C<show_manual> functions before the application ships. :-)
+this around during the development, just remember to add the C<new>
+and C<show_manual> functions before the application ships.
 
 The C<-underline> options are provided to make it possible to select
 menu entries with the keyboard.  The corresponding character of the
 C<-label> will be underlined and you will be able to select this entry
 by pressing the key when the menu is active.
 
-It is also possible to set up direct keyboard shortcuts like we done
+It is also possible to set up direct keyboard shortcuts as we've done
 for the I<File | New> function at line 32.  Note that the
 C<-accelerator> option only adds the text to the menu item, so we need
-to use an explicit call to set up this binding as done in line 38.
+to use an explicit call to set up this binding in line 38.
 
 For Aqua we don't want to add the "File | Exit" entry to the menu
 because the OS itself always provide a Quit action in the application
-menu.  Proper Aqua applications will also need to add the "About" function
+menu.  Aqua applications will also need to add the "About" function
 on the application menu instead of the "Help" menu as is common on
 other platforms.
 
-The menu names "apple" and "help" provided in line 46 and 65 has
-special significance to Tk.  Menu items added to the "apple" menu
-will show up in the application menu.  The name is historic from the
-time when this stuff would actually show in the menu with the picture
-of the Apple logo.  In Mac OS X these entries show up at the top of
-the menu just right of the apple.  If not provided Tk will provide
-its own "About" entry that will tell you about what version of
-Tcl/Tk you are using.  A menu called "help" menu will be flushed
-right on Unix even though this style seems to be out of fashion in
-modern Unix applications.
+The menu names "apple" and "help" provided in line 46 and 65 has special
+significance to Tk.  Menu items added to the "apple" menu will show up
+in the application menu.  In Mac OS X these entries show up at the top
+of the menu just right of the apple.  If not provided, Tk provides its
+own "About" entry that will tell you about what version of Tcl/Tk you
+are using.  A menu called "help" will be flushed right on Unix, even
+though this style seems to be out of fashion in modern Unix
+applications.
 
-The Tkx distribution contain a script called F<menu> which is a
+The Tkx distribution contains a script called F<menu> which is a
 runnable version of the program shown here.  You might want to use
 this as a starting point for your own Tkx applications.
 
 =head2 Using Tcl packages
 
-When the Perl application starts up and load Tkx, the only functions
+When the Perl application starts up and loads Tkx, the only functions
 available in the C<Tkx::> namespace are those commands provided by core
 Tcl/Tk.  These commands are described in the "Tcl" and "Tk" sections
 at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
 
-Additional commands can be loaded from Tcl packages.  Once loaded new
+Additional commands can be loaded from Tcl packages.  Once loaded, new
 commands show up in the C<Tkx::> namespace.  This example loads the
-"Tktable" package in order to make the C<table> command to create
-I<table> widgets available:
+"Tktable" package in order to make the C<table> command available for
+createing I<table> widgets:
 
     use Tkx;
     Tkx::package_require("Tktable");
@@ -422,36 +414,35 @@ taking the package name as argument.  An optional version number can
 be provided as the second argument if you want to make sure a certain
 version or newer is loaded.
 
-One source of confusion here is what the proper spelling of the
-package name to provide to Tkx::package_require() is.  The Tcl/Tk
+One source of confusion here is the proper spelling of the
+package name to provide to Tkx::package_require().  The Tcl/Tk
 documentation will call the package in the example above I<TkTable>
 (with two upper case "T"s) and not really mention the exact spelling
 of the package name (only one upper case "T").  In some cases the
 "synopsis" section describing the package will spell out the package
-name, but in cases like this we have found no better way than to peek
+name, but in cases like this we have found no better way than to look 
 into the F<pkgIndex.tcl> files in the Tcl F<lib/> area if loading the
 package fails.  The package documented as "BWidgets" should be loaded
 as "BWidget" (without the "s") and the package documented as
 "IWidgets" should be loaded as "Iwidgets" (with a lower case "w").
-Somebody ought to be spanked.
 
-Most modern Tcl packages will not create names at the top level like
-TkTable did above.  Instead they will create functions in a Tcl
-namespace with a name matching the package name.  In the menu example
-of the previous section we loaded the "style" package which created a
-command called "use" in the "style" namespace.  This command can be
-referenced as "::style::use" or "style::use" from Tcl.  From Perl this
-maps to a function called C<Tkx::style__use>, i.e. we replace the
-double colon with double underscore and ignore the colon in the front.
-Read L<Tkx> for details about how sequences of "_" in C<Tkx::> names
-are mapped to Tcl names.
+Most modern Tcl packages do not create names at the top level like
+TkTable above.  Instead, they create functions in a Tcl namespace with a
+name matching the package name.  In the menu example of the previous
+section we loaded the "style" package which created a command called
+"use" in the "style" namespace.  This command can be referenced as
+"::style::use" or "style::use" from Tcl.  From Perl this maps to a
+function called C<Tkx::style__use> (i.e. we replace the double colon
+with double underscore and ignore the colon in the front).  Read L<Tkx>
+for details about how sequences of "_" in C<Tkx::> names are mapped to
+Tcl names.
 
 =head2 Subclassing Tkx::widget
 
 In Tkx applications it is often convenient to use your own subclass of
 C<Tkx::widget> where you can introduce shortcuts and adapters for the
-raw Tcl commands.  This shows an example class, that should be saved
-to the file F<MyWidget.pm>:
+raw Tcl commands.  The following is an example class, which could be
+saved to the file F<MyWidget.pm>:
 
      1	package MyWidget;
      2	
@@ -495,7 +486,7 @@ to the file F<MyWidget.pm>:
     40	1;
 
 
-In the main program you would use it like this:
+The main program would use it like this:
 
     use Tkx;
     use MyWidget;
@@ -510,31 +501,29 @@ In the main program you would use it like this:
     
     Tkx::MainLoop();
 
-The MyWidget class above provide shortcuts for the "messageBox" and
+The MyWidget class above provides shortcuts for the "messageBox" and
 "getOpenFile" in order to hide the triple underscore ugliness and
-propegate the C<-parent> attribute.  Similar reasoning exists for the
+propagate the C<-parent> attribute.  Similar reasoning exists for the
 "bell".
 
-The C<children> method is provided since calling C<< $w->g_winfo_children >>
-just return a Tcl-list of widget path names.  What we usually want to
-get back is a list of widget objects, so that we can call further
-methods on them.
+The C<children> method is provided because calling 
+C<< $w->g_winfo_children >> just returns a Tcl-list of widget path names.
+We usually want to get a list of widget objects back so that we can call
+further methods on them.
 
 The C<pack> method is provided so that we can initialize and pack a
-widget in the same statement and avoid repeated typing of "g_" method
-prefix:
+widget in the same statement and avoid repeated typing of the "g_"
+method prefix:
 
     my $b = $mw->new_button(...)->pack;
 
-The C<_nclass> method need to be overridden so that any new widget
-kids created also ends up as MyWidget objects.  This method is called
+The C<_nclass> method needs to be overridden so that any new widget
+children created also end up as MyWidget objects.  This method is called
 internally by methods like C<< $mw->new_button(...) >> to determine
-which kind of object will get a chance to wrap the newly created
-widget path.
+which kind of object will wrap the newly created widget path.
 
-Having you own application specific widget class provide a place to
-add methods discovered by refactoring of repeated code in your
-application.
+Having you own application-specific widget class provides a place to add
+methods discovered by refactoring repeated code in your application.
 
 =head1 LICENSE
 
