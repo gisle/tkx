@@ -133,15 +133,15 @@ The following, slightly expanded version of the previous Hello World
 program, introduces a few more Tkx features.  Line numbers have been
 added to the program for easier to reference back to its statements:
 
-     1	use strict;
-     2	use Tkx;
-     3	
-     4	my $mw = Tkx::widget->new(".");
-     5	$mw->g_wm_title("Hello, world");
-     6	$mw->g_wm_minsize(300, 200);
-     7	
-     8	my $b;
-     9	$b = $mw->new_button(
+    1 	use strict;
+    2 	use Tkx;
+    3 	
+    4 	my $mw = Tkx::widget->new(".");
+    5 	$mw->g_wm_title("Hello, world");
+    6 	$mw->g_wm_minsize(300, 200);
+    7 	
+    8 	my $b;
+    9 	$b = $mw->new_button(
     10	    -text => "Hello, world",
     11	    -command => sub {
     12	        $b->m_configure(
@@ -224,15 +224,15 @@ Most real GUI application will need a menu line at the top of the
 application window or screen.  The following runnable program shows
 how a minimal menu can be set up with Tkx:
 
-     1	#!/usr/bin/perl -w
-     2	
-     3	use strict;
-     4	use Tkx;
-     5	
-     6	our $VERSION = "1.00";
-     7	
-     8	(my $progname = $0) =~ s,.*[\\/],,;
-     9	my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
+    1 	#!/usr/bin/perl -w
+    2 	
+    3 	use strict;
+    4 	use Tkx;
+    5 	
+    6 	our $VERSION = "1.00";
+    7 	
+    8 	(my $progname = $0) =~ s,.*[\\/],,;
+    9 	my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
     10	
     11	Tkx::package_require("style");
     12	Tkx::style__use("as", -priority => 70);
@@ -444,15 +444,15 @@ C<Tkx::widget> where you can introduce shortcuts and adapters for the
 raw Tcl commands.  The following is an example class, which could be
 saved to the file F<MyWidget.pm>:
 
-     1	package MyWidget;
-     2	
-     3	use strict;
-     4	use base qw(Tkx::widget);
-     5	use Carp qw(croak);
-     6	
-     7	sub messageBox {
-     8	    my $self = shift;
-     9	    return Tkx::tk___messageBox(-parent => $self, @_);
+    1 	package MyWidget;
+    2 	
+    3 	use strict;
+    4 	use base qw(Tkx::widget);
+    5 	use Carp qw(croak);
+    6 	
+    7 	sub messageBox {
+    8 	    my $self = shift;
+    9 	    return Tkx::tk___messageBox(-parent => $self, @_);
     10	}
     11	
     12	sub getOpenFile {
