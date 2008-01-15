@@ -8,7 +8,7 @@ Tkx::package_require("tile");
 
 my $mw = Tkx::widget->new(".");
 
-my $pane = $mw->new_ttk__paned(
+my $pane = $mw->new_ttk__panedwindow(
     -orient => "vertical",
 );
 $pane->g_pack(
