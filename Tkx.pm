@@ -1,7 +1,7 @@
 package Tkx;
 
 use strict;
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 {
     # predeclare
@@ -362,6 +362,10 @@ The main idea behind Tkx is that it is a very thin wrapper on top of
 Tcl, i.e. that what you get is exactly the behaviour you read about in
 the Tcl/Tk documentation with no surprises added by the Perl layer.
 
+This is the "reference manual" for Tkx. For a gentle introduction please
+read the L<Tkx::Tutorial>.  The tutorial at
+L<http://www.tkdocs.com/tutorial/> is also strongly recommened.
+
 The following functions are provided:
 
 =over
@@ -403,7 +407,7 @@ of embedded underlines:
     foo__bar  --> "foo::bar"     # access namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
-This allow us conveniently to map most of the Tcl namespace to Perl.
+This allow us conveniently to map the Tcl namespace to Perl.
 If this mapping does not suit you, use C<< Tkx::i::call($func, @args)
 >>.  This will invoke the function named by $func with no name
 substitutions or magic.
@@ -475,7 +479,7 @@ No functions are exported by default.
 
 =head2 Widget handles
 
-The class C<Tkx::widget> is used to wrap Tk widget paths or names.
+The class C<Tkx::widget> is used to wrap Tk widget paths.
 These objects stringify as the path they wrap.
 
 The following methods are provided:
@@ -512,9 +516,8 @@ no parent, which will only happen if $w is ".", the main window.
 
 Returns a handle for a kid widget with the given name.  The $name can
 contain dots to access grandkids.  There is no check that a kid with
-the given name actually exists, so this method can't fail.  This is a
-feature.  It can for instance be used to construct names of widgets to
-be created later.
+the given name actually exists; which can be taken advantage of to construct
+names of Tk widgets to be created later.
 
 =item $w->_class( $class )
 
@@ -533,9 +536,10 @@ The default implementation always returns C<Tkx::widget>.
 
 =item $w->_mpath( $method )
 
-This returns a Tcl widget path that will be used to forward any
-m_I<foo> method calls.  Megawidget classes might want to override
-this method.  The default implementation returns C<$w>.
+This method determine the Tk widget path that will be invoked for
+m_I<foo> method calls.  The argument passed in is the method name
+without the C<m_> prefix.  Megawidget classes might want to override
+this method.  The default implementation always returns C<$w>.
 
 =item $new_w = $w->new_I<foo>( @args )
 
@@ -570,8 +574,7 @@ is the same as:
     &$func(expand("foo"), @args);
 
 where the expand() function expands underscores as described for
-Tkx::foo() above.  Note that methods that do not start with a prefix
-of the form /^_/ or /^[a-zA-Z]_/ are also treated as the C<m_> methods.
+Tkx::foo() above.
 
 Example:
 
@@ -598,8 +601,9 @@ Example:
 =item $w->I<foo>( @args )
 
 If the method does not start with "new_" or have a prefix of the form
-/^_/ or /^[a-zA-Z]_/, then it is treated as if it had the "m_" prefix,
-i.e. the I<foo> subcommand for the current widget is invoked.
+/^_/ or /^[a-zA-Z]_/, will just forward to the method "m_I<foo>"
+(described above).  This is just a convenience for people that have
+grown tired of the "m_" prefix.
 
 The method names with prefix /^_/ and /^[a-zA-Z]_/ are reserved for
 future extensions to this API.
@@ -640,7 +644,7 @@ can trap various method calls on it.  By using the _class() method to
 set class _Populate() can ensure that new handles to this megawidget
 also use this class.
 
-The implementation class can define an _ipath() method to delegate any
+The implementation class can define an _mpath() method to delegate any
 m_I<foo> method calls to one of its subwidgets and it might want to
 override the m_configure() and m_cget() methods if it implements
 additional options or want more control over delegation.  The class
@@ -653,6 +657,9 @@ See L<Tkx::LabEntry> for a trivial example megawidget.
 =head1 ENVIRONMENT
 
 The C<PERL_TKX_TRACE> environment variable initialize the $Tkx::TRACE setting.
+
+The C<PERL_TCL_DL_PATH> environment variable can be set to override
+the Tcl/Tk used.
 
 =head1 SUPPORT
 
@@ -671,7 +678,17 @@ Copyright 2005 ActiveState.  All rights reserved.
 
 L<Tkx::Tutorial>, L<Tkx::MegaConfig>, L<Tcl>
 
-Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
+At L<http://www.tkdocs.com/tutorial/> you find a very nice Tk tutorial that
+uses Tkx for the Perl examples.
 
 More information about Tcl/Tk can be found at L<http://www.tcl.tk/>.
 Tk documentation is also available at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
+
+Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
+
+ActivePerl bundles a Tcl interpreter and a selection of Tk widgets
+from ActiveTcl in order to provide a functional Tkx module out-of-box.
+If you are using ActivePerl see L<Tcl::tkkit> to figure out what
+version of Tcl/Tk you get and the selection of extra widget packages.
+You need to set the C<PERL_TCL_DL_PATH> environment variable to make
+Tkx reference other Tcl installations.
