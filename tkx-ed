@@ -188,7 +188,7 @@ sub my_open {
 
 sub load {
     my $f = shift;
-    open(my $fh, "<:utf8", $f) || die "Can't open '$file': $!";
+    open(my $fh, "<:utf8", $f) || die "Can't open '$f': $!";
     $t->delete("1.0", "end");
     $t->insert("end", scalar do { local $/; <$fh> });
     set_file($f);
