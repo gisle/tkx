@@ -29,6 +29,8 @@ if ($IS_AQUA) {
         Tkx::carbon__setProcessName($psn, $PROGNAME);
     };
     warn $@ if $@;
+
+    Tkx::interp_alias("", "::tk::mac::OpenDocument", "", [\&load]);
 }
 
 Tkx::package_require("BWidget");
