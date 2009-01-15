@@ -10,6 +10,27 @@ use File::Basename qw(basename);
 (my $PROGNAME = $0) =~ s,.*[\\/],,;
 my $IS_AQUA = Tkx::tk_windowingsystem() eq "aqua";
 
+if ($IS_AQUA) {
+    $PROGNAME = "Tkx Editor";
+
+    # when invoked directly via "open 'Tkx Editor.app'" it will be passed
+    # something like "-psn_0_5154026" which we don't really care about.
+    shift(@ARGV) if @ARGV && $ARGV[0] =~ /-psn/;
+
+    # The console can pop up unexpectedly from the tkkit
+    Tkx::catch("console hide");
+
+    # Set the process name that is displayed in the Activity Monitor
+    # and the Force Quit dialog
+    eval {
+        Tkx::package_require('tclCarbonProcesses');
+        my $psn = Tkx::carbon__getCurrentProcess();
+        Tkx::carbon__setFrontProcess($psn);
+        Tkx::carbon__setProcessName($psn, $PROGNAME);
+    };
+    warn $@ if $@;
+}
+
 Tkx::package_require("BWidget");
 
 eval {
@@ -229,7 +250,7 @@ sub update_title {
     else {
 	$title = "<no name>";
     }
-    $title .= " - " . basename($0);
+    $title .= " - " . $PROGNAME unless $IS_AQUA;
     $mw->g_wm_title($title);
 }
 
