@@ -40,6 +40,12 @@ If you have questions about this code or want to report bugs send a
 message to the <tcltk@perl.org> mailing list.  To subscribe to this
 list send an empty message to <tcltk-subscribe@perl.org>.
 
+The official source repository for Tkx is
+http://github.com/gisle/tkx/.  You can grab the latest sources
+with:
+
+   git clone git://github.com/gisle/tkx.git
+
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 

@@ -686,6 +686,8 @@ uses Tkx for the Perl examples.
 More information about Tcl/Tk can be found at L<http://www.tcl.tk/>.
 Tk documentation is also available at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
 
+The official source repository for Tkx is L<http://github.com/gisle/tkx/>.
+
 Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
 
 ActivePerl bundles a Tcl interpreter and a selection of Tk widgets
