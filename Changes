@@ -1,3 +1,21 @@
+2009-01-17   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.06
+
+     Sources moved to public repository at http://github.com/gisle/tkx/
+
+     For sub-widgets implemented in perl we should call perl methods [RT#42454]
+
+     Additional "Mac OS X" tweaks to tkx-ed.  The GIT repository
+     also have a full *.app wrapper to demonstrate how to integrate
+     Tkx based GUI apps on OS X.
+
+     Fixed error message when tkx-ed can't load the given file
+
+     Tweak to Tkx::widget's AUTOLOAD function to make it slightly faster
+
+
+
 2008-07-30   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.05  [286656]
