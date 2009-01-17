@@ -156,17 +156,18 @@ sub AUTOLOAD {
     }
 
     my $prefix = substr($method, 0, 2);
-    if ($prefix eq "g_") {
-        return scalar(Tkx::i::call(Tkx::i::expand_name(substr($method, 2)), $$self, @_));
-    }
-
     if ($prefix eq "m_") {
 	my @i = Tkx::i::expand_name(substr($method, 2));
         my $p = $self->_mpath($i[0]);
         return scalar(Tkx::i::call($p, @i, @_)) if $p eq $$self || !$class{$p};
         return (bless \$p, $class{$p})->$method(@_);
     }
-    elsif (index($prefix, "_") != -1) {
+
+    if ($prefix eq "g_") {
+        return scalar(Tkx::i::call(Tkx::i::expand_name(substr($method, 2)), $$self, @_));
+    }
+
+    if (index($prefix, "_") != -1) {
 	require Carp;
 	Carp::croak("method '$method' reserved by Tkx");
     }
