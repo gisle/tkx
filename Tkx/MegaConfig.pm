@@ -113,11 +113,21 @@ An option argument is either the name of an option with leading '-'
 or the string 'DEFAULT' if this spec applies to all option with no
 explict spec.
 
-The spec should be an array reference.  The first element of the array
-($where) describe how this option is handled.  Some $where specs take
-arguments.  If you need to provide argument replace $where with an
-array reference containg [$where, @args].  The rest specify names and
-default for the options database, but is currently ignored.
+If there is no 'DEFAULT' then unmatched options are applied directly
+to the megawidget root itself.  This is the same behaviour you get if
+you specify:
+
+   __PACKAGE__->_Config(
+      ...
+      DEFAULT => ['.'],
+   );
+
+The option spec should be an array reference.  The first element of
+the array ($where) describe how this option is handled.  Some $where
+specs take arguments.  If you need to provide argument replace $where
+with an array reference containg [$where, @args].  The rest of the
+option spec specify names and default for the options database, but is
+currently ignored (feature unimplemented).
 
 The following $where specs are understood:
 
@@ -126,15 +136,37 @@ The following $where specs are understood:
 =item .foo
 
 Delegate the given configuration option to the "foo" kid of the mega
-widget.  The name "." can be used to deletegate to the megawidget
+widget root.  The name "." can be used to deletegate to the megawidget
 root itself.  An argument can be given to delegate using a different
-name on the "foo" widget.
+configuration name name on the "foo" widget.  Examples:
+
+   -foo => [".inner"],                 # forward -foo
+   -bg  => [[".", "-background]],      # alias
+   -bg2 => [[".inner", "-background]], # forward as -background
 
 =item METHOD
 
-Call the I<_config_>I<opt> method.  For m_cget() no arguments are
-given, while for m_configure() the new value is passed.  An argument
-can be given to forward to that method instead of I<_config_>I<opt>.
+Call the _config_I<opt> method.  For m_cget() no arguments are given,
+while for m_configure() the new value is passed.  If an extra $where
+argument is given it will be the method called instead of
+_config_I<opt>.  Examples:
+
+   __PACKAGE__->_Config(
+      -foo => ["METHOD"];
+      -bar => [["METHOD", "bar"]],
+   }
+
+   sub _config_foo {
+       my $self = shift;
+       return "foo" unless @_;
+       print "Ignoring setting configuration option -foo to '$_[0]'";
+   }
+
+   sub handle_bar {
+       my $self = shift;
+       return "bar" unless @_;
+       print "Ignoring setting configuration option -bar to '$_[0]'";
+   }
 
 =item PASSIVE
 
