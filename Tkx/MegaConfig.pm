@@ -30,11 +30,18 @@ sub m_configure {
 	}
 
 	if ($where =~ s/^\.//) {
+            my $fwd_opt = $where_args[0] || $opt;
 	    if ($where eq "") {
-		$self->Tkx::widget::m_configure($where_args[0] || $opt, $val);
+		$self->Tkx::widget::m_configure($fwd_opt, $val);
 		next;
 	    }
-	    $self->_kid($where)->m_configure($where_args[0] || $opt, $val);
+            if ($where eq "*") {
+                for my $kid ($self->_kids) {
+                    $kid->m_configure($fwd_opt, $val);
+                }
+                next;
+            }
+	    $self->_kid($where)->m_configure($fwd_opt, $val);
 	    next;
 	}
 
@@ -67,8 +74,10 @@ sub m_cget {
     }
 
     if ($where =~ s/^\.//) {
-	return $self->Tkx::widget::m_cget($where_args[0] || $opt) if $where eq "";
-	return $self->_kid($where)->m_cget($where_args[0] || $opt);
+        my $fwd_opt = $where_args[0] || $opt;
+	return $self->Tkx::widget::m_cget($fwd_opt) if $where eq "";
+        return ($self->_kids)[0]->m_cget($fwd_opt) if $where eq "*";
+	return $self->_kid($where)->m_cget($fwd_opt);
     }
 
     if ($where eq "METHOD") {
@@ -136,13 +145,17 @@ The following $where specs are understood:
 =item .foo
 
 Delegate the given configuration option to the "foo" kid of the mega
-widget root.  The name "." can be used to deletegate to the megawidget
-root itself.  An argument can be given to delegate using a different
+widget root.  The name "." can be used to delegate to the megawidget
+root itself.  The name ".*" can be used to delegate to all kids of the
+megawidget root.
+
+An argument can be given to delegate using a different
 configuration name name on the "foo" widget.  Examples:
 
    -foo => [".inner"],                 # forward -foo
    -bg  => [[".", "-background]],      # alias
    -bg2 => [[".inner", "-background]], # forward as -background
+   -background => [".*"]               # forward --background to kids
 
 =item METHOD
 

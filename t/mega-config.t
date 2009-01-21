@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 7;
+plan tests => 8;
 
 use Tkx;
 
@@ -23,6 +23,9 @@ ok($foo->_data->{"-foo"}, 42);
 
 $foo->configure(-bw => 10, -bg => "blue");
 ok($foo->cget("-bw"), 10);
+
+$foo->configure(-cbg => "red");
+ok($foo->cget("-cbg"), "red");
 
 $foo->configure(-bar, sub { ok(1) });
 ok($foo->cget("-bar"), "_config_bar");
@@ -46,6 +49,7 @@ BEGIN {
        DEFAULT =>  ["PASSIVE"],
        -bg =>   ["."],
        -bw =>   [[".", "-borderwidth"]],
+       -cbg =>  [[".*", "-background"]],
        -text => [".t"],
        -bar =>  ["METHOD"],
        -baz =>  [["METHOD", "baz"]],
