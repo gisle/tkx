@@ -95,6 +95,12 @@ sub _kid {
     return $self->_nclass->new($name);
 }
 
+sub _kids {
+    my $self = shift;
+    my $nclass = $self->_nclass;
+    return map $nclass->new($_), Tkx::SplitList(Tkx::winfo_children($self));
+}
+
 sub _parent {
     my $self = shift;
     my $name = $$self;
@@ -521,6 +527,10 @@ Returns a handle for a kid widget with the given name.  The $name can
 contain dots to access grandkids.  There is no check that a kid with
 the given name actually exists; which can be taken advantage of to construct
 names of Tk widgets to be created later.
+
+=item $w->_kids
+
+Returns all existing kids as widget objects.
 
 =item $w->_class( $class )
 

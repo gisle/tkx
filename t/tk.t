@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 10;
+plan tests => 12;
 
 use Tkx;
 
@@ -34,6 +34,8 @@ my $b = $mw->new_button(
 $b->g_pack;
 
 ok(j($mw->g_winfo_children), $b);
+ok(j($mw->_kids), $b);
+ok(ref(($mw->_kids)[0]), "Tkx::widget");
 ok(j($b->g_winfo_children), "");
 ok($b, ".b");
 ok($b->m_cget("-text"), "Test");
