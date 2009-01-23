@@ -10,7 +10,7 @@ __PACKAGE__->_Config(
 sub _Populate {
     my($class, $widget, $path, %opt) = @_;
 
-    my $self = $class->new($path)->_parent->new_frame(-name => $path);
+    my $self = $class->new($path)->_parent->new_frame(-name => $path, -class => "Tkx_LabEntry");
     $self->_class($class);
 
     $self->new_label(-name => "lab", -text => delete $opt{-label})->g_pack(-side => "left");

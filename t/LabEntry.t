@@ -3,7 +3,7 @@
 use strict;
 use Test qw(plan ok);
 
-plan tests => 1;
+plan tests => 2;
 
 use Tkx;
 use Tkx::LabEntry;
@@ -27,6 +27,7 @@ $mw->new_button(
 )->g_pack;
 
 ok($e->cget("-label"), "foo");
+ok($e->g_winfo_class, "Tkx_LabEntry");
 
 Tkx::after($delay * 1000, sub {
     $mw->g_destroy;
