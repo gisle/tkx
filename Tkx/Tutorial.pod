@@ -465,14 +465,6 @@ saved to the file F<MyWidget.pm>:
     19	    Tkx::bell(-displayof => $self, @_);
     20	}
     21	
-    22	sub children {
-    23	    my $self = shift;
-    24	    croak("children must be called in list context")
-    25		unless wantarray;
-    26	    return map { $self->_nclass->new($_) }
-    27		   Tkx::SplitList($self->g_winfo_children);
-    28	}
-    29	
     30	sub pack {
     31	    my $self = shift;
     32	    $self->g_pack(@_);
@@ -495,21 +487,12 @@ The main program would use it like this:
     
     ...
 
-    for my $kid ($mw->children) {
-        ...
-    }
-    
     Tkx::MainLoop();
 
 The MyWidget class above provides shortcuts for the "messageBox" and
 "getOpenFile" in order to hide the triple underscore ugliness and
 propagate the C<-parent> attribute.  Similar reasoning exists for the
 "bell".
-
-The C<children> method is provided because calling 
-C<< $w->g_winfo_children >> just returns a Tcl-list of widget path names.
-We usually want to get a list of widget objects back so that we can call
-further methods on them.
 
 The C<pack> method is provided so that we can initialize and pack a
 widget in the same statement and avoid repeated typing of the "g_"
