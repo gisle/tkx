@@ -429,6 +429,16 @@ Examples:
     if (Tkx::tk_windowingsystem() eq "x11") { ... }
     if (Tkx::tk___messageBox( ... ) eq "yes") { ... }
 
+One part of the Tcl namespace that is not conveniently mapped to Perl
+in this way are commands that use "." as part of their name, mostly Tk
+widget instances.  If you insist you can invoke these by quoting the
+Perl function name
+
+    &{"Tkx::._configure"}(-background => "black");
+
+but the real solution is to use C<Tkx::widget> to wrap these as
+described below.
+
 The arguments passed can be plain scalars, array references, code
 references, or scalar references.
 

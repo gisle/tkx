@@ -77,6 +77,24 @@ L<http://downloads.activestate.com/ActiveTcl/html/> and installed
 locally.  The official Tcl/Tk docs are found at
 L<http://www.tcl.tk/doc/>.
 
+A major complication in the mapping to Perl is how to invoke
+subcommands on Tk widgets.  For example, if you want to change the
+text of the button created above you might in Tcl do:
+
+    .b configure -text "Goodbye, cuel world"
+
+a literal translation to Tkx would be:
+
+    Tkx::.b("configure", -text => "Goodbye, cruel world");
+
+or
+
+    Tkx::.b_configure(-text => "Goodbye, cruel world");
+
+but neither of those work as you can't use "." as part of function
+names in Perl.  Because of this we almost always use objects when
+working with Tkx widgets.
+
 =head2 Hello World with objects
 
 The windows and controls that make up a Tk interface are called
@@ -91,6 +109,8 @@ the application.
 The Tkx module provides the C<Tkx::widget> class, which can be
 used to hide the details of Tk path names from Tkx applications.
 This provide a more "perlish" way to create and manipulate Tk widgets.
+It also provide a convenient way to invoke subcommands (methods) on
+the widgets.
 
 Our "Hello, world" program can be rewritten like this using the
 C<Tkx::widget> class:
