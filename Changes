@@ -1,3 +1,17 @@
+2009-01-30   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.07
+
+     Tkx::widget now have a $w->_kids method
+
+     Tkx::MegaConfig now support option delegation to all its kids
+
+     The Tkx::LabEntry example now overide its Tkx class
+
+     Improved documentation
+
+
+
 2009-01-17   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.06

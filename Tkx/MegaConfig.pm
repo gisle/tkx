@@ -1,6 +1,7 @@
 package Tkx::MegaConfig;
 
 use strict;
+our $VERSION = "1.07";
 
 my %spec;
 
