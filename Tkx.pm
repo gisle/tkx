@@ -453,7 +453,7 @@ array is an Tkx::Ev() object, then the templates it contain will be
 expanded at the time of the calllback.  Some callback examples:
 
     Tkx::after(3000, sub { print "Hi" });
-    Tkx::button(".b", -command [\&Tkx::destroy, "."]);
+    Tkx::button(".b", -command => [\&Tkx::destroy, "."]);
     Tkx::bind(".", "<Key>", [sub { print "$_[0]\n"; }, Tkx::Ev("%A")]);
     Tkx::bind(".", "<Button-1>", [
        sub {
