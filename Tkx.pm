@@ -347,6 +347,8 @@ sub DoOneEvent {
 
 __END__
 
+=pod
+
 =head1 NAME
 
 Tkx - Yet another Tk interface
@@ -445,23 +447,68 @@ references, or scalar references.
 Array references are converted to Tcl lists.  The arrays can contain
 other plain scalars or array references to form nested lists.
 
-For Tcl APIs that require callbacks you can pass a reference to a Perl
-function.  Alternatively an array reference with a code reference as
-the first element, will allow the callback to receive the rest of the
-elements as arguments when invoked.  If the second element of the
-array is an Tkx::Ev() object, then the templates it contain will be
-expanded at the time of the calllback.  Some callback examples:
+For Tcl APIs that require callbacks you can provide a reference to a
+Perl subroutine:
 
     Tkx::after(3000, sub { print "Hi" });
+
+    $button = $w->new_button(
+        -text    => 'Press Me',
+        -command => \&foo,
+    );
+
+Alternately, you can provide an array reference containing a subroutine
+reference and a list of values to be passed to the subroutine as
+arguments when it is invoked:
+
     Tkx::button(".b", -command => [\&Tkx::destroy, "."]);
-    Tkx::bind(".", "<Key>", [sub { print "$_[0]\n"; }, Tkx::Ev("%A")]);
-    Tkx::bind(".", "<Button-1>", [
-       sub {
-           my($x, $y) = @_;
-           print "Clicked at $x $y\n";
-       },
-       Tkx::Ev("%x", "%y"),
+
+    $button = $w->new_button(
+        -text    => 'Press Me',
+        -command => [\&foo, 42],
+    );
+
+An additional option is to provide an array reference containing a
+widget and a method to invoke on it:
+
+    $text->configure(-yscrollcommand => [$scrollbar, 'set']);
+
+Once again, any additional elements included in the array will be passed
+as arguments to the method when it is invoked.
+
+When using the array reference syntax, if the I<second> element of the
+array (i.e. the first argument to the callback) is a Tkx::Ev() object
+the templates it contains will be expanded at the time of the callback.
+
+    Tkx::bind(".", "<Key>", [
+        sub { print "$_[0]\n"; }, Tkx::Ev("%A")
     ]);
+
+    $entry->configure(-validatecommand => [
+        \&check, Tkx::Ev('%P'), $entry,
+    ]);
+
+The order of the arguments to the callback code is as follows:
+
+=over
+
+=item 1
+
+Any arguments that the command/function is called with from the Tcl
+side. For example, in callbacks to scrollbars Tcl provides values
+corresponding to the visible portion of a scrollable widget. Tcl
+arguments are passed regardless of the syntax used when specifying the
+callback.
+
+=item 2
+
+The expanded results from Tkx::Ev(), if used.
+
+=item 3
+
+Any values provided by the user.
+
+=back
 
 For Tcl APIs that require variables to be passed, you might pass a
 reference to a Perl scalar.  The scalar will be watched and updated in
@@ -633,6 +680,11 @@ future extensions to this API.
 
 =back
 
+=head2 Subclassing Tk widgets
+
+You can't subclass a Tk widget in Perl, but you can emulate it by
+creating a megawidget.
+
 =head2 Megawidgets
 
 Megawidgets can be implemented in Perl and used by Tkx.  To declare a
@@ -664,16 +716,51 @@ The _Populate() class should create a root object with the given $path
 as name and populate it with the internal widgets.  Normally the root
 object will be forced to belong to the implementation class so that it
 can trap various method calls on it.  By using the _class() method to
-set class _Populate() can ensure that new handles to this megawidget
+set the class _Populate() can ensure that new handles to this megawidget
 also use this class.
 
-The implementation class can define an _mpath() method to delegate any
-m_I<foo> method calls to one of its subwidgets and it might want to
-override the m_configure() and m_cget() methods if it implements
-additional options or want more control over delegation.  The class
-C<Tkx::MegaConfig> provide implementations of m_configure() and
-m_cget() that can be useful for controlling delegation of
-configuration options.
+To make Tk aware of your megawidget you must register it by providing a
+C<-class> argument when creating the root widget. Doing this sets the
+value returned by the C<< $w->g_winfo_class >> method. It also makes it
+possible for your megawidget to have to have class-specific bindings and
+be configurable via Xdefaults and the options database. By convention
+class names start with a capital letter, so Tkx megawidgets should have
+names like "Tkx_Foo". If you don't register your megawidget with Tk,
+C<g_winfo_class> will return the class of whatever you use as a root
+widget and your megawidget will be subject to the bindings for that
+class.
+
+Of the standard Tk widgets only frames support C<-class> which means
+that (practically speaking) Tkx megawidgets must use a frame as the root
+widget. The ttk widgets do support C<-class>, so you may be able to
+dispense with the frame if your megawidget is really just subclassing
+one of them.
+
+The implementation class can (and probably should) define an _mpath()
+method to delegate any m_I<foo> method calls to one of its subwidgets.
+It might want to override the m_configure() and m_cget() methods if it
+implements additional options or wants more control over delegation. The
+class C<Tkx::MegaConfig> provide implementations of m_configure() and
+m_cget() that can be useful for controlling delegation of configuration
+options.
+
+Public methods defined by a megawidget should have an "m_" prefix. This
+serves two purposes:
+
+=over
+
+=item
+
+It makes them behave the same as native widget methods. That is, they
+may be called either with or without the "m_" prefix as the user of the
+widget prefers.
+
+=item
+
+It enables the megawidget to accept method delegation from another
+widget via the parent widget's _mpath() method.
+
+=back
 
 See L<Tkx::LabEntry> for a trivial example megawidget.
 
@@ -717,3 +804,5 @@ If you are using ActivePerl see L<Tcl::tkkit> to figure out what
 version of Tcl/Tk you get and the selection of extra widget packages.
 You need to set the C<PERL_TCL_DL_PATH> environment variable to make
 Tkx reference other Tcl installations.
+
+=cut
