@@ -494,19 +494,21 @@ The order of the arguments to the callback code is as follows:
 
 =item 1
 
+The expanded results from Tkx::Ev(), if used.
+
+=item 2
+
 Any arguments that the command/function is called with from the Tcl
 side. For example, in callbacks to scrollbars Tcl provides values
 corresponding to the visible portion of a scrollable widget. Tcl
 arguments are passed regardless of the syntax used when specifying the
 callback.
 
-=item 2
-
-The expanded results from Tkx::Ev(), if used.
 
 =item 3
 
-Any values provided by the user.
+Any extra values provided when the callback defined; the values passed after
+the Tkx::Ev() object in the array.
 
 =back
 
