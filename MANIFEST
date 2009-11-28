@@ -8,6 +8,7 @@ t/mega.t
 t/mega-config.t
 t/nul-char.t
 t/tcl.t
+t/tcl-callback.t
 t/tk.t
 t/utf8.t
 tkx-ed
