@@ -5,8 +5,8 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME => "Tkx",
-    VERSION_FROM => 'Tkx.pm',
-    ABSTRACT_FROM => 'Tkx.pm',
+    VERSION_FROM => 'lib/Tkx.pm',
+    ABSTRACT_FROM => 'lib/Tkx.pm',
     PREREQ_PM => {
 	Tcl => 0.98,
     },

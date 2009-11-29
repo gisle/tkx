@@ -13,7 +13,7 @@ t/tk.t
 t/utf8.t
 tkx-ed
 tkx-prove
-Tkx.pm
-Tkx/LabEntry.pm
-Tkx/MegaConfig.pm
-Tkx/Tutorial.pod
+lib/Tkx.pm
+lib/Tkx/LabEntry.pm
+lib/Tkx/MegaConfig.pm
+lib/Tkx/Tutorial.pod
