@@ -377,9 +377,41 @@ This is the "reference manual" for Tkx. For a gentle introduction please
 read the L<Tkx::Tutorial>.  The tutorial at
 L<http://www.tkdocs.com/tutorial/> is also strongly recommened.
 
+=head2 Functions
+
 The following functions are provided:
 
 =over
+
+=item Tkx::AUTOLOAD( @args )
+
+All calls into the C<< Tkx:: >> namespace not explictly listed here are trapped
+by Perl's AUTOLOAD mechanism and turned into a call of the corresponding Tcl
+command.  The Tcl string result is returned in both scalar and array context.
+Tcl errors are propagated as Perl exceptions.
+
+For example:
+
+    $res = Tkx::expr("3 + 3")
+
+This will call the Tcl command C<expr> passing it the argument C<"3 + 3"> and
+return the result back to Perl.  The value of C<$res> after this call should be C<6>.
+
+The exact rules for mapping functions names into the Tcl name space and the details
+of passing arguments to Tcl is described in L</"Calling Tcl and Tk Commands"> below.
+
+Don't call Tkx::AUTOLOAD() directly yourself.
+
+=item Tkx::Ev( $field, ... )
+
+This creates an object that if passed as the first argument to a callback will
+expand the corresponding Tcl template substitutions in the context of that
+callback.  The description of L</"Callbacks to Perl"> below explain how callback
+arguments are provided.
+
+The $field should be a string like "%A" or "%x". The available
+substitutions are described in the Tcl documentation for the C<bind>
+command.
 
 =item Tkx::MainLoop( )
 
@@ -387,41 +419,45 @@ This will enter the Tk mainloop and start processing events.  The
 function returns when the main window has been destroyed.  There is no
 return value.
 
-=item Tkx::Ev( $field, ... )
-
-This creates an object that if passed as the first argument to a
-callback will expand the corresponding Tcl template substitutions in
-the context of that callback.  The description of Tkx::I<foo> below
-explain how callback arguments are provided.
-
-The $field should be a string like "%A" or "%x". The available
-substitutions are described in the Tcl documentation for the C<bind>
-command.
-
 =item Tkx::SplitList( $list )
 
 This will split up a Tcl list into Perl list.  The individual elements
 of the list are returned as separate elements:
 
-    @a = Tkx::SplitList(Tkx::set("a"));
+    @a = Tkx::SplitList("a {b c}");
+    # @a is now ("a", "b c")
 
 This function will croak if the argument is not a well formed list or if
 called in scalar context.
 
-=item Tkx::I<foo>( @args )
+=back
 
-Any other function will invoke the I<foo> Tcl function with the given
-arguments.  The name I<foo> first undergo the following substitutions
-of embedded underlines:
+All these functions can be exported by Tkx if you grow tired of typing
+the C<Tkx::> prefix.  Example:
+
+    use strict;
+    use Tkx qw(MainLoop button pack destroy);
+
+    pack(button(".b", -text => "Press me!", -command => [\&destroy, "."]));
+    MainLoop;
+
+No functions are exported by default.
+
+=head2 Calling Tcl and Tk Commands
+
+Tcl (and Tk) commands are easily invoked by calling the corresponding function
+in the Tkx:: namespace.  Calling the function C<< Tkx::expr() >> will invoke the
+C<< expr >> command on the Tcl side.  Function names containing underlines are a bit
+special.  The name passed from the Perl side undergo the following
+substitutions:
 
     foo_bar   --> "foo", "bar"   # break into words
     foo__bar  --> "foo::bar"     # access namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
-This allow us conveniently to map the Tcl namespace to Perl.
-If this mapping does not suit you, use C<< Tkx::i::call($func, @args)
->>.  This will invoke the function named by $func with no name
-substitutions or magic.
+This allow us conveniently to map the Tcl namespace to Perl.  If this mapping
+does not suit you, an alternative is to use C<< Tkx::i::call($cmd, @args) >>.
+This will invoke the command named by $cmd with no name substitutions or magic.
 
 Examples:
 
@@ -432,20 +468,58 @@ Examples:
     if (Tkx::tk___messageBox( ... ) eq "yes") { ... }
 
 One part of the Tcl namespace that is not conveniently mapped to Perl
-in this way are commands that use "." as part of their name, mostly Tk
+using the rules above are commands that use "." as part of their name, mostly Tk
 widget instances.  If you insist you can invoke these by quoting the
 Perl function name
 
     &{"Tkx::._configure"}(-background => "black");
 
-but the real solution is to use C<Tkx::widget> to wrap these as
-described below.
+or by invoking this as C<< Tkx::i::call(".", "configure", "-background",
+"black") >>; but the real solution is to use C<Tkx::widget> objects to wrap
+these as described in L</"Widget handles"> below.
 
-The arguments passed can be plain scalars, array references, code
+=head3 Passing arguments
+
+The arguments passed to Tcl can be plain scalars, array references, code
 references, or scalar references.
 
-Array references are converted to Tcl lists.  The arrays can contain
-other plain scalars or array references to form nested lists.
+Plain scalars (strings and numbers) as just passed on unchanged to Tcl.
+
+Arrays, where the first element is not a code reference, are converted into Tcl
+lists and passed on.  The arrays can contain strings, numbers, and/or array
+references to form nested lists.
+
+Code references, and arrays where the first element is a code reference, are
+converted into special Tcl command names in the "::perl" Tcl namespace that
+will call back into the corresponding Perl function when invoked from Tcl.  See
+L</"Callbacks to Perl"> for a description how how this is used.
+
+Scalar references are converted into special Tcl variables in the "::perl" Tcl
+namespace that is tied to the corresponding variable on the Perl side.
+Any changes to the variable on the Perl side will be reflected in the value
+on the Tcl side.  Any changes to the variable on the Tcl side will be reflected
+in the value on the Perl side.
+
+Anything else will just be converted to strings using the Perl rules for
+stringification and passed on to Tcl.
+
+=head3 Tracing
+
+If the boolean variable $Tkx::TRACE is set to a true value, then a
+trace of all commands passed to Tcl will be printed on STDERR.  This
+variable is initialized from the C<PERL_TKX_TRACE> environment
+variable.  The trace is useful for debugging and if you need to report
+errors to the Tcl maintainers in terms of Tcl statements.  The trace
+lines are prefixed with:
+
+    Tkx-$seq-$ts-$file-$line:
+
+where C<$seq> is a sequence number, C<$ts> is a timestamp in seconds since
+the first command was issued, and C<$file> and C<$line> indicate on which
+source line this call was triggered.
+
+
+=head2 Callbacks to Perl
 
 For Tcl APIs that require callbacks you can provide a reference to a
 Perl subroutine:
@@ -511,39 +585,6 @@ Any extra values provided when the callback defined; the values passed after
 the Tkx::Ev() object in the array.
 
 =back
-
-For Tcl APIs that require variables to be passed, you might pass a
-reference to a Perl scalar.  The scalar will be watched and updated in
-the same way as the Tcl variable would.
-
-The Tcl string result is returned in both scalar and array context.
-Tcl errors are propagated as Perl exceptions.
-
-If the boolean variable $Tkx::TRACE is set to a true value, then a
-trace of all commands passed to Tcl will be printed on STDERR.  This
-variable is initialized from the C<PERL_TKX_TRACE> environment
-variable.  The trace is useful for debugging and if you need to report
-errors to the Tcl maintainers in terms of Tcl statements.  The trace
-lines are prefixed with:
-
-    Tkx-$seq-$ts-$file-$line:
-
-where $seq is a sequence number, $ts is a timestamp in seconds since
-the first command was issued, and $file and $line indicate on which
-source line this call was triggered.
-
-=back
-
-All these functions can be exported by Tkx if you grow tired of typing
-the C<Tkx::> prefix.  Example:
-
-    use strict;
-    use Tkx qw(MainLoop button pack destroy);
-
-    pack(button(".b", -text => "Press me!", -command => [\&destroy, "."]));
-    MainLoop;
-
-No functions are exported by default.
 
 =head2 Widget handles
 
