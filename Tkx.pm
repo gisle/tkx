@@ -386,9 +386,9 @@ The following functions are provided:
 =item Tkx::AUTOLOAD( @args )
 
 All calls into the C<< Tkx:: >> namespace not explictly listed here are trapped
-by Perl's AUTOLOAD mechanism and turned into a call of the corresponding Tcl
-command.  The Tcl string result is returned in both scalar and array context.
-Tcl errors are propagated as Perl exceptions.
+by Perl's AUTOLOAD mechanism and turned into a call of the corresponding Tcl or
+Tk command.  The Tcl string result is returned as a single value in both scalar
+and list context.  Tcl errors are propagated as Perl exceptions.
 
 For example:
 
@@ -397,21 +397,26 @@ For example:
 This will call the Tcl command C<expr> passing it the argument C<"3 + 3"> and
 return the result back to Perl.  The value of C<$res> after this call should be C<6>.
 
-The exact rules for mapping functions names into the Tcl name space and the details
-of passing arguments to Tcl is described in L</"Calling Tcl and Tk Commands"> below.
+The exact rules for mapping functions names into the Tcl name space and the
+details of passing arguments to Tcl is described in L</"Calling Tcl and Tk
+Commands"> below.
 
 Don't call Tkx::AUTOLOAD() directly yourself.
 
+The available Tcl commands are documented at
+L<http://www.tcl.tk/man/tcl/TclCmd/contents.htm>.  The availale Tk commands are
+documented at L<http://www.tcl.tk/man/tcl/TkCmd/contents.htm>.
+
 =item Tkx::Ev( $field, ... )
 
-This creates an object that if passed as the first argument to a callback will
+This creates an object that if set up as the first argument to a callback will
 expand the corresponding Tcl template substitutions in the context of that
-callback.  The description of L</"Callbacks to Perl"> below explain how callback
+callback.  L</"Callbacks to Perl"> below explain how callback
 arguments are provided.
 
 The $field should be a string like "%A" or "%x". The available
 substitutions are described in the Tcl documentation for the C<bind>
-command.
+command; see L<http://www.tcl.tk/man/tcl/TkCmd/bind.htm>.
 
 =item Tkx::MainLoop( )
 
@@ -421,19 +426,36 @@ return value.
 
 =item Tkx::SplitList( $list )
 
-This will split up a Tcl list into Perl list.  The individual elements
-of the list are returned as separate elements:
+This will split up a Tcl list into a Perl list.  The individual elements of the
+list are returned as separate elements.  This function will croak if the
+argument is not a well formed list or if called in scalar context.
 
-    @a = Tkx::SplitList("a {b c}");
-    # @a is now ("a", "b c")
+Example:
 
-This function will croak if the argument is not a well formed list or if
-called in scalar context.
+
+    my @list = Tkx::SplitList("a {b c}");
+    # @list is now ("a", "b c")
+
+This function is needed because direct calls Tcl don't expand lists even if
+called in list context, so if you want to process the elements returned
+as a Tcl list you need to wrap the call in a call to SplitList:
+
+    for my $file (Tkx::SplitList(Tkx::glob('*.pm'))) {
+	# ...
+    }
+
+Since Perl also have a built in glob function there is no need to actually
+let Tcl do the globbing for you.  The example above is purely educational.
+
+The Tkx::list() function would invoke the Tcl command that does the reverse
+operation -- creating a list from the arguments passed in. You seldom need to
+call Tkx::list() explictly as arrays are automatically converted to Tcl lists
+when passed as arguments to Tcl commands.
 
 =back
 
-All these functions can be exported by Tkx if you grow tired of typing
-the C<Tkx::> prefix.  Example:
+All these functions, even the autoloaded ones, can be exported by Tkx if you
+grow tired of typing the C<Tkx::> prefix.  Example:
 
     use strict;
     use Tkx qw(MainLoop button pack destroy);
@@ -445,19 +467,19 @@ No functions are exported by default.
 
 =head2 Calling Tcl and Tk Commands
 
-Tcl (and Tk) commands are easily invoked by calling the corresponding function
+Tcl and Tk commands are easily invoked by calling the corresponding function
 in the Tkx:: namespace.  Calling the function C<< Tkx::expr() >> will invoke the
 C<< expr >> command on the Tcl side.  Function names containing underlines are a bit
 special.  The name passed from the Perl side undergo the following
 substitutions:
 
     foo_bar   --> "foo", "bar"   # break into words
-    foo__bar  --> "foo::bar"     # access namespaces
+    foo__bar  --> "foo::bar"     # access Tcl namespaces
     foo___bar --> "foo_bar"      # when you actually need a '_'
 
 This allow us conveniently to map the Tcl namespace to Perl.  If this mapping
 does not suit you, an alternative is to use C<< Tkx::i::call($cmd, @args) >>.
-This will invoke the command named by $cmd with no name substitutions or magic.
+This will invoke the command named by <$cmd> with no name substitutions or magic.
 
 Examples:
 
@@ -509,7 +531,7 @@ If the boolean variable $Tkx::TRACE is set to a true value, then a
 trace of all commands passed to Tcl will be printed on STDERR.  This
 variable is initialized from the C<PERL_TKX_TRACE> environment
 variable.  The trace is useful for debugging and if you need to report
-errors to the Tcl maintainers in terms of Tcl statements.  The trace
+errors to the Tcl/Tk maintainers in terms of Tcl statements.  The trace
 lines are prefixed with:
 
     Tkx-$seq-$ts-$file-$line:
@@ -532,7 +554,7 @@ Perl subroutine:
     );
 
 Alternately, you can provide an array reference containing a subroutine
-reference and a list of values to be passed to the subroutine as
+reference and a list of values to be passed back to the subroutine as
 arguments when it is invoked:
 
     Tkx::button(".b", -command => [\&Tkx::destroy, "."]);
@@ -541,14 +563,6 @@ arguments when it is invoked:
         -text    => 'Press Me',
         -command => [\&foo, 42],
     );
-
-An additional option is to provide an array reference containing a
-widget and a method to invoke on it:
-
-    $text->configure(-yscrollcommand => [$scrollbar, 'set']);
-
-Once again, any additional elements included in the array will be passed
-as arguments to the method when it is invoked.
 
 When using the array reference syntax, if the I<second> element of the
 array (i.e. the first argument to the callback) is a Tkx::Ev() object
@@ -562,7 +576,7 @@ the templates it contains will be expanded at the time of the callback.
         \&check, Tkx::Ev('%P'), $entry,
     ]);
 
-The order of the arguments to the callback code is as follows:
+The order of the arguments to the Perl callback code is as follows:
 
 =over
 
@@ -595,16 +609,11 @@ The following methods are provided:
 
 =over
 
-=item Tkx::widget->_Mega( $widget, $class )
-
-This register $class as the one implementing $widget widgets.  See
-L</Megawidgets>.
-
 =item $w = Tkx::widget->new( $path )
 
 This constructs a new widget handle for a given path.  It is not a
 problem to have multiple handle objects to the same path or to create
-handles for paths that does not exist yet.
+handles for paths that do not yet exist.
 
 =item $w->_data
 
@@ -659,18 +668,18 @@ this method.  The default implementation always returns C<$w>.
 This creates a new I<foo> widget as a child of the current widget.  It
 will call the I<foo> Tcl command and pass it a new unique subpath of
 the current path.  The handle to the new widget is returned.  Any
-double underscores in the name I<foo> is expanded as described for
-Tkx::foo() above.
+double underscores in the name I<foo> is expanded as described in
+L</"Calling Tcl and Tk Commands"> above.
 
 Example:
 
     $w->new_label(-text => "Hello", -relief => "sunken");
 
-The name selected for the child will be the first letter in the
-widget.  If that name is not unique a number is appended to ensure
-uniqueness among the children.  If a C<-name> argument is passed it is
-used to form the name and then removed from the arglist passed to Tcl.
-Example:
+The name selected for the child will be the first letter of the widget type;
+for the example above "l".  If that name is not unique a number is
+appended to ensure uniqueness among the children.  If a C<-name> argument is
+passed it is used as the name and then removed from the arglist passed on to
+Tcl.  Example:
 
     $w->new_iwidgets__calendar(-name => "cal");
 
@@ -686,8 +695,8 @@ is the same as:
     $func = "Tkx::$w";
     &$func(expand("foo"), @args);
 
-where the expand() function expands underscores as described for
-Tkx::foo() above.
+where the expand() function expands underscores as described in
+L</"Calling Tcl and Tk Commands"> above.
 
 Example:
 
@@ -704,8 +713,8 @@ first argument.  This is the same as:
     $func = "Tkx::foo";
     &$func($w, @args);
 
-Any underscores in the name I<foo> are expanded as described for
-Tkx::foo() above.
+Any underscores in the name I<foo> are expanded as described in
+L</"Calling Tcl and Tk Commands"> above.
 
 Example:
 
@@ -714,12 +723,17 @@ Example:
 =item $w->I<foo>( @args )
 
 If the method does not start with "new_" or have a prefix of the form
-/^_/ or /^[a-zA-Z]_/, will just forward to the method "m_I<foo>"
+/^_/ or /^[a-zA-Z]_/, the call will just forward to the method "m_I<foo>"
 (described above).  This is just a convenience for people that have
 grown tired of the "m_" prefix.
 
 The method names with prefix /^_/ and /^[a-zA-Z]_/ are reserved for
 future extensions to this API.
+
+=item Tkx::widget->_Mega( $widget, $class )
+
+This register $class as the one implementing $widget widgets.  See
+L</Megawidgets>.
 
 =back
 
@@ -792,13 +806,13 @@ serves two purposes:
 
 =over
 
-=item
+=item *
 
 It makes them behave the same as native widget methods. That is, they
 may be called either with or without the "m_" prefix as the user of the
 widget prefers.
 
-=item
+=item *
 
 It enables the megawidget to accept method delegation from another
 widget via the parent widget's _mpath() method.
@@ -841,11 +855,10 @@ The official source repository for Tkx is L<http://github.com/gisle/tkx/>.
 
 Alternative Tk bindings for Perl are described in L<Tcl::Tk> and L<Tk>.
 
-ActivePerl bundles a Tcl interpreter and a selection of Tk widgets
-from ActiveTcl in order to provide a functional Tkx module out-of-box.
-If you are using ActivePerl see L<Tcl::tkkit> to figure out what
-version of Tcl/Tk you get and the selection of extra widget packages.
-You need to set the C<PERL_TCL_DL_PATH> environment variable to make
-Tkx reference other Tcl installations.
+ActivePerl bundles a Tcl interpreter and a selection of Tk widgets from
+ActiveTcl in order to provide a functional Tkx module out-of-box.
+L<Tcl::tkkit> documents the version of Tcl/Tk you get and whats available in
+addition to the core commands. You need to set the C<PERL_TCL_DL_PATH>
+environment variable to make Tkx reference other Tcl installations.
 
 =cut
