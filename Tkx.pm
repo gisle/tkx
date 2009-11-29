@@ -479,7 +479,7 @@ substitutions:
 
 This allow us conveniently to map the Tcl namespace to Perl.  If this mapping
 does not suit you, an alternative is to use C<< Tkx::i::call($cmd, @args) >>.
-This will invoke the command named by <$cmd> with no name substitutions or magic.
+This will invoke the command named by C<$cmd> with no name substitutions or magic.
 
 Examples:
 
