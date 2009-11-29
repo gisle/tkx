@@ -1,3 +1,13 @@
+2009-11-29   Gisle Aas <gisle@ActiveState.com>
+
+     Release 1.08
+
+     Improved documentation
+
+     Add callback test and made Tcl-0.98 a prereq
+
+
+
 2009-01-30   Gisle Aas <gisle@ActiveState.com>
 
      Release 1.07
