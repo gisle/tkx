@@ -375,7 +375,7 @@ the Tcl/Tk documentation with no surprises added by the Perl layer.
 
 This is the "reference manual" for Tkx. For a gentle introduction please
 read the L<Tkx::Tutorial>.  The tutorial at
-L<http://www.tkdocs.com/tutorial/> is also strongly recommened.
+L<http://www.tkdocs.com/tutorial/> is also strongly recommended.
 
 =head2 Functions
 
@@ -385,7 +385,7 @@ The following functions are provided:
 
 =item Tkx::AUTOLOAD( @args )
 
-All calls into the C<< Tkx:: >> namespace not explictly listed here are trapped
+All calls into the C<< Tkx:: >> namespace not explicitly listed here are trapped
 by Perl's AUTOLOAD mechanism and turned into a call of the corresponding Tcl or
 Tk command.  The Tcl string result is returned as a single value in both scalar
 and list context.  Tcl errors are propagated as Perl exceptions.
@@ -404,7 +404,7 @@ Commands"> below.
 Don't call Tkx::AUTOLOAD() directly yourself.
 
 The available Tcl commands are documented at
-L<http://www.tcl.tk/man/tcl/TclCmd/contents.htm>.  The availale Tk commands are
+L<http://www.tcl.tk/man/tcl/TclCmd/contents.htm>.  The available Tk commands are
 documented at L<http://www.tcl.tk/man/tcl/TkCmd/contents.htm>.
 
 =item Tkx::Ev( $field, ... )
@@ -449,7 +449,7 @@ let Tcl do the globbing for you.  The example above is purely educational.
 
 The Tkx::list() function would invoke the Tcl command that does the reverse
 operation -- creating a list from the arguments passed in. You seldom need to
-call Tkx::list() explictly as arrays are automatically converted to Tcl lists
+call Tkx::list() explicitly as arrays are automatically converted to Tcl lists
 when passed as arguments to Tcl commands.
 
 =back
