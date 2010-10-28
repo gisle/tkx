@@ -20,3 +20,4 @@ my $t = $mw->new_table(
 );
 $t->g_pack(-fill => 'both', -expand => 1);
 Tkx::MainLoop();
+use Data::Dump; dd \%hash;
