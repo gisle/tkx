@@ -8,9 +8,9 @@ my $mw = Tkx::widget->new(".");
 my %hash;
 tie %hash, 'Tcl::Var', Tkx::i::interp(), "myarray";
 %hash = ( # data to display
-  '1,1' => 'Goodby',
-  '2,2' => 'cruel',
-  '3,3' => 'world',
+  '0,0' => 'Goodby',
+  '1,1' => 'cruel',
+  '2,2' => 'world',
 );
 my $t = $mw->new_table(
     -rows => 5,
