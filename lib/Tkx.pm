@@ -224,6 +224,10 @@ BEGIN {
     $interp->Init;
 }
 
+sub interp {
+    return $interp;
+}
+
 sub expand_name {
     my(@f) = (shift);
     @f = split(/(?<!_)_(?!_)/, $f[0]) if wantarray;
