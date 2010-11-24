@@ -8,7 +8,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/Tkx.pm',
     ABSTRACT_FROM => 'lib/Tkx.pm',
     PREREQ_PM => {
-	Tcl => 0.98,
+	Tcl => 1.00,
     },
     AUTHOR => 'Gisle Aas <gisle@activestate.com>',
     EXE_FILES => [qw(tkx-ed tkx-prove)],

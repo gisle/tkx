@@ -507,11 +507,11 @@ these as described in L</"Widget handles"> below.
 =head3 Passing arguments
 
 The arguments passed to Tcl can be plain scalars, array references, code
-references, or scalar references.
+references, scalar references, or hash references.
 
 Plain scalars (strings and numbers) as just passed on unchanged to Tcl.
 
-Arrays, where the first element is not a code reference, are converted into Tcl
+Array references, where the first element is not a code reference, are converted into Tcl
 lists and passed on.  The arrays can contain strings, numbers, and/or array
 references to form nested lists.
 
@@ -525,6 +525,11 @@ namespace that is tied to the corresponding variable on the Perl side.
 Any changes to the variable on the Perl side will be reflected in the value
 on the Tcl side.  Any changes to the variable on the Tcl side will be reflected
 in the value on the Perl side.
+
+Hash references are converted into special Tcl array variables in the "::perl" Tcl
+namespace that is tied to the corresponding hash on the Perl side.  Any changes to
+the hash on the Perl side will be reflected in the array on the Tcl side. Any
+changes to the array on the Tcl side will be reflected in the hash on the Perl side.
 
 Anything else will just be converted to strings using the Perl rules for
 stringification and passed on to Tcl.
