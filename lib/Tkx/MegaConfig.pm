@@ -121,7 +121,7 @@ argument.
 
 An option argument is either the name of an option with leading '-'
 or the string 'DEFAULT' if this spec applies to all option with no
-explict spec.
+explicit spec.
 
 If there is no 'DEFAULT' then unmatched options are applied directly
 to the megawidget root itself.  This is the same behaviour you get if
@@ -135,7 +135,7 @@ you specify:
 The option spec should be an array reference.  The first element of
 the array ($where) describe how this option is handled.  Some $where
 specs take arguments.  If you need to provide argument replace $where
-with an array reference containg [$where, @args].  The rest of the
+with an array reference containing [$where, @args].  The rest of the
 option spec specify names and default for the options database, but is
 currently ignored (feature unimplemented).
 
@@ -151,7 +151,7 @@ root itself.  The name ".*" can be used to delegate to all kids of the
 megawidget root.
 
 An argument can be given to delegate using a different
-configuration name name on the "foo" widget.  Examples:
+configuration name on the "foo" widget.  Examples:
 
    -foo => [".inner"],                 # forward -foo
    -bg  => [[".", "-background]],      # alias

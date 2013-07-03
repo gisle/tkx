@@ -145,7 +145,7 @@ In the end the MainLoop is invoked as before.
 
 For trivial programs like the one above, using C<Tkx::widget> wrappers
 does not appear to be very helpful, but as the application grows and the
-Tk path names get longer, the advantage is more noticable.
+Tk path names get longer, the advantage is more noticeable.
 
 =head2 Hello World expanded
 
@@ -415,7 +415,7 @@ at L<http://aspn.activestate.com/ASPN/docs/ActiveTcl/at.pkg_index.html>.
 Additional commands can be loaded from Tcl packages.  Once loaded, new
 commands show up in the C<Tkx::> namespace.  This example loads the
 "Tktable" package in order to make the C<table> command available for
-createing I<table> widgets:
+creating I<table> widgets:
 
     use Tkx;
     Tkx::package_require("Tktable");

@@ -518,7 +518,7 @@ references to form nested lists.
 Code references, and arrays where the first element is a code reference, are
 converted into special Tcl command names in the "::perl" Tcl namespace that
 will call back into the corresponding Perl function when invoked from Tcl.  See
-L</"Callbacks to Perl"> for a description how how this is used.
+L</"Callbacks to Perl"> for a description how this is used.
 
 Scalar references are converted into special Tcl variables in the "::perl" Tcl
 namespace that is tied to the corresponding variable on the Perl side.
